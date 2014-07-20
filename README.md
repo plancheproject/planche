@@ -3,8 +3,9 @@ planche
 
 MySQL GUI client tool based on ExtJS
 
-
 플란체는 ExtJS 기반의 MySQL Client 툴입니다. 현재는 개발중인 버전으로 실제 제대로 동작하지 않습니다.
+
+또한 오픈 소스 운영은 처음 해보는 것이기 때문에 여러모로 표기해야 할 부분이나 그런것들이 미숙합니다. 부족한 내용은 지속적으로 채워 나갈 예정입니다.
 
 현재 플란체를 가지고 "단순히" 할 수 있는 것들..
 
@@ -12,3 +13,9 @@ MySQL GUI client tool based on ExtJS
 2. 컬럼 조회
 2. 쿼리 수행
 3. 프로시져 생성 
+
+해당 프로젝트는 다음의 자바스크립트 프레임워크를 포함하여 개발 되었습니다.
+
+1. CodeMirror
+2. Sencha ExtJS 4
+
