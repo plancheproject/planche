@@ -115,6 +115,10 @@ Ext.define('Planche.controller.menu.File', {
                 }
 
                 return false;
+            },
+            handler : function(){
+
+                this.closeActiveConnectionTab();
             }
         },{
             text : 'Disconnect All',
@@ -129,6 +133,17 @@ Ext.define('Planche.controller.menu.File', {
                 }
 
                 return false;
+            },
+            handler : function(){
+
+                var tab = this.getMainTab();
+
+                var connections = tab.query('>>tab');
+                debugger;
+                Ext.Array.each(connections, function(tab, idx){
+
+                    tab.destroy();
+                });
             }
         }]);
 

@@ -313,6 +313,14 @@ Ext.application({
 		return tab;
     },
 
+  	closeActiveConnectionTab : function(){
+
+  		var tab = this.getActiveMainTab();
+  		if(!tab) return;
+
+  		tab.destroy();
+  	},
+
     initSchemeTree : function(host){
 
         return {
