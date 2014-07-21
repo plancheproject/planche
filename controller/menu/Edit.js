@@ -4,28 +4,35 @@ Ext.define('Planche.controller.menu.Edit', {
     add : function(topBtn){
 
         topBtn.menu.add([{
-            text : 'New Connection Using Current Setting',
-            disable : function(){
-
-                return false;
-            }
+            text : 'Refresh Object Browser'
         },{
-            text : 'New Connection'
+            text : 'Excute Query'
+        },
+        '-'
+        ,{
+            text : 'SQL Formatter'
+        },
+        '-'
+        ,{
+            text : 'Undo'
         },{
-            text : 'New Query Editor'
+            text : 'Redo'
+        },
+        '-'
+        ,{
+            text : 'Cut'
         },{
-            text : 'Close Tab',
-            disable : function(){
-
-                console.log('sdf');
-                return false;
-            }
+            text : 'Copy'
         },{
-            text : 'Close Other Tabs'
+            text : 'Paste'
+        },
+        '-'
+        ,{
+            text : 'Find'
         },{
-            text : 'Disconnect'
+            text : 'Find Next'
         },{
-            text : 'Disconnect All'
+            text : 'Replace'
         }]);
 
         this.added = true;
