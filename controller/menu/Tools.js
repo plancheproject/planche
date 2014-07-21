@@ -5,7 +5,7 @@ Ext.define('Planche.controller.menu.Tools', {
 
         topBtn.menu.add([{
             text : '..',
-        ]);
+        }]);
 
         this.added = true;
     },
