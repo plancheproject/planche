@@ -8,9 +8,7 @@ Ext.define('Planche.controller.menu.File', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-
-                if(!actMainTab){
+                if(!this.getActiveMainTab()){
 
                     return true;
                 }
@@ -33,9 +31,7 @@ Ext.define('Planche.controller.menu.File', {
             },
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-
-                if(!actMainTab){
+                if(!this.getActiveMainTab()){
 
                     return true;
                 }
@@ -52,10 +48,7 @@ Ext.define('Planche.controller.menu.File', {
             },
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-                var actSubTab = this.getActiveSubTab();
-
-                if(!actMainTab || !actSubTab){
+                if(!this.getActiveSubTab()){
 
                     return true;
                 }
@@ -85,10 +78,7 @@ Ext.define('Planche.controller.menu.File', {
             },
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-                var actSubTab = this.getActiveSubTab();
-
-                if(!actMainTab || !actSubTab){
+                if(!this.getActiveSubTab()){
 
                     return true;
                 }
@@ -107,9 +97,7 @@ Ext.define('Planche.controller.menu.File', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-
-                if(!actMainTab){
+                if(!this.getActiveMainTab()){
 
                     return true;
                 }
@@ -125,9 +113,7 @@ Ext.define('Planche.controller.menu.File', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                var actMainTab = this.getActiveMainTab();
-
-                if(!actMainTab){
+                if(!this.getActiveMainTab()){
 
                     return true;
                 }
@@ -136,10 +122,7 @@ Ext.define('Planche.controller.menu.File', {
             },
             handler : function(){
 
-                var tab = this.getMainTab();
-
-                var connections = tab.query('>>tab');
-                debugger;
+                var connections = this.getMainTab().query('>>tab');
                 Ext.Array.each(connections, function(tab, idx){
 
                     tab.destroy();
