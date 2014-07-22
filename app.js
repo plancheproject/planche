@@ -477,6 +477,9 @@ Ext.application({
         	if(typeof cmd == 'undefined'){ cmd = ''; }
 	
         	var textRows = grid.down('text[text=Total]').next();
+       		var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
+
+       		var refreshPerSec = parseInt(textRefreshPerSec.getValue(), 10);
 
         	textRows.setText('0');
         	
@@ -490,6 +493,11 @@ Ext.application({
 			        var data = this.makeRecords(scheme, response.records);				
 	    			grid.store.loadData(data);
 	    			grid.setLoading(false);
+
+	    			if(refreshPerSec > 0){
+
+	    				setTimeout(loadRecord, refreshPerSec * 1000);
+	    			}
 	    		}
 	    	});
 
@@ -595,9 +603,8 @@ Ext.application({
 					specialkey: function (field, el) {
 
 						if (el.getKey() == Ext.EventObject.ENTER){
-							
-							queryObj.start = parseInt(field.getValue(), 10);
-							
+
+							loadRecord();
 						}
               		}
               	}},
@@ -1042,10 +1049,7 @@ Ext.application({
         		handler : function(){
 
 					var node = this.getSelectedNode();
-					console.log('start');
-        			this.pasteSQLStatement('insert', node);
-        			console.log('end');
-
+					this.pasteSQLStatement('insert', node);
         		}
 			},{
         		text: 'UPDATE &lt;Table Name&gt; SET..',
@@ -2325,7 +2329,7 @@ Ext.application({
 		            a.push('`'+row[0]+'`');
 		            b.push('\''+row[0]+'\'');
 		        });
-		        return this.getEngine().getQuery('TABLE_INSERT', db, table, a.join(','), b.join(','));
+		        return this.getEngine().getQuery('INSERT_TABLE', db, table, a.join(','), b.join(','));
         	}, this),
         	update : Ext.Function.bind(function(records){
 
@@ -2334,7 +2338,7 @@ Ext.application({
 		            a.push('`'+row[0]+'`=\''+row[0]+'\'');
 		            if(row[3] == "PRI"){ b.push('`'+row[0]+'`=\''+row[0]+'\''); }
 		        });
-		        return this.getEngine().getQuery('TABLE_UPDATE', db, table, a.join(',\n'), b.join(' AND '));
+		        return this.getEngine().getQuery('UPDATE_TABLE', db, table, a.join(',\n'), b.join(' AND '));
         	}, this),
         	delete : Ext.Function.bind(function(records){
 
@@ -2342,7 +2346,7 @@ Ext.application({
 
 		            if(row[3] == "PRI"){ a.push('`'+row[0]+'`=\''+row[0]+'\''); }
 		        });
-		        return this.getEngine().getQuery('TABLE_DELETE', db, table, a.join(' AND '));
+		        return this.getEngine().getQuery('DELETE_TABLE', db, table, a.join(' AND '));
         	}, this),
         	select : Ext.Function.bind(function(records){
 
@@ -2350,7 +2354,7 @@ Ext.application({
 
 		            a.push('`'+row[0]+'`');
 		        });
-		        return this.getEngine().getQuery('TABLE_DELETE', db, table, a.join(', '));
+		        return this.getEngine().getQuery('SELECT_TABLE', db, table, a.join(', '));
         	}, this)
         };
 
@@ -2359,9 +2363,9 @@ Ext.application({
 			query : 'DESCRIBE `'+db+'`.`'+table+'`',
 			success : function(config, response){
 
+				console.log('query is :');
 				var query = func[mode](response.records);
-				console.log(query);
-				this.setActiveEditorValue();
+				this.setActiveEditorValue(query);
 			}
 		});
 	},

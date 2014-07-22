@@ -1,9 +1,9 @@
-Ext.define('Planche.controller.EditTextColumn', {
+Ext.define('Planche.controller.table.EditTextColumn', {
     extend: 'Ext.app.Controller',
 
     initWindow : function(content){
 
-        Ext.create('Lib.window', {
+        Ext.create('Planche.lib.Window', {
             stateful: true,
             title : 'Text Editor',
             layout : 'fit',

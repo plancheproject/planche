@@ -19,7 +19,7 @@ class Control {
 
         if (JSONP) {
 
-            header('Content-Type: text/javascript');
+            header('Content-Type: application/javascript');
             
         } else {
 
