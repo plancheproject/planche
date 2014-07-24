@@ -786,6 +786,11 @@ Ext.application({
 		this.openWindow('connection.Connect');
     },
 
+    openFindPanel : function(){
+
+		this.openWindow('command.Find');
+    },
+
     openUserPanel : function(){
 
     	var node = this.getSelectedNode();
@@ -1826,6 +1831,14 @@ Ext.application({
 		        fn: function(keyCode, e){ 
 
 		        	this.openConnPanel();
+		        }
+		    },{
+		    	scope : this,
+		        key: Ext.EventObject.F,
+		        alt : true,
+		        fn: function(keyCode, e){ 
+
+		        	this.openFindPanel();
 		        }
 		    },{
 		    	scope : this,
