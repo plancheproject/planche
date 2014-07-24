@@ -32,6 +32,11 @@ Ext.define('Planche.controller.menu.Edit', {
         ,{
             text : 'SQL Formatter',
             scope : this.application,
+            handler : function(){
+
+                var editor = this.getActiveEditor();
+                editor.execCommand('indentAuto');
+            },
             allowDisable : function(topBtn, menu){
 
                 if(!this.getActiveEditor()){
@@ -152,7 +157,7 @@ Ext.define('Planche.controller.menu.Edit', {
             scope : this.application,
             handler : function(){
 
-                this.openWindow('command.Find');                
+                this.openFindPanel()                
             },
             allowDisable : function(){
 
@@ -192,7 +197,7 @@ Ext.define('Planche.controller.menu.Edit', {
 
                     return true;
                 }
-                
+
                 return false;
             }
         }]);
