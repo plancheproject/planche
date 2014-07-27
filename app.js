@@ -7,7 +7,16 @@ Ext.application({
 	history     : [],
 	launch		: function() {
 
-		var includes = ['Planche.lib.Window', 'Planche.lib.Query', 'Planche.lib.QueryParser'];
+		this.include([
+			'Planche.lib.Window',
+			'Planche.lib.QueryTokenType',
+			'Planche.lib.Query',
+			'Planche.lib.QueryParser',
+			'Planche.lib.QueryAlignment'
+		], this.initLayout, this);
+    },
+
+    include : function(includes, callback, scope){
 
 		var loading;
 		(loading = Ext.Function.bind(function(){
@@ -22,9 +31,9 @@ Ext.application({
 			}
 			else {
 
-		        this.initLayout();
+		        Ext.Function.bind(callback, this)();
 			}
-		}, this))();
+		}, scope))();
     },
 
     initLayout : function(){
@@ -1668,6 +1677,47 @@ Ext.application({
         html.push('</table>');
 
         return html;
+	},
+
+	formatQuery : function(){
+
+		var editor = this.getActiveEditor();
+
+		if(!editor){ return; }
+
+		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
+
+		if(editor.somethingSelected()){
+
+        	var queries = parser.parse(editor.getSelection());
+		}
+		else {
+ 		
+        	var queries = parser.parse(editor.getValue());
+		}
+
+    	if(queries.length == 0){
+
+			return;
+   	 	}
+
+   	 	var tmp = [];
+		Ext.Array.each(queries, function(query, idx){
+
+			var formatedQuery = Planche.lib.QueryAlignment.alignment(query);
+			tmp.push(formatedQuery);
+		});
+
+		tmp = tmp.join('\n\n');
+
+		if(editor.somethingSelected()){
+
+			editor.replaceSelection(tmp);
+		}
+		else {
+ 		
+        	editor.setValue(tmp);
+		}
 	},
 
 	executeQuery : function(){

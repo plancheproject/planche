@@ -4,6 +4,17 @@ Ext.define('Planche.controller.command.Find', {
     initWindow : function(records){
 
         var mainTab = this.application.getMainTab();
+        var findText = Ext.create('Ext.form.field.Text', {
+            flex : 1, scope: this, listeners : {
+                specialkey: function (field, el) {
+
+                    if (el.getKey() == Ext.EventObject.ENTER){
+                        
+                        this.find();
+                    }
+                }
+            }
+        });
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -27,15 +38,7 @@ Ext.define('Planche.controller.command.Find', {
                 margin : '0 5 0 0'
             },
             items : [
-                { xtype: 'textfield', flex : 1, scope: this, listeners : {
-                    specialkey: function (field, el) {
-
-                        if (el.getKey() == Ext.EventObject.ENTER){
-                            
-                            this.find();
-                        }
-                    }
-                }},
+                findText,
                 { xtype: 'button', text: 'Find', cls : 'btn', scope: this, handler : function(btn){
 
                     this.find();
@@ -51,11 +54,14 @@ Ext.define('Planche.controller.command.Find', {
             ]
         }).showBy(Ext.getBody());
 
-
         CodeMirror.commands.find = function(cm) { 
+            
+            cm.setSelection({line :1, ch:1},{line :1, ch:10});
 
-            console.log(arguments); 
+            Ext.Array.each([2, 3, 4, 5, 6, 7, 8], function(item, idx){
 
+                cm.addSelection({line : item, ch:1}, {line :item, ch:10});
+            });
         };
 
     },
