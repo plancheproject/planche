@@ -34,8 +34,7 @@ Ext.define('Planche.controller.menu.Edit', {
             scope : this.application,
             handler : function(){
 
-                var editor = this.getActiveEditor();
-                editor.execCommand('indentAuto');
+                this.formatQuery();
             },
             allowDisable : function(topBtn, menu){
 
