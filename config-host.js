@@ -11,8 +11,8 @@ Planche.config = {
             port    : 3306
         },
         {
-            host_name : 'DB Server 2', 
-            http_tunneling : 'http://example.com/webql/planche_tnl.php',
+            host_name : 'Example Host', 
+            http_tunneling : 'http://extjs.makewebapp.net/webql/planche_tnl.php',
             host    : 'localhost',
             user    : 'planche',
             pass    : 'planche',

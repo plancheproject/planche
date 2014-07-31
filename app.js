@@ -9,6 +9,7 @@ Ext.application({
 
 		this.include([
 			'Planche.lib.Window',
+			'Planche.lib.Menu',
 			'Planche.lib.QueryTokenType',
 			'Planche.lib.Query',
 			'Planche.lib.QueryParser',

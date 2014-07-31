@@ -54,14 +54,39 @@ Ext.define('Planche.controller.command.Find', {
             ]
         }).showBy(Ext.getBody());
 
-        CodeMirror.commands.find = function(cm) { 
+        CodeMirror.commands.findAll = function(cm) { 
             
-            cm.setSelection({line :1, ch:1},{line :1, ch:10});
+            var cursor = cm.getCursor();
+            
+            var line = cm.getLine(cursor.line);
+            var last = cursor.line;
 
-            Ext.Array.each([2, 3, 4, 5, 6, 7, 8], function(item, idx){
+            var sword = findText.getValue();
 
-                cm.addSelection({line : item, ch:1}, {line :item, ch:10});
-            });
+            if(!sword){
+
+                return;
+            }
+
+            var regexp = new RegExp(sword, "gi");
+            var match;
+            var sel = [];
+            while(typeof line != "undefined"){
+
+                while ((match = regexp.exec(line)) != null) {
+
+                    sel.push({
+                        anchor : { line : last, ch : match.index }, 
+                        head : { line : last, ch : match.index + match[0].length }
+                    });
+                }
+                
+                last++;
+
+                line = cm.getLine(last);
+            }
+            
+            cm.setSelections(sel);
         };
 
     },
@@ -80,5 +105,7 @@ Ext.define('Planche.controller.command.Find', {
 
     findAll : function(){
 
+        var editor = this.application.getActiveEditor();
+        editor.execCommand('findAll');
     },
 });
