@@ -4,7 +4,12 @@ Ext.define('Planche.controller.menu.Tools', {
     add : function(topBtn){
 
         topBtn.menu.add([{
-            text : '..',
+            text : 'Process List',
+            scope : this.application,
+            handler : function(){
+
+                this.openProcessPanel();
+            }
         }]);
 
         this.added = true;
