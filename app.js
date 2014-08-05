@@ -815,6 +815,61 @@ Ext.application({
     	});
     },
 
+    openProcessPanel : function(){
+
+    	var db = '';
+    	this.tunneling({
+    		db : db,
+    		query : this.getEngine().getQuery('SHOW_PROCESS_LIST', db),
+    		success : function(config, response){
+
+    			this.openWindow('command.Process', response);
+    		}
+    	});
+    },
+
+    openFlushPanel : function(){
+
+    	var node = this.getSelectedNode();
+    	var db = this.getParentNode(node);
+    	this.tunneling({
+    		db : db,
+    		query : this.getEngine().getQuery('SHOW_PROCESS_LIST', db),
+    		success : function(config, response){
+
+    			this.openWindow('command.Flush', db, node.data.text, response);
+    		}
+    	});
+    },
+
+    openStatusPanel : function(){
+
+    	var node = this.getSelectedNode();
+    	var db = this.getParentNode(node);
+    	this.tunneling({
+    		db : db,
+    		query : this.getEngine().getQuery('SHOW_STATUS', db),
+    		success : function(config, response){
+
+    			this.openWindow('command.Status', db, node.data.text, response);
+    		}
+    	});
+    },
+
+    openVariablesPanel : function(){
+
+    	var node = this.getSelectedNode();
+    	var db = this.getParentNode(node);
+    	this.tunneling({
+    		db : db,
+    		query : this.getEngine().getQuery('SHOW_VARIABLES', db),
+    		success : function(config, response){
+
+    			this.openWindow('command.Variables', db, node.data.text, response);
+    		}
+    	});
+    },
+
     openQuickPanel : function(records){
 
     	var db = this.getParentNode(this.getSelectedNode());
