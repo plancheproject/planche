@@ -489,7 +489,7 @@ Ext.application({
         	var textRows = grid.down('text[text=Total]').next();
        		var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
 
-       		var refreshPerSec = parseInt(textRefreshPerSec.getValue(), 10);
+       		var refreshPerSec = parseFloat(textRefreshPerSec.getValue());
 
         	textRows.setText('0');
         	
@@ -621,6 +621,12 @@ Ext.application({
               	{ xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
 
 					loadRecord();
+				}},
+              	{ xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
+
+		       		var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
+
+		       		textRefreshPerSec.setValue(0);
 				}}
 			],
 			fbar : [
@@ -817,57 +823,22 @@ Ext.application({
 
     openProcessPanel : function(){
 
-    	var db = '';
-    	this.tunneling({
-    		db : db,
-    		query : this.getEngine().getQuery('SHOW_PROCESS_LIST', db),
-    		success : function(config, response){
-
-    			this.openWindow('command.Process', response);
-    		}
-    	});
+    	this.openWindow('command.Process');
     },
 
     openFlushPanel : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
-    	this.tunneling({
-    		db : db,
-    		query : this.getEngine().getQuery('SHOW_PROCESS_LIST', db),
-    		success : function(config, response){
-
-    			this.openWindow('command.Flush', db, node.data.text, response);
-    		}
-    	});
+    	this.openWindow('command.Flush');
     },
 
     openStatusPanel : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
-    	this.tunneling({
-    		db : db,
-    		query : this.getEngine().getQuery('SHOW_STATUS', db),
-    		success : function(config, response){
-
-    			this.openWindow('command.Status', db, node.data.text, response);
-    		}
-    	});
+    	this.openWindow('command.Status');
     },
 
     openVariablesPanel : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
-    	this.tunneling({
-    		db : db,
-    		query : this.getEngine().getQuery('SHOW_VARIABLES', db),
-    		success : function(config, response){
-
-    			this.openWindow('command.Variables', db, node.data.text, response);
-    		}
-    	});
+    	this.openWindow('command.Variables');
     },
 
     openQuickPanel : function(records){
