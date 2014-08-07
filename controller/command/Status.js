@@ -1,4 +1,4 @@
-Ext.define('Planche.controller.command.Process', {
+Ext.define('Planche.controller.command.Status', {
     extend: 'Ext.app.Controller',
     grid : null,
     initWindow : function(){
@@ -6,7 +6,7 @@ Ext.define('Planche.controller.command.Process', {
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
             stateful: true,
-            title : 'Show Process List',
+            title : 'Show Status',
             layout : 'fit',
             bodyStyle:"background-color:#FFFFFF",
             width : 900,
@@ -21,13 +21,6 @@ Ext.define('Planche.controller.command.Process', {
             constrain : true,
             items : this.initGrid(),
             buttons : [{
-                text : 'Kill Process',
-                scope : this,
-                handler : function(btn, e){
-                    
-                    
-                }
-            },{
                 text : 'Close',
                 scope : this,
                 handler : function(btn, e){
@@ -66,26 +59,26 @@ Ext.define('Planche.controller.command.Process', {
                 fields: fields
             }),
             tbar : [
-                { xtype: 'text',  text : 'Refresh Per Sec', margin : '0 0 0 5'},
-                { xtype: 'textfield', value: 0, scope: this, width : 40, margin : '0 0 0 5', listeners : {
-                    scope : this,
-                    specialkey: function (field, el) {
+                { xtype: 'button', text: 'All', cls : 'btn', pressed: true, scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
 
-                        if (el.getKey() == Ext.EventObject.ENTER){
-
-                            this.loadList();
-                        }
-                    }
-                }},
-                { xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                    Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
+                    btn.toggle(true);
 
                     this.loadList();
                 }},
-                { xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'Global', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
 
-                    var textRefreshPerSec = this.grid.down('text[text=Refresh Per Sec]').next();
+                    Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
+                    btn.toggle(true);
 
-                    textRefreshPerSec.setValue(0);
+                    this.loadList('GLOBAL');
+                }},
+                { xtype: 'button', text: 'Session', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+
+                    Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
+                    btn.toggle(true);
+
+                    this.loadList('SESSION');
                 }}
             ]
         });
@@ -93,11 +86,9 @@ Ext.define('Planche.controller.command.Process', {
         return this.grid;
     },
 
-    loadList : function(){
+    loadList : function(cmd){
 
-        var textRefreshPerSec = this.grid.down('text[text=Refresh Per Sec]').next();
-
-        var refreshPerSec = parseFloat(textRefreshPerSec.getValue());
+        var query = typeof cmd == 'undefined' ? 'SHOW_STATUS' : 'SHOW_'+cmd+'_STATUS';
 
         var app = this.application;
 
@@ -105,7 +96,7 @@ Ext.define('Planche.controller.command.Process', {
         var db = app.getParentNode(node);
         app.tunneling({
             db : db,
-            query : app.getEngine().getQuery('SHOW_PROCESS_LIST', db),
+            query : app.getEngine().getQuery(query, db),
             success : Ext.Function.bind(function(config, response){
                 
                 var records = this.makeRecords(response.fields, response.records);
@@ -113,10 +104,6 @@ Ext.define('Planche.controller.command.Process', {
                 this.grid.store.loadData(records);
                 this.grid.setLoading(false);
 
-                if(refreshPerSec > 0){
-
-                    setTimeout(Ext.Function.bind(this.loadList, this), refreshPerSec * 1000);
-                }
             }, this)
         });
     },
@@ -139,13 +126,8 @@ Ext.define('Planche.controller.command.Process', {
     makeListColumns : function(){   
         
         return [
-            { text: 'Id', dataIndex: 'Id', width : 100},
-            { text: 'User', dataIndex: 'User', width : 100},
-            { text : 'Host', dataIndex : 'Host', width : 60 },
-            { text : 'Db', dataIndex : 'Db', width : 60 },
-            { text : 'Command', dataIndex : 'Command', width : 60 },
-            { text : 'State', dataIndex : 'State', width : 60 },
-            { text : 'Info', dataIndex : 'Info', flex : 1 }
+            { text: 'Variable Name', dataIndex: 'Variable_name', width : 300},
+            { text: 'Value', dataIndex: 'Value', flex : 1}
         ];
     }
 });
