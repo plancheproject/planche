@@ -63,7 +63,7 @@ Ext.define('Planche.controller.command.Find', {
                     btn.toggle();
                 }},
                 findText,
-                { xtype: 'button', text: 'Find', cls : 'btn',¬ scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Find', cls : 'btn', scope: this, handler : function(btn){
 
                     this.find();
                 }},
