@@ -136,6 +136,44 @@ Ext.application({
 					tooltip	: 'User Manager(ALT+U)',
 					disabled : true,
 					handler : this.openUserPanel
+                },
+                '-',
+                {
+                	text : 'Quick Cmd',
+                	cls : 'btn',
+                	scope : this,
+                	handler : function(btn){
+
+                		this.openQuickPanel();
+                	}
+                },
+                '-',
+                {
+                	text : 'Procs',
+                	cls : 'btn',
+                	scope : this,
+                	handler : function(btn){
+
+                		this.openProcessPanel();
+                	}
+                },
+                {
+                	text : 'Vars',
+                	cls : 'btn',
+                	scope : this,
+                	handler : function(btn){
+
+                		this.openVariablesPanel();
+                	}
+                },
+                {
+                	text : 'Status',
+                	cls : 'btn',
+                	scope : this,
+                	handler : function(btn){
+
+                		this.openStatusPanel();
+                	}
                 }
             ]
         };
@@ -458,6 +496,12 @@ Ext.application({
 		};
     },
 
+    removeResultTabPanel : function(){
+
+    	var tabpanel = this.getActiveResultTabPanel();
+        tabpanel.items.each(function(cmp, idx){ if(idx > 3) cmp.destroy() });
+    },
+
 	makeRecords : function(fields, records){
 
         var tmp = [];
@@ -493,7 +537,7 @@ Ext.application({
 
         	textRows.setText('0');
         	
-        	grid.setLoading(true);
+        	this.getActiveMainTab().setLoading(true);
 
 	    	this.tunneling({
 	    		db : params.db,
@@ -502,7 +546,7 @@ Ext.application({
 
 			        var data = this.makeRecords(scheme, response.records);				
 	    			grid.store.loadData(data);
-	    			grid.setLoading(false);
+	    			this.getActiveMainTab().setLoading(false);
 
 	    			if(refreshPerSec > 0){
 
@@ -1749,20 +1793,7 @@ Ext.application({
 
 	executeQuery : function(){
 
-		var editor = this.getActiveEditor();
-
-		if(!editor){ return; }
-
-		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
-
-		if(editor.somethingSelected()){
-
-        	var queries = parser.parse(editor.getSelection());
-		}
-		else {
- 		
-        	var queries = parser.parse(editor.getValue());
-		}
+		var queries = this.getParsedQuery();
 
     	if(queries.length == 0){
 
@@ -1770,10 +1801,7 @@ Ext.application({
     		return;
    	 	}
 
-    	var cursor = editor.getCursor();
-
-    	cursor.line;
-    	cursor.ch;
+   	 	this.removeResultTabPanel();
 
     	var panel = this.getActiveMessage();
     	var dom = Ext.get(panel.getEl().query("div[id$=innerCt]"));
@@ -1781,15 +1809,16 @@ Ext.application({
 
 		var node = this.getSelectedNode();
         var db = this.getParentNode(node);
-        var tabpanel = this.getActiveResultTabPanel();
-        tabpanel.items.each(function(cmp, idx){ if(idx > 3) cmp.destroy() });
-
+    
 		var tunneling;
 		var messages = [];
 		(tunneling = Ext.Function.bind(function(){
 
 			var queryObj = queries.shift();
+
 			if(queryObj) {
+
+				this.getActiveMainTab().setLoading(true);
 
 	            this.tunneling({
 	                db : db,
@@ -1820,65 +1849,104 @@ Ext.application({
 	                        msg += 'Total Time     : 00:00:00:000';
 	                        messages.push(queryObj.getSQL()+'<br/><br/>'+msg);
 	                    }
-
+	                    this.getActiveMainTab().setLoading(false);
 	                    tunneling();
 	                },
 	                failure : function(config, response){
 
 	                	messages.push(queryObj.getSQL()+'<br/><br/>'+response);
-
+	                	this.getActiveMainTab().setLoading(false);
 	                	tunneling();
 	                }
 	            })
 			}
 			else {
 
-				if(messages.length == 0){ return; }
-		        this.openMessage(messages);
-		        var tree = this.getSelectedTree();
-		        var root = tree.getRootNode();
-		        var dbNode = null;
-		        var chNode = null;
-		        var category = null;
-		       	Ext.Array.each(result.refresh_queue, function(queue, idx){
-
-		       		if(queue.db){
-
-		       			dbNode = root.findChild('text', queue.db);
-		       		}
-		       		else {
-
-		       			dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
-		       		}
-
-		       		if(!dbNode){ return; }
-
-		       		tree.selModel.select(dbNode);
-
-		       		category = queue.category.charAt(0).toUpperCase();
-					category = category + queue.category.toLowerCase().substr(1) + 's';
-					chNode = dbNode.findChild('text', category);
-
-					if(queue.mode == 'CREATE'){
-
-						chNode.appendChild([{
-			                text : queue.name,
-			                leaf : true
-			            }]);
-					}
-					else if(queue.mode == 'DROP'){
-
-						chNode = chNode.findChild('text', queue.name);
-						chNode.remove();
-					}
-					else if(queue.mode == 'ALTER'){
-
-					}
-
-		       	}, this);
+				this.afterExecuteQuery(messages);
 			}
 
 		}, this))();
+	},
+
+	afterExecuteQuery : function(messages){
+
+		if(messages.length == 0){ return; }
+		
+	    this.openMessage(messages);
+	    var tree = this.getSelectedTree();
+	    var root = tree.getRootNode();
+	    var dbNode = null;
+	    var chNode = null;
+	    var category = null;
+	   	Ext.Array.each(result.refresh_queue, function(queue, idx){
+
+	   		if(queue.db){
+
+	   			dbNode = root.findChild('text', queue.db);
+	   		}
+	   		else {
+
+	   			dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
+	   		}
+
+	   		if(!dbNode){ return; }
+
+	   		tree.selModel.select(dbNode);
+
+	   		category = queue.category.charAt(0).toUpperCase();
+			category = category + queue.category.toLowerCase().substr(1) + 's';
+			chNode = dbNode.findChild('text', category);
+
+			if(queue.mode == 'CREATE'){
+
+				chNode.appendChild([{
+	                text : queue.name,
+	                leaf : true
+	            }]);
+			}
+			else if(queue.mode == 'DROP'){
+
+				chNode = chNode.findChild('text', queue.name);
+				chNode.remove();
+			}
+			else if(queue.mode == 'ALTER'){
+
+			}
+
+	   	}, this);
+	},
+
+	getParsedQuery : function(){
+
+		var queries = [];
+
+		var editor = this.getActiveEditor();
+
+		if(!editor){ return queries; }
+
+		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
+
+		if(editor.somethingSelected()){
+
+        	return parser.parse(editor.getSelection());
+		}
+		else {
+ 		
+	     	var cursor = editor.getCursor();
+
+        	queries = parser.parse(editor.getValue());
+        	var tmp = [];
+        	Ext.Array.each(queries, function(query, idx){
+
+        		if(tmp.length > 0) return;
+
+        		if(cursor.line <= query.eline[0] && cursor.ch <= query.eline[1]){
+
+        			tmp.push(query);
+        		}
+        	});
+        	return tmp;
+		}
 	},
 
 	initKeyMap : function(){
