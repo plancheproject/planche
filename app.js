@@ -518,12 +518,11 @@ Ext.application({
         return tmp;
 	},
 
-    initQueryResult : function(params){
+    initQueryResult : function(config, db, query, response){
 
-    	params.tab = params.tab === true || true;
+    	config.tab = config.tab === true || true;
     	
-    	var result = params.response;
-    	var queryObj = params.queryObj, scheme = result.fields, records = result.records,
+    	var scheme = response.fields, records = response.records,
     		columns = [], fields = [], grid;
 
         var loadRecord = Ext.Function.bind(function(cmd){
@@ -540,8 +539,8 @@ Ext.application({
         	this.getActiveMainTab().setLoading(true);
 
 	    	this.tunneling({
-	    		db : params.db,
-	    		query : queryObj['get'+cmd+'SQL'](),
+	    		db : db,
+	    		query : query['get'+cmd+'SQL'](),
 	    		success : function(config, response){
 
 			        var data = this.makeRecords(scheme, response.records);				
@@ -560,14 +559,15 @@ Ext.application({
         var updateToolbar = function(){
 
 			var textfield = grid.query('textfield'),
-        		btnPrev = grid.down('button[text=Previous]'), btnNext = grid.down('button[text=Next]');
+        		btnPrev = grid.down('button[text=Previous]'), 
+        		btnNext = grid.down('button[text=Next]');
         		textRows = grid.down('text[text=Total]').next();
 
-			btnNext.setDisabled(grid.store.data.length < queryObj.end);
-			btnPrev.setDisabled(1 > queryObj.start);
+			btnNext.setDisabled(grid.store.data.length < query.end);
+			btnPrev.setDisabled(1 > query.start);
 
-			textfield[0].setValue(queryObj.start);
-			textfield[1].setValue(queryObj.end);
+			textfield[0].setValue(query.start);
+			textfield[1].setValue(query.end);
 
 			textRows.setText(grid.store.data.length);
 
@@ -626,12 +626,12 @@ Ext.application({
 
 			    	loadRecord('PrevRecordSet');
 				}},
-				{ xtype: 'textfield', value: queryObj.start, scope: this, listeners : {
+				{ xtype: 'textfield', value: query.start, scope: this, listeners : {
 					specialkey: function (field, el) {
 
 						if (el.getKey() == Ext.EventObject.ENTER){
 							
-							queryObj.start = parseInt(field.getValue(), 10);
+							query.start = parseInt(field.getValue(), 10);
 							loadRecord();
 						}
               		}
@@ -641,12 +641,12 @@ Ext.application({
 					loadRecord('NextRecordSet');
 				}},
 				{ xtype: 'text', text: 'Size', margin : '0 0 0 5' },
-				{ xtype: 'textfield', value: queryObj.end, scope: this, width : 80, margin : '0 0 0 5', listeners : {
+				{ xtype: 'textfield', value: query.end, scope: this, width : 80, margin : '0 0 0 5', listeners : {
 					specialkey: function (field, el) {
 
 						if (el.getKey() == Ext.EventObject.ENTER){
 
-							queryObj.end = parseInt(field.getValue(), 10);
+							query.end = parseInt(field.getValue(), 10);
 							loadRecord();
 						}
               		}
@@ -671,6 +671,11 @@ Ext.application({
 		       		var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
 
 		       		textRefreshPerSec.setValue(0);
+				}},
+				{ xtype: 'tbseparator', margin : '0 5 0 5'},
+              	{ xtype: 'button', text: 'Tokens', cls : 'btn', scope: this, handler : function(btn){
+
+					this.openTokenPanel(query);
 				}}
 			],
 			fbar : [
@@ -691,7 +696,7 @@ Ext.application({
 			    }
 			}),
 		    columns : columns
-		}, params));
+		}, config));
 		
 		grid.store.on('datachanged', updateToolbar);
 
@@ -863,6 +868,11 @@ Ext.application({
     			this.openWindow('user.Users', db, node.data.text, response);
     		}
     	});
+    },
+
+    openTokenPanel : function(query){
+
+    	this.openWindow('query.Token', query);
     },
 
     openProcessPanel : function(){
@@ -1750,22 +1760,35 @@ Ext.application({
         return html;
 	},
 
-	formatQuery : function(){
+	alignmentQuery : function(query){
 
-		var editor = this.getActiveEditor();
+		return Planche.lib.QueryAlignment.alignment(query);
+	},
 
-		if(!editor){ return; }
+	formatQuery : function(query){
 
-		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
+		if(query){
 
-		if(editor.somethingSelected()){
-
-        	var queries = parser.parse(editor.getSelection());
+			var queries = query;
 		}
 		else {
- 		
-        	var queries = parser.parse(editor.getValue());
+
+			var editor = this.getActiveEditor();
+
+			if(!editor){ return; }
+
+			if(editor.somethingSelected()){
+
+	        	var queries = editor.getSelection();
+			}
+			else {
+	 		
+	        	var queries = editor.getValue();
+			}
 		}
+
+		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
+		queries = parser.parse(queries);
 
     	if(queries.length == 0){
 
@@ -1775,19 +1798,25 @@ Ext.application({
    	 	var tmp = [];
 		Ext.Array.each(queries, function(query, idx){
 
-			var formatedQuery = Planche.lib.QueryAlignment.alignment(query);
-			tmp.push(formatedQuery);
+			tmp.push(Planche.lib.QueryAlignment.alignment(query));
 		});
 
 		tmp = tmp.join('\n\n');
 
-		if(editor.somethingSelected()){
+		if(query){
 
-			editor.replaceSelection(tmp);
+			return tmp;
 		}
-		else {
- 		
-        	editor.setValue(tmp);
+		else{
+
+			if(editor.somethingSelected()){
+
+				editor.replaceSelection(tmp);
+			}
+			else {
+	 		
+	        	editor.setValue(tmp);
+			}
 		}
 	},
 
@@ -1814,27 +1843,24 @@ Ext.application({
 		var messages = [];
 		(tunneling = Ext.Function.bind(function(){
 
-			var queryObj = queries.shift();
+			var query = queries.shift();
 
-			if(queryObj) {
+			if(query) {
 
 				this.getActiveMainTab().setLoading(true);
 
 	            this.tunneling({
 	                db : db,
-	                query : queryObj.getSQL(),
+	                query : query.getSQL(),
 	                success : function(config, response){
 
 	                    if(response.is_result_query == true){
 
 		                    var grid = this.initQueryResult({
-		                        response : response,
 		                        icon   : 'images/icon_table.png',
 		                        closable : true,
-		                        db : db,
-		                        queryObj : queryObj,
 		                        title : 'Result'
-		                    });
+		                    }, db, query, response);
 
 		                    var tabpanel = this.getActiveResultTabPanel();
 
@@ -1847,14 +1873,14 @@ Ext.application({
 	                        msg += 'Execution Time : 00:00:00:000<br>';
 	                        msg += 'Transfer Time  : 00:00:00:000<br>';
 	                        msg += 'Total Time     : 00:00:00:000';
-	                        messages.push(queryObj.getSQL()+'<br/><br/>'+msg);
+	                        messages.push(query.getSQL()+'<br/><br/>'+msg);
 	                    }
 	                    this.getActiveMainTab().setLoading(false);
 	                    tunneling();
 	                },
 	                failure : function(config, response){
 
-	                	messages.push(queryObj.getSQL()+'<br/><br/>'+response);
+	                	messages.push(query.getSQL()+'<br/><br/>'+response);
 	                	this.getActiveMainTab().setLoading(false);
 	                	tunneling();
 	                }
@@ -2319,11 +2345,11 @@ Ext.application({
         var parser = Ext.create('Planche.lib.QueryParser', this.getEngine());
         var queries = parser.parse(this.getEngine().getQuery('OPEN_TABLE', db, node.data.text));
 
-        var queryObj = queries[0];
+        var query = queries[0];
 
 		this.tunneling({
 			db : db,
-			query : queryObj.getSQL(),
+			query : query.getSQL(),
 			node : node,
 			tab : tab,
 			success : function(config, response){
@@ -2333,11 +2359,7 @@ Ext.application({
 		            loadedTable : node.data.text,
 		        });
 		        tab.removeAll();
-		        var grid = this.initQueryResult({
-		            response : response,
-		            db : db,
-		            queryObj : queryObj
-		        });
+		        var grid = this.initQueryResult({}, db, query, response);
 
 		        tab.show();
 		        tab.add(grid);
@@ -2583,6 +2605,7 @@ Ext.application({
 		    if (btn == 'ok'){
 
 		    	var sql = this.getEngine().getQuery('CREATE_PROCEDURE', db, name);
+		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
 		    	this.setActiveEditorValue(sql);
 		    }
@@ -2598,6 +2621,7 @@ Ext.application({
 		    if (btn == 'ok'){
 
 		    	var sql = this.getEngine().getQuery('CREATE_FUNCTION', db, name);
+		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
 		    	this.setActiveEditorValue(sql);
 		    }
@@ -2613,6 +2637,7 @@ Ext.application({
 		    if (btn == 'ok'){
 
 		    	var sql = this.getEngine().getQuery('CREATE_TRIGGER', db, name);
+		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
 		    	this.setActiveEditorValue(sql);
 		    }
@@ -2628,6 +2653,7 @@ Ext.application({
 		    if (btn == 'ok'){
 
 		    	var sql = this.getEngine().getQuery('CREATE_EVENT', db, name);
+		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
 		    	this.setActiveEditorValue(sql);
 		    }
