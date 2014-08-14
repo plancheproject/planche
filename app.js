@@ -525,7 +525,7 @@ Ext.application({
     	var scheme = response.fields, records = response.records,
     		columns = [], fields = [], grid;
 
-        var loadRecord = Ext.Function.bind(function(cmd){
+        var loadGridRecord = Ext.Function.bind(function(cmd){
 
         	if(typeof cmd == 'undefined'){ cmd = ''; }
 	
@@ -549,7 +549,7 @@ Ext.application({
 
 	    			if(refreshPerSec > 0){
 
-	    				setTimeout(loadRecord, refreshPerSec * 1000);
+	    				setTimeout(loadGridRecord, refreshPerSec * 1000);
 	    			}
 	    		}
 	    	});
@@ -558,10 +558,8 @@ Ext.application({
 
         var updateToolbar = function(){
 
-			var textfield = grid.query('textfield'),
-        		btnPrev = grid.down('button[text=Previous]'), 
-        		btnNext = grid.down('button[text=Next]');
-        		textRows = grid.down('text[text=Total]').next();
+			var textfield = grid.query('textfield'), btnPrev = grid.down('button[text=Previous]'), 
+        		btnNext = grid.down('button[text=Next]'), textRows = grid.down('text[text=Total]').next();
 
 			btnNext.setDisabled(grid.store.data.length < query.end);
 			btnPrev.setDisabled(1 > query.start);
@@ -570,7 +568,6 @@ Ext.application({
 			textfield[1].setValue(query.end);
 
 			textRows.setText(grid.store.data.length);
-
         };
 
         Ext.Array.each(scheme, function(col, idx){
@@ -624,7 +621,7 @@ Ext.application({
 				{ xtype: 'tbseparator', margin : '0 5 0 5'},
 				{ xtype: 'button', text: 'Previous', cls : 'btn', disalbed : true, scope: this, handler : function(btn){
 
-			    	loadRecord('PrevRecordSet');
+			    	loadGridRecord('PrevRecordSet');
 				}},
 				{ xtype: 'textfield', value: query.start, scope: this, listeners : {
 					specialkey: function (field, el) {
@@ -632,13 +629,13 @@ Ext.application({
 						if (el.getKey() == Ext.EventObject.ENTER){
 							
 							query.start = parseInt(field.getValue(), 10);
-							loadRecord();
+							loadGridRecord();
 						}
               		}
               	}},
 				{ xtype: 'button', text: 'Next', cls : 'btn', disalbed : true, scope: this, handler : function(btn){
 
-					loadRecord('NextRecordSet');
+					loadGridRecord('NextRecordSet');
 				}},
 				{ xtype: 'text', text: 'Size', margin : '0 0 0 5' },
 				{ xtype: 'textfield', value: query.end, scope: this, width : 80, margin : '0 0 0 5', listeners : {
@@ -647,7 +644,7 @@ Ext.application({
 						if (el.getKey() == Ext.EventObject.ENTER){
 
 							query.end = parseInt(field.getValue(), 10);
-							loadRecord();
+							loadGridRecord();
 						}
               		}
               	}},
@@ -658,13 +655,13 @@ Ext.application({
 
 						if (el.getKey() == Ext.EventObject.ENTER){
 
-							loadRecord();
+							loadGridRecord();
 						}
               		}
               	}},
               	{ xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
 
-					loadRecord();
+					loadGridRecord();
 				}},
               	{ xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
 
@@ -700,10 +697,6 @@ Ext.application({
 		
 		grid.store.on('datachanged', updateToolbar);
 
-		// grid.on('load', function(){
-
-		// 	console.log('load');
-		// });
 		updateToolbar();
 		return grid;
     },
