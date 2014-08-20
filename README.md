@@ -13,9 +13,11 @@ MySQL GUI client tool based on ExtJS
 2. 컬럼 조회
 2. 쿼리 수행
 3. 프로시져 생성 
+4. 페이징
+5. 프로세스 리스트 확인
+6. 쿼리 Alignment
 
 해당 프로젝트는 다음의 자바스크립트 프레임워크를 포함하여 개발 되었습니다.
 
 1. CodeMirror
 2. Sencha ExtJS 4
-
