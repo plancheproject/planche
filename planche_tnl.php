@@ -23,7 +23,7 @@ class Control {
             
         } else {
 
-            header('Content-Type: application/x-json');
+            header('Content-Type: application/json');
         }
     }
 
@@ -66,13 +66,24 @@ class Control {
 
     public function query($query = null){
 
-        $this->fields = array();
 
         if(!$query){
 
-            $result = $this->error('query was empty');
+            $this->error('query was empty');
             return;
         }
+
+        $result = $this->conn->query($query);
+
+        if ($this->conn->error) {
+
+            $this->error($this->conn->error);
+            return;
+        }
+
+        $this->sendHeader();
+
+        $this->fields = array();
 
         if ($this->callback !== null) {
 
@@ -80,8 +91,6 @@ class Control {
         }
 
         echo '{success:true,';
-        $result = $this->conn->query($query);
-
         $affected_rows = $this->conn->affected_rows;
         echo 'affected_rows : '.$affected_rows.',';
 
@@ -98,6 +107,7 @@ class Control {
                 'max_length' => $row->max_length
             ));
         }
+
         echo 'fields:'.json_encode($this->fields).',';
 
         $is_result_query = false;
@@ -147,7 +157,18 @@ class Control {
 
         $this->sendHeader();
 
+        if ($this->callback !== null) {
+
+            echo $this->callback.'(';
+        }
+
         echo json_encode($output);
+
+        if ($this->callback !== null) {
+
+            echo ');';
+        }
+
     }
 
     static function debug($msg){
@@ -164,7 +185,7 @@ class Control {
 
 extract($_GET);
 
-define('DEBUG', true);
+define('DEBUG', false);
 define('JSONP', (bool)isset($callback));
 
 if(DEBUG == true) {
