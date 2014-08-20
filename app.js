@@ -169,10 +169,32 @@ Ext.application({
                 {
                 	text : 'Status',
                 	cls : 'btn',
+                	margin : '0px 6px 0px 0px',
                 	scope : this,
                 	handler : function(btn){
 
                 		this.openStatusPanel();
+                	}
+                },
+                '-',
+                {
+					icon : 'images/icon_sql.png',
+                	text : 'Tokenize',
+                	cls : 'btn',
+                	margin : '0px 2px 0px 3px',
+                	scope : this,
+                	handler : function(btn){
+
+
+                	}
+                },
+                {
+					icon : 'images/icon_sql.png',
+                	text : 'Prepare',
+                	cls : 'btn',
+                	scope : this,
+                	handler : function(btn){
+
                 	}
                 }
             ]
@@ -709,7 +731,8 @@ Ext.application({
 			split	: true,
 			icon	: 'images/icon_table.png',
 			title	: 'Table Data',
-			border	: true,
+			border	: false,
+			frame   : false,
 			flex	: 1,
 		    listeners : {
 		    	scope : this,
@@ -1853,9 +1876,9 @@ Ext.application({
 		                        icon   : 'images/icon_table.png',
 		                        closable : true,
 		                        title : 'Result'
-		                    }, db, query, response);
+		                    }, db, query, response),
 
-		                    var tabpanel = this.getActiveResultTabPanel();
+		                    tabpanel = this.getActiveResultTabPanel();
 
 		                    tabpanel.add(grid);
 		                    tabpanel.setActiveTab(grid);
@@ -1873,7 +1896,7 @@ Ext.application({
 	                },
 	                failure : function(config, response){
 
-	                	messages.push(query.getSQL()+'<br/><br/>'+response);
+	                	messages.push(query.getSQL()+'<span class=\'query_err\'>▶ '+response.message+'</span>');
 	                	this.getActiveMainTab().setLoading(false);
 	                	tunneling();
 	                }
@@ -1892,47 +1915,47 @@ Ext.application({
 		if(messages.length == 0){ return; }
 		
 	    this.openMessage(messages);
-	    var tree = this.getSelectedTree();
-	    var root = tree.getRootNode();
-	    var dbNode = null;
-	    var chNode = null;
-	    var category = null;
-	   	Ext.Array.each(result.refresh_queue, function(queue, idx){
 
-	   		if(queue.db){
+	  //   var tree = this.getSelectedTree(),
+	  //   	root = tree.getRootNode(),
+	  //   	dbNode = null, chNode = null, category = null;
 
-	   			dbNode = root.findChild('text', queue.db);
-	   		}
-	   		else {
+	  //  	Ext.Array.each(result.refresh_queue, function(queue, idx){
 
-	   			dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
-	   		}
+	  //  		if(queue.db){
 
-	   		if(!dbNode){ return; }
+	  //  			dbNode = root.findChild('text', queue.db);
+	  //  		}
+	  //  		else {
 
-	   		tree.selModel.select(dbNode);
+	  //  			dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
+	  //  		}
 
-	   		category = queue.category.charAt(0).toUpperCase();
-			category = category + queue.category.toLowerCase().substr(1) + 's';
-			chNode = dbNode.findChild('text', category);
+	  //  		if(!dbNode){ return; }
 
-			if(queue.mode == 'CREATE'){
+	  //  		tree.selModel.select(dbNode);
 
-				chNode.appendChild([{
-	                text : queue.name,
-	                leaf : true
-	            }]);
-			}
-			else if(queue.mode == 'DROP'){
+	  //  		category = queue.category.charAt(0).toUpperCase();
+			// category = category + queue.category.toLowerCase().substr(1) + 's';
+			// chNode = dbNode.findChild('text', category);
 
-				chNode = chNode.findChild('text', queue.name);
-				chNode.remove();
-			}
-			else if(queue.mode == 'ALTER'){
+			// if(queue.mode == 'CREATE'){
 
-			}
+			// 	chNode.appendChild([{
+	  //               text : queue.name,
+	  //               leaf : true
+	  //           }]);
+			// }
+			// else if(queue.mode == 'DROP'){
 
-	   	}, this);
+			// 	chNode = chNode.findChild('text', queue.name);
+			// 	chNode.remove();
+			// }
+			// else if(queue.mode == 'ALTER'){
+
+			// }
+
+	  //  	}, this);
 	},
 
 	getParsedQuery : function(){
