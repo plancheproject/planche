@@ -185,7 +185,15 @@ Ext.application({
                 	scope : this,
                 	handler : function(btn){
 
+						var editor = this.getActiveEditor();
 
+						if(!editor){ return; }
+						if(!editor.somethingSelected()){ return; }
+
+						var queries = editor.getSelection(),
+							queries = this.parseQuery(queries);
+							
+                		this.openTokenPanel(queries[0]);
                 	}
                 },
                 {
@@ -1776,7 +1784,21 @@ Ext.application({
         return html;
 	},
 
+	parseQuery : function(query){
+
+		var parser = Ext.create('Planche.lib.QueryParser', this.getEngine()),
+		queries = parser.parse(query);
+
+		return queries;
+	},
+
 	alignmentQuery : function(query){
+
+		if(typeof query == 'string'){
+
+			var queries = this.parseQuery(query);	   	 		
+	   	 	query = queries[0];
+		}
 
 		return Planche.lib.QueryAlignment.alignment(query);
 	},
@@ -2559,8 +2581,7 @@ Ext.application({
 			query : 'DESCRIBE `'+db+'`.`'+table+'`',
 			success : function(config, response){
 
-				console.log('query is :');
-				var query = func[mode](response.records);
+				var query = this.alignmentQuery(response.records[0][1]);
 				this.setActiveEditorValue(query);
 			}
 		});
@@ -2589,8 +2610,9 @@ Ext.application({
 
 		    if (btn == 'ok'){
 
-		    	var sql = this.getEngine().getQuery('CREATE_VIEW', db, name);
 		    	this.openQueryTab();
+
+		    	var sql = this.alignmentQuery(this.getEngine().getQuery('CREATE_VIEW', db, name));
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
@@ -2607,7 +2629,9 @@ Ext.application({
 			success : function(config, response){
 
 		    	this.openQueryTab();
-		    	this.setActiveEditorValue(response.records[0][1]);
+
+				var query = this.alignmentQuery(response.records[0][1]);
+				this.setActiveEditorValue(query);
 			}
 		});
 	},
@@ -2620,9 +2644,9 @@ Ext.application({
 
 		    if (btn == 'ok'){
 
-		    	var sql = this.getEngine().getQuery('CREATE_PROCEDURE', db, name);
-		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
+
+		    	var sql = this.alignmentQuery(this.getEngine().getQuery('CREATE_PROCEDURE', db, name));
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
@@ -2636,9 +2660,9 @@ Ext.application({
 
 		    if (btn == 'ok'){
 
-		    	var sql = this.getEngine().getQuery('CREATE_FUNCTION', db, name);
-		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
+
+		    	var sql = this.alignmentQuery(this.getEngine().getQuery('CREATE_FUNCTION', db, name));
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
@@ -2652,9 +2676,9 @@ Ext.application({
 
 		    if (btn == 'ok'){
 
-		    	var sql = this.getEngine().getQuery('CREATE_TRIGGER', db, name);
-		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
+
+		    	var sql = this.alignmentQuery(this.getEngine().getQuery('CREATE_TRIGGER', db, name));
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
@@ -2668,9 +2692,9 @@ Ext.application({
 
 		    if (btn == 'ok'){
 
-		    	var sql = this.getEngine().getQuery('CREATE_EVENT', db, name);
-		    	sql = this.formatQuery(sql);
 		    	this.openQueryTab();
+
+		    	var sql = this.alignmentQuery(this.getEngine().getQuery('CREATE_EVENT', db, name));
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
