@@ -97,36 +97,46 @@ class Control {
         $insert_id = $this->conn->insert_id;
         echo 'insert_id : '.$insert_id.',';
 
-        $fields = $result->fetch_fields();
-        foreach($fields as $idx => $row){
-            
-            array_push($this->fields, array(
-                'name' => $row->name,
-                'type' => $this->types[$row->type],
-                'table' => $row->table,
-                'max_length' => $row->max_length
-            ));
+        if(method_exists($result, 'fetch_fields')){
+
+            $fields = $result->fetch_fields();
+            foreach($fields as $idx => $row){
+                
+                array_push($this->fields, array(
+                    'name' => $row->name,
+                    'type' => $this->types[$row->type],
+                    'table' => $row->table,
+                    'max_length' => $row->max_length
+                ));
+            }
+
+            $is_result_query = true;
+        }
+        else {
+
+            $is_result_query = false;
         }
 
-        echo 'fields:'.json_encode($this->fields).',';
-
-        $is_result_query = false;
+        echo 'fields:'.json_encode($this->fields).',';      
 
         echo "records:[";
-        $idx = 0;
 
-        while ($row = $result->fetch_array(MYSQLI_ASSOC))
-        {
-            $this->field_idx = 0;
-            $is_result_query = true;
+        if(method_exists($result, 'fetch_array')){
 
-            if($idx > 0){ 
-                
-                echo ",";
+            $idx = 0;
+            while ($row = $result->fetch_array(MYSQLI_ASSOC))
+            {
+                $this->field_idx = 0;
+
+                if($idx > 0){ 
+                    
+                    echo ",";
+                }
+                echo json_encode(array_map(array($this, 'removeHTML'), array_values($row)));
+                $idx++;
             }
-            echo json_encode(array_map(array($this, 'removeHTML'), array_values($row)));
-            $idx++;
         }
+        
         echo "],";
 
         echo 'is_result_query : '.($is_result_query ? 'true' : 'false');
@@ -185,7 +195,7 @@ class Control {
 
 extract($_GET);
 
-define('DEBUG', false);
+define('DEBUG', true);
 define('JSONP', (bool)isset($callback));
 
 if(DEBUG == true) {
