@@ -192,7 +192,7 @@ Ext.application({
 
 						var queries = editor.getSelection(),
 							queries = this.parseQuery(queries);
-							
+
                 		this.openTokenPanel(queries[0]);
                 	}
                 },
@@ -2581,7 +2581,7 @@ Ext.application({
 			query : 'DESCRIBE `'+db+'`.`'+table+'`',
 			success : function(config, response){
 
-				var query = this.alignmentQuery(response.records[0][1]);
+				query = this.alignmentQuery(func[mode](response.records));
 				this.setActiveEditorValue(query);
 			}
 		});
