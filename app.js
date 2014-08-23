@@ -188,7 +188,11 @@ Ext.application({
 						var editor = this.getActiveEditor();
 
 						if(!editor){ return; }
-						if(!editor.somethingSelected()){ return; }
+						if(!editor.somethingSelected()){ 
+
+							this.showMessage('Query is not selected.');
+							return; 
+						}
 
 						var queries = editor.getSelection(),
 							queries = this.parseQuery(queries);
@@ -1463,18 +1467,21 @@ Ext.application({
 			text: 'Alter Event',
 			handler : function(){
 
+				this.alterEvent();
 			}
 		},
 		{
 			text: 'Drop Event',
 			handler : function(){
 
+				this.dropEvent();
 			}
 		},
 		{
 			text: 'Rename Event',
 			handler : function(){
 
+				this.renameEvent();
 			}
 		}];
 	},
@@ -1515,18 +1522,21 @@ Ext.application({
 			text: 'Alter Trigger',
 			handler : function(){
 
+				this.alterTrigger();
 			}
 		},
 		{
 			text: 'Drop Trigger',
 			handler : function(){
 
+				this.dropTrigger();
 			}
 		},
 		{
 			text: 'Rename Trigger',
 			handler : function(){
 
+				this.renameTrigger();
 			}
 		}];
 	},
@@ -1563,12 +1573,14 @@ Ext.application({
 			text: 'Alter Function',
 			handler : function(){
 
+				this.alterFunction();
 			}
 		},
 		{
 			text: 'Drop Function',
 			handler : function(){
 
+				this.dropFunction();
 			}
 		}];
 	},
@@ -1605,12 +1617,14 @@ Ext.application({
 			text: 'Alter Procedure',
 			handler : function(){
 
+				this.alterProcedure();
 			}
 		},
 		{
 			text: 'Drop Procedure',
 			handler : function(){
 
+				this.dropProcedure();
 			}
 		}];
 	},
@@ -1797,7 +1811,21 @@ Ext.application({
 		if(typeof query == 'string'){
 
 			var queries = this.parseQuery(query);	   	 		
-	   	 	query = queries[0];
+
+	    	if(queries.length == 0){
+
+				return query;
+	   	 	}
+
+	   	 	var tmp = [];
+			Ext.Array.each(queries, function(query, idx){
+
+				tmp.push(Planche.lib.QueryAlignment.alignment(query));
+			});
+
+			tmp = tmp.join('\n');
+
+			return tmp;
 		}
 
 		return Planche.lib.QueryAlignment.alignment(query);
@@ -2283,7 +2311,7 @@ Ext.application({
 		        Ext.Array.each(response.records, function(row, idx){
 
 		            children.push({
-		                text : row[1],
+		                text : row[0],
 		                leaf : true
 		            });
 		        });
@@ -2620,17 +2648,19 @@ Ext.application({
 
 	alterView : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node),
+    		name = node.getData().text;
 		this.tunneling({
 			db : db,
-			query : this.getEngine().getQuery('ALTER_VIEW', db, node.getData().text),
+			query : this.getEngine().getQuery('SHOW_CREATE_VIEW', db, name),
 			node : node,
 			success : function(config, response){
 
 		    	this.openQueryTab();
 
-				var query = this.alignmentQuery(response.records[0][1]);
+		    	var body  = this.getEngine().getQuery('ALTER_VIEW', db, name, response.records[0][1]),
+					query = this.alignmentQuery(body);
 				this.setActiveEditorValue(query);
 			}
 		});
@@ -2638,8 +2668,8 @@ Ext.application({
 
 	createProcedure : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node);
 		Ext.Msg.prompt('Create Procedure', 'Please enter new procedure name:', function(btn, name){
 
 		    if (btn == 'ok'){
@@ -2652,10 +2682,30 @@ Ext.application({
 		}, this);
 	},
 
+	alterProcedure : function(){
+
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node),
+    		name = node.getData().text;
+		this.tunneling({
+			db : db,
+			query : this.getEngine().getQuery('SHOW_CREATE_PROCEDURE', db, name),
+			node : node,
+			success : function(config, response){
+
+		    	this.openQueryTab();
+
+		    	var body  = this.getEngine().getQuery('ALTER_PROCEDURE', db, name, response.records[0][2]),
+					query = this.alignmentQuery(body);
+				this.setActiveEditorValue(query);
+			}
+		});
+	},
+
 	createFunction : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node);
 		Ext.Msg.prompt('Create Function', 'Please enter new function name:', function(btn, name){
 
 		    if (btn == 'ok'){
@@ -2668,10 +2718,30 @@ Ext.application({
 		}, this);
 	},
 
+	alterFunction : function(){
+
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node),
+    		name = node.getData().text;
+		this.tunneling({
+			db : db,
+			query : this.getEngine().getQuery('SHOW_CREATE_FUNCTION', db, name),
+			node : node,
+			success : function(config, response){
+
+		    	this.openQueryTab();
+
+		    	var body  = this.getEngine().getQuery('ALTER_FUNCTION', db, name, response.records[0][2]),
+					query = this.alignmentQuery(body);
+				this.setActiveEditorValue(query);
+			}
+		});
+	},
+
 	createTrigger : function(){
 
-    	var node = this.getSelectedNode();
-    	var db = this.getParentNode(node);
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node);
 		Ext.Msg.prompt('Create Trigger', 'Please enter new trigger name:', function(btn, name){
 
 		    if (btn == 'ok'){
@@ -2682,6 +2752,26 @@ Ext.application({
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
+	},
+
+	alterTrigger : function(){
+
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node),
+    		name = node.getData().text.match(/.+?\b/)[0];
+		this.tunneling({
+			db : db,
+			query : this.getEngine().getQuery('SHOW_CREATE_TRIGGER', db, name),
+			node : node,
+			success : function(config, response){
+
+		    	this.openQueryTab();
+
+		    	var body  = this.getEngine().getQuery('ALTER_TRIGGER', db, name, response.records[0][2]),
+					query = this.alignmentQuery(body);
+				this.setActiveEditorValue(query);
+			}
+		});
 	},
 
 	createEvent : function(){
@@ -2698,6 +2788,26 @@ Ext.application({
 		    	this.setActiveEditorValue(sql);
 		    }
 		}, this);
+	},
+
+	alterEvent : function(){
+
+    	var node = this.getSelectedNode(),
+    		db   = this.getParentNode(node),
+    		name = node.getData().text;
+		this.tunneling({
+			db : db,
+			query : this.getEngine().getQuery('SHOW_CREATE_EVENT', db, name),
+			node : node,
+			success : function(config, response){
+
+		    	this.openQueryTab();
+
+		    	var body  = this.getEngine().getQuery('ALTER_EVENT', db, name, response.records[0][3]),
+					query = this.alignmentQuery(body);
+				this.setActiveEditorValue(query);
+			}
+		});
 	},
 
 	tunneling : function(config){
@@ -2755,5 +2865,10 @@ Ext.application({
                 config.failure.apply(this, [config, response]);
             }
 		});
+	},
+
+	showMessage : function(msg){
+
+		Ext.Msg.alert('Message', msg);
 	}
 });

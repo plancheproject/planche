@@ -13,7 +13,6 @@ Ext.define('Planche.engine.MySQL', function(){
 		SHOW_VIEWS : 'SELECT `TABLE_NAME` AS View_name,`View_definition`,`Check_option`,`Is_updatable`,`Definer`,`Security_type` FROM `INFORMATION_SCHEMA`.`VIEWS` WHERE `TABLE_SCHEMA` = "{0}"',
 		SHOW_DATABASE_DDL : 'SHOW CREATE DATABASE `{0}`',
 		SHOW_TABLE_STATUS : 'SHOW TABLE STATUS FROM `{0}` WHERE ENGINE IS NOT NULL',
-		ALTER_VIEW : 'SHOW CREATE TABLE `{0}`.`{1}`',
 		CHANGE_TABLE_TYPE : 'ALTER TABLE `{0}`.`{1}` ENGINE = {2}',
 		INSERT_TABLE : 'INSERT INTO `{0}`.`{1}` ({2}) VALUES({3});',		
 		UPDATE_TABLE : 'UPDATE `{0}`.`{1}` SET {2} WHERE {3};',
@@ -27,6 +26,17 @@ Ext.define('Planche.engine.MySQL', function(){
 		CREATE_TRIGGER : 'DELIMITER $$ CREATE /*[DEFINER = { user | CURRENT_USER }]*/ TRIGGER `{0}`.`{1}` BEFORE/AFTER INSERT/UPDATE/DELETE ON `{0}`.`<Table Name>` FOR EACH ROW BEGIN END$$ DELIMITER ;',
 		CREATE_EVENT : 'DELIMITER $$ -- SET GLOBAL event_scheduler = ON$$\n-- required for event to execute but not create\nCREATE /*[DEFINER = { user | CURRENT_USER }]*/	EVENT `{0}`.`{1}` ON SCHEDULE /* uncomment the example below you want to use */\n-- scheduleexample 1: run once\n \t--  AT \'YYYY-MM-DD HH:MM.SS\'/CURRENT_TIMESTAMP { + INTERVAL 1 [HOUR|MONTH|WEEK|DAY|MINUTE|...] }\n -- scheduleexample 2: run at intervals forever after creation\n \t-- EVERY 1 [HOUR|MONTH|WEEK|DAY|MINUTE|...]\n -- scheduleexample 3: specified start time, end time and interval for execution\n /*EVERY 1  [HOUR|MONTH|WEEK|DAY|MINUTE|...]\n STARTS CURRENT_TIMESTAMP/\'YYYY-MM-DD HH:MM.SS\' { + INTERVAL 1[HOUR|MONTH|WEEK|DAY|MINUTE|...] }\n ENDS CURRENT_TIMESTAMP/\'YYYY-MM-DD HH:MM.SS\' { + INTERVAL 1 [HOUR|MONTH|WEEK|DAY|MINUTE|...] } */ /*[ON COMPLETION [NOT] PRESERVE] [ENABLE | DISABLE] [COMMENT \'comment\']*/ DO BEGIN (sql_statements) END$$ DELIMITER ;',
 		CREATE_VIEW : 'CREATE /*[ALGORITHM = {UNDEFINED | MERGE | TEMPTABLE}] [DEFINER = { user | CURRENT_USER }] [SQL SECURITY { DEFINER | INVOKER }]*/ VIEW `{0}`.`{1}` AS (SELECT * FROM ...);',
+		SHOW_CREATE_PROCEDURE : 'SHOW CREATE PROCEDURE `{0}`.`{1}`',
+		SHOW_CREATE_TABLE : 'SHOW CREATE TABLE `{0}`.`{1}`',
+		SHOW_CREATE_VIEW : 'SHOW CREATE TABLE `{0}`.`{1}`',
+		SHOW_CREATE_FUNCTION : 'SHOW CREATE FUNCTION `{0}`.`{1}`',
+		SHOW_CREATE_TRIGGER : 'SHOW CREATE TRIGGER `{0}`.`{1}`',
+		SHOW_CREATE_EVENT : 'SHOW CREATE EVENT `{0}`.`{1}`',
+		ALTER_VIEW : 'DELIMITER $$ USE `{0}`$$ DROP VIEW IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
+		ALTER_PROCEDURE : 'DELIMITER $$ USE `{0}`$$ DROP PROCEDURE IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
+		ALTER_FUNCTION : 'DELIMITER $$ USE `{0}`$$ DROP FUNCTION IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
+		ALTER_TRIGGER : 'DELIMITER $$ USE `{0}`$$ DROP TRIGGER IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
+		ALTER_EVENT : 'DELIMITER $$ USE `{0}`$$ DROP EVENT IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
 		SHOW_PROCESS_LIST : 'SHOW FULL PROCESSLIST',
 		SHOW_VARIABLES : 'SHOW VARIABLES',
 		SHOW_STATUS : 'SHOW STATUS',
@@ -40,7 +50,7 @@ Ext.define('Planche.engine.MySQL', function(){
 	var data_types		= ['tinyint', 'int', 'varchar', 'float', 'double', 'timestamp', 'bit', 'bigint', 'mediumint', 'date', 'time', 'datetime', 'year', 'date', 'enum', 'set', 'tinyblob', 'mediumblob', 'longblob', 'blob', 'varchar', 'char', 'geometr'];
 	
 	var regexpLimit		= "LIMIT\\s+[0-9]+((\\s+?,|,)?(\\s+)?[0-9]+)";
-
+	
 	return {
 		singleton: true,
 		constructor: function(config) {
