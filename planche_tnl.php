@@ -73,7 +73,10 @@ class Control {
             return;
         }
 
+        $start = substr(microtime(), 0, 10);
         $result = $this->conn->query($query);
+        $end = substr(microtime(), 0, 10);
+        $exec_time = substr($end - $start, 0, 10);
 
         if ($this->conn->error) {
 
@@ -90,12 +93,15 @@ class Control {
             echo $this->callback.'(';
         }
 
+        $start = substr(microtime(), 0, 10);
+
         echo '{success:true,';
+        echo 'exec_time:'.$exec_time.',';
         $affected_rows = $this->conn->affected_rows;
-        echo 'affected_rows : '.$affected_rows.',';
+        echo 'affected_rows:'.$affected_rows.',';
 
         $insert_id = $this->conn->insert_id;
-        echo 'insert_id : '.$insert_id.',';
+        echo 'insert_id:'.$insert_id.',';
 
         if(method_exists($result, 'fetch_fields')){
 
@@ -139,8 +145,16 @@ class Control {
         
         echo "],";
 
-        echo 'is_result_query : '.($is_result_query ? 'true' : 'false');
+        echo 'is_result_query:'.($is_result_query ? 'true':'false').",";
 
+        $end = substr(microtime(), 0, 10);
+        $transfer_time = substr($end - $start, 0, 10);
+
+        echo 'transfer_time:'.$transfer_time.',';
+
+        $total_time = $exec_time + $transfer_time;
+        
+        echo 'total_time:'.$total_time;
         echo "}";
 
         if($this->callback !== null){
