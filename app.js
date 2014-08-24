@@ -197,12 +197,22 @@ Ext.application({
 						var queries = editor.getSelection(),
 							queries = this.parseQuery(queries);
 
-                		this.openTokenPanel(queries[0]);
+				   	 	var tokens = [];
+						Ext.Array.each(queries, function(query, idx){
+
+							Ext.Array.each(query.getTokens(), function(token, idx){
+								
+								tokens.push(token);
+							});
+						});
+
+                		this.openTokenPanel(tokens);
                 	}
                 },
                 {
 					icon : 'images/icon_sql.png',
                 	text : 'Prepare',
+                	disabled : true,
                 	cls : 'btn',
                 	scope : this,
                 	handler : function(btn){
@@ -642,14 +652,13 @@ Ext.application({
 		        ptype: 'bufferedrenderer'
 		    },
 			tbar: [
-              	{ xtype: 'button', text: 'Add', cls : 'btn', scope: this, handler : function(btn){
+              	{ xtype: 'button', text: 'Add', disabled: true, cls : 'btn', scope: this, handler : function(btn){
 
 				}},
-              	{ xtype: 'button', text: 'Save', cls : 'btn', scope: this, handler : function(btn){
+              	{ xtype: 'button', text: 'Save', disabled: true, cls : 'btn', scope: this, handler : function(btn){
 
 				}},
-              	{ xtype: 'button', text: 'Del', cls : 'btn', scope: this, handler : function(btn){
-
+              	{ xtype: 'button', text: 'Del', disabled: true, cls : 'btn', scope: this, handler : function(btn){
 
 				}},
 				{ xtype: 'tbseparator', margin : '0 5 0 5'},
@@ -706,7 +715,7 @@ Ext.application({
 				{ xtype: 'tbseparator', margin : '0 5 0 5'},
               	{ xtype: 'button', text: 'Tokens', cls : 'btn', scope: this, handler : function(btn){
 
-					this.openTokenPanel(query);
+					this.openTokenPanel(query.getTokens());
 				}}
 			],
 			fbar : [
@@ -898,9 +907,9 @@ Ext.application({
     	});
     },
 
-    openTokenPanel : function(query){
+    openTokenPanel : function(tokens){
 
-    	this.openWindow('query.Token', query);
+    	this.openWindow('query.Token', tokens);
     },
 
     openProcessPanel : function(){
@@ -1777,24 +1786,23 @@ Ext.application({
 	makeTableByRecord : function(record, html){
 
 		var html = html || [];
-        html.push('<table class="x-gridview-1067-table x-grid-table" border="0" cellpadding="0" cellspacing="0" width="100%">');
-        html.push('<tr class="x-grid-row x-grid-data-row">');
+        html.push('<table class="info" width="100%">');
+        html.push('<tr>');
         Ext.Array.each(record.fields, function(col, cidx){
 
-            html.push('<td class="x-grid-cell x-grid-td">'+col.name+'</td>');
+            html.push('<th>'+col.name+'</th>');
         });
         html.push('</tr>');
         Ext.Array.each(record.records, function(row, ridx){
 
-            html.push('<tr class="x-grid-row x-grid-data-row">');
+            html.push('<tr>');
             Ext.Array.each(record.fields, function(col, cidx){
 
-                html.push('<td class="x-grid-cell x-grid-td">'+row[cidx]+'</td>');
+                html.push('<td>'+row[cidx]+'</td>');
             });
             html.push('</tr>');
         });
         html.push('</table>');
-
         return html;
 	},
 
@@ -1935,10 +1943,10 @@ Ext.application({
 	                    }
 	                    else {
 
-	                        var msg = response.affected_rows+' row(s) affected<br>';
-	                        msg += 'Execution Time : 00:00:00:000<br>';
-	                        msg += 'Transfer Time  : 00:00:00:000<br>';
-	                        msg += 'Total Time     : 00:00:00:000';
+	                        var msg = response.affected_rows+' row(s) affected<br/><br/>';
+	                        msg += 'Execution Time : '+response.exec_time+'<br/>';
+	                        msg += 'Transfer Time  : '+response.transfer_time+'<br/>';
+	                        msg += 'Total Time     : '+response.total_time;
 	                        messages.push(query.getSQL()+'<br/><br/>'+msg);
 	                    }
 	                    this.getActiveMainTab().setLoading(false);
@@ -2479,7 +2487,7 @@ Ext.application({
 		        html.push('<h3>Show Table Indexes</h3>');			        
 		        this.makeTableByRecord(responses.keys, html);
 		        html.push('<h3>Create Table DDL</h3>');
-		        html.push('<div>'+responses.create.records[0][1].replace(/\n/gi, '<br/>')+'</div>');
+		        html.push('<div class="info">'+responses.create.records[0][1].replace(/\n/gi, '<br/>')+'</div>');
 		        dom.setHTML(html.join(""));
 			}
 
@@ -2555,7 +2563,7 @@ Ext.application({
 		        html.push('<h3>Event Information</h3>');        
 		        this.makeTableByRecord(responses.events, html);
 		        html.push('<h3>Create Database DDL</h3>');
-		        html.push('<div>'+responses.ddl.records[0][1].replace(/\n/gi, '<br/>')+'</div>');
+		        html.push('<div class="info">'+responses.ddl.records[0][1].replace(/\n/gi, '<br/>')+'</div>');
 		        dom.setHTML(html.join(""));
 			}
 
