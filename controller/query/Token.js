@@ -1,8 +1,8 @@
 Ext.define('Planche.controller.query.Token', {
     extend: 'Ext.app.Controller',
-    initWindow : function(query){
+    initWindow : function(tokens){
 
-        this.query = query;
+        this.tokens = tokens;
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -67,7 +67,7 @@ Ext.define('Planche.controller.query.Token', {
         });
 
         var data = [];
-        Ext.Array.each(this.query.getTokens(), function(token, idx){
+        Ext.Array.each(this.tokens, function(token, idx){
 
             data.push({type : type[token.type], token : token.value });
         });
