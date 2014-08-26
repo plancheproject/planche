@@ -783,6 +783,7 @@ Ext.application({
 			title   : 'Messages',
 			split	: true,
 			border	: false,
+			autoScroll: true,
 			padding : '10 10 10 10',
 			flex	: 1
 		};
@@ -817,6 +818,7 @@ Ext.application({
 			title   : 'History',
 			split	: true,
 			border	: false,
+			autoScroll: true,
 			flex	: 1,
 			html    : '<textarea></textarea>',
 			listeners : {
@@ -1921,6 +1923,12 @@ Ext.application({
 
 			if(query) {
 
+				if(query.isDelimiter() == true){
+
+					tunneling();
+					return;
+				}
+			
 				this.getActiveMainTab().setLoading(true);
 
 	            this.tunneling({
