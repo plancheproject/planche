@@ -213,12 +213,12 @@ Ext.define('Planche.controller.table.EditScheme', {
             return;
         }
 
-        var node = this.getApplication().getSelectedNode();
-        var db   = this.getApplication().getParentNode(node);
-        
-        var query = 'CREATE TABLE `'+db+'`.`'+table+'`(';
-        var fields = [];
-        var store = this.grid.getStore();
+        var node = this.getApplication().getSelectedNode(),
+            db   = this.getApplication().getParentNode(node),
+            query = 'CREATE TABLE `'+db+'`.`'+table+'`(',
+            primaries = [], fields = [],
+            store = this.grid.getStore();
+            
         Ext.Object.each(store.getRange(), function(idx, obj){
 
             if(!obj.data.field) return;
