@@ -2722,6 +2722,17 @@ Ext.application({
 			node : node,
 			success : function(config, response){
 
+                if(response.records.length == 0){
+
+                    return;
+                }
+
+                if(!response.records[0][2]){
+
+                    Ext.Msg.alert('error', 'Unable to retrieve information. Please check your permission.');
+                    return;
+                }
+
 		    	this.openQueryTab();
 
 		    	var body  = this.getEngine().getQuery('ALTER_PROCEDURE', db, name, response.records[0][2]),
@@ -2757,6 +2768,17 @@ Ext.application({
 			query : this.getEngine().getQuery('SHOW_CREATE_FUNCTION', db, name),
 			node : node,
 			success : function(config, response){
+
+                if(response.records.length == 0){
+
+                    return;
+                }
+
+                if(!response.records[0][2]){
+
+                    Ext.Msg.alert('error', 'Unable to retrieve information. Please check your permission.');
+                    return;
+                }
 
 		    	this.openQueryTab();
 
