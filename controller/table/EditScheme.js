@@ -269,7 +269,7 @@ Ext.define('Planche.controller.table.EditScheme', {
             },
             failure : function(config, response){
 
-                Ext.Msg.alert('Error', response.result);
+                Ext.Msg.alert('Error', response.result.message);
             }
         });
     },
