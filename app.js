@@ -107,34 +107,33 @@ Ext.application({
 			padding		: 3,
 			margin		: '0px 0px 1px 0px',
 			defaults	:{
-				xtype			: 'button',
-				allowDepress	: false,
-				scale			: 'medium',
-				tooltipType		: 'title',
-				scope			: this
+                xtype       : 'button',
+                allowDepress: false,
+                scale       : 'medium',
+                tooltipType : 'title',
+                scope       : this,
+                disabled    : true
             },
             items : [
                 {
 					icon	: 'images/new_database.png',
 					tooltip	: 'Create a new connection(ALT+N)',
+                    disabled : false,
 					handler : this.openConnPanel
                 },
                 {
 					icon	: 'images/new_query.png',
 					tooltip	: 'New query editor(ALT+T)',
-					disabled : true,
 					handler : this.openQueryTab
                 },
                 {
 					icon	: 'images/icon_play24x24.png',
 					tooltip	: 'Query Execution(F9)',
-					disabled : true,
 					handler : this.executeQuery
                 },
                 {
 					icon	: 'images/icon_user24x24.png',
 					tooltip	: 'User Manager(ALT+U)',
-					disabled : true,
 					handler : this.openUserPanel
                 },
                 '-',
@@ -176,6 +175,16 @@ Ext.application({
                 		this.openStatusPanel();
                 	}
                 },
+                {
+                	text : 'Flush',
+                	cls : 'btn',
+                	margin : '0px 6px 0px 0px',
+                	scope : this,
+                	handler : function(btn){
+
+                		this.openFlushPanel();
+                	}
+                },
                 '-',
                 {
 					icon : 'images/icon_sql.png',
@@ -212,7 +221,6 @@ Ext.application({
                 {
 					icon : 'images/icon_sql.png',
                 	text : 'Prepare',
-                	disabled : true,
                 	cls : 'btn',
                 	scope : this,
                 	handler : function(btn){
@@ -927,6 +935,11 @@ Ext.application({
     openStatusPanel : function(){
 
     	this.openWindow('command.Status');
+    },
+
+    openFlushPanel : function(){
+
+    	this.openWindow('command.Flush');
     },
 
     openVariablesPanel : function(){
