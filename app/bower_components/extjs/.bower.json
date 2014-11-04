@@ -1,0 +1,23 @@
+{
+  "name": "extjs",
+  "version": "4.2.1-883",
+  "homepage": "http://www.sencha.com/products/extjs",
+  "authors": [
+    "Sencha"
+  ],
+  "main": "ext-all.js",
+  "ignore": [],
+  "keywords": [
+    "extjs"
+  ],
+  "license": "GPL",
+  "_release": "4.2.1-883",
+  "_resolution": {
+    "type": "version",
+    "tag": "v4.2.1-883",
+    "commit": "be5f63b7c1bd19626ff2ab2a46ca996670c2d1db"
+  },
+  "_source": "git://github.com/koala-framework/extjs.git",
+  "_target": "4.2.x",
+  "_originalSource": "extjs"
+}

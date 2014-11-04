@@ -1,0 +1,26 @@
+{
+    "author": "Jeong Ju Won <jjwcom@nate.com>",
+    "bugs": {
+        "url": "https://github.com/jeongjuwon/planche/issues"
+    },
+    "description": "MySQL GUI Client Tool",
+    "homepage": "https://github.com/jeongjuwon/planche",
+    "keywords": [
+        "MySQL",
+        "GUI",
+        "ExtJS"
+    ],
+    "license": "GPLv2",
+    "main": "app.js",
+    "name": "planche",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jeongjuwon/planche.git"
+    },
+    "scripts": {
+        "postinstall": "bower install",
+        "prestart": "npm install",
+        "start": "http-server -a localhost -p 8000 -c-1"
+    },
+     "version": "1.0.0"
+}
