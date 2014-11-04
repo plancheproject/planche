@@ -37,7 +37,7 @@ Quick Start
 Watch the video
 ----
 
-&lt;iframe width="560" height="315" src="//www.youtube.com/embed/WCnXJXDRlYs" frameborder="0" allowfullscreen&gt; &lt;/iframe&gt;
+<frame width="560" height="315" src="//www.youtube.com/embed/WCnXJXDRlYs" frameborder="0" allowfullscreen></iframe>
 
 License
 ----
