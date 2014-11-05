@@ -35,7 +35,7 @@ class Control {
         }
 
         $query = 'SET NAMES ' . $charset;
-        $this->query($query);
+        $this->conn->query($query);
     }
 
     public function error($error){
@@ -236,5 +236,7 @@ set_time_limit(0);
 $Planche = new Control();
 $Planche->connect($host, $user, $pass, $db);
 if(JSONP) $Planche->setCallback($callback);
+
+$Planche->setCharset($charset);
 $Planche->query($query);
 ?>

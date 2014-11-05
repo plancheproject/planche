@@ -1052,17 +1052,7 @@ Ext.application({
 
     openCreateDatabaseWindow : function(node){
 
-        if(node){
-
-            var db = node;
-        }
-        else {
-
-            var node = this.getSelectedNode();
-            var db = this.getParentNode(node);
-        }
-
-        this.openWindow('database.CreateDatabase', db);
+        this.openWindow('database.CreateDatabase', node);
     },
 
 	openReorderColumns : function(node){
@@ -1308,20 +1298,22 @@ Ext.application({
 
 	loadDatabaseContextMenu : function(){
 
-		return [{
-    		text: 'Create Database',
-    		handler : function(){
+		return [
+  //       {
+  //   		text: 'Create Database',
+  //   		handler : function(){
 
-                this.createDatabase();
-    		}
-		},{
-    		text: 'Alter Database',
-            handler : function(){
+  //               this.createDatabase();
+  //   		}
+		// },{
+  //   		text: 'Alter Database',
+  //           handler : function(){
 
-                var node = this.getSelectedNode();
-                this.alterDatabase(node);
-            }
-		},{
+  //               var node = this.getSelectedNode();
+  //               this.alterDatabase(node);
+  //           }
+		// },
+        {
     		text: 'Drop Database',
             handler : function(){
 
@@ -1335,14 +1327,17 @@ Ext.application({
                 var node = this.getSelectedNode();
                 this.truncateDatabase(node);
             }
-		},{
-    		text: 'Empty Database',
-            handler : function(){
+		}
 
-                var node = this.getSelectedNode();
-                this.emptyDatabase(node);
-            }
-		}];
+  //       ,{
+  //   		text: 'Empty Database',
+  //           handler : function(){
+
+  //               var node = this.getSelectedNode();
+  //               this.emptyDatabase(node);
+  //           }
+		// }
+        ];
 	},
 
 	loadTablesContextMenu : function(){
@@ -2122,7 +2117,13 @@ Ext.application({
 
 		var node = this.getSelectedNode();
         var db = this.getParentNode(node);
-    
+        
+        if(!db){
+
+            this.openMessage('No database selected.');
+            return;
+        }
+
 		var tunneling;
 		var messages = [];
 		(tunneling = Ext.Function.bind(function(){

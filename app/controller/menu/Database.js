@@ -6,40 +6,46 @@ Ext.define('Planche.controller.menu.Database', {
         topBtn.menu.add([{
             text : 'Copy Database To Different Host/Database(Not Yet)',
             disabled : true
-        },{
-            text : 'Create Database',
-            scope : this.application,
-            handler : function(){
+        },
 
-                this.createDatabase();
-            },
-            allowDisable : function(topBtn, menu){
+        // {
+        //     text : 'Create Database',
+        //     scope : this.application,
+        //     handler : function(){
 
-                if(!this.getActiveMainTab()){
+        //         this.createDatabase();
+        //     },
+        //     allowDisable : function(topBtn, menu){
 
-                    return true;
-                }
+        //         if(!this.getActiveMainTab()){
 
-                return false;
-            }
-        },{
-            text : 'Alter Database',
-            scope : this.application,
-            handler : function(){
+        //             return true;
+        //         }
 
-                var node = this.getSelectedNode();
-                this.alterDatabase(node);
-            },
-            allowDisable : function(topBtn, menu){
+        //         return false;
+        //     }
+        // },
 
-                if(!this.getActiveMainTab()){
+        // {
+        //     text : 'Alter Database',
+        //     scope : this.application,
+        //     handler : function(){
 
-                    return true;
-                }
+        //         var node = this.getSelectedNode();
+        //         this.alterDatabase(node);
+        //     },
+        //     allowDisable : function(topBtn, menu){
 
-                return false;
-            }
-        },{
+        //         if(!this.getActiveMainTab()){
+
+        //             return true;
+        //         }
+
+        //         return false;
+        //     }
+        // },
+
+        {
             text : 'Create',
             scope : this.application,
             allowDisable : function(topBtn, menu){
@@ -59,7 +65,7 @@ Ext.define('Planche.controller.menu.Database', {
                 scope : this.application,
                 handler : function(){
 
-                    this.createTable();
+                    this.openCreateTableWindow();
                 }
             },{
                 text : 'View',
@@ -128,15 +134,19 @@ Ext.define('Planche.controller.menu.Database', {
                     var node = this.getSelectedNode();
                     this.truncateDatabase(node);
                 }
-            },{
-                text : 'Empty Database',
-                scope : this.application,
-                handler : function(){
+            }
 
-                    var node = this.getSelectedNode();
-                    this.emptyDatabase(node);
-                }
-            }]
+            // ,{
+            //     text : 'Empty Database',
+            //     scope : this.application,
+            //     handler : function(){
+
+            //         var node = this.getSelectedNode();
+            //         this.emptyDatabase(node);
+            //     }
+            // }
+
+            ]
         },{
             text : 'Backup/Export(Not Yet)',
             disabled : true,
