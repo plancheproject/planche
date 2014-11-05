@@ -220,16 +220,16 @@ Ext.application({
 
                 		this.openTokenPanel(tokens);
                 	}
-                },
-                {
-					icon : 'images/icon_sql.png',
-                	text : 'Prepare',
-                	cls : 'btn',
-                	scope : this,
-                	handler : function(btn){
-
-                	}
                 }
+     //            {
+					// icon : 'images/icon_sql.png',
+     //            	text : 'Prepare',
+     //            	cls : 'btn',
+     //            	scope : this,
+     //            	handler : function(btn){
+
+     //            	}
+     //            }
             ]
         };
     },
@@ -1050,10 +1050,18 @@ Ext.application({
     	this.openWindow('table.EditScheme', db);
 	},
 
-    openCreateDatabaseWindow : function(){
+    openCreateDatabaseWindow : function(node){
 
-        var node = this.getSelectedNode();
-        var db = this.getParentNode(node);
+        if(node){
+
+            var db = node;
+        }
+        else {
+
+            var node = this.getSelectedNode();
+            var db = this.getParentNode(node);
+        }
+
         this.openWindow('database.CreateDatabase', db);
     },
 
@@ -1129,6 +1137,16 @@ Ext.application({
         }, this);
     },
 
+    createDatabase : function(){
+
+        this.openCreateDatabaseWindow();
+    },
+
+    alterDatabase : function(node){
+
+        this.openCreateDatabaseWindow(node);
+    },
+
     dropDatabase : function(node){
 
         var db = node.data.text;
@@ -1138,7 +1156,27 @@ Ext.application({
 
                 this.tunneling({
                     db : db,
-                    query : 'DROP DATABASE `'+db+'`',
+                    query : this.getEngine().getQuery('DROP_DATABASE', db),
+                    success : function(config, response){
+
+                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
+                        node.remove();
+                    }
+                });
+            }
+        }, this);
+    },
+
+    truncateDatabase : function(node){
+
+        var db = node.data.text;
+        Ext.Msg.confirm('Truncate Database \''+db+'\'', 'Do you really want to truncate the database?\n\nWarning: You will lose all data!', function(btn, text){
+
+            if (btn == 'yes'){
+
+                this.tunneling({
+                    db : db,
+                    query : this.getEngine().getQuery('TRUNCATE_DATABASE', db),
                     success : function(config, response){
 
                         this.getSelectedTree().getSelectionModel().select(node.parentNode);
@@ -1178,7 +1216,7 @@ Ext.application({
 
 	        	this.tunneling({
 	        		db : db,
-	        		query : 'RENAME TABLE `'+db+'`.`'+table+'` TO `'+db+'`.`'+text+'`',
+	        		query : this.getEngine().getQuery('RENAME_TABLE', db, table, db, text),
 	        		success : function(config, response){
 
 	        			node.set('text', text);
@@ -1198,7 +1236,7 @@ Ext.application({
 
 	        	this.tunneling({
 	        		db : db,
-	        		query : 'TRUNCATE TABLE `'+db+'`.`'+table+'`',
+	        		query : this.getEngine().getQuery('TRUNCATE_TABLE', db, table),
 	        		success : function(config, response){
 
 	        			this.openTable(node);
@@ -1274,7 +1312,7 @@ Ext.application({
     		text: 'Create Database',
     		handler : function(){
 
-                this.openCreateDatabaseWindow();
+                this.createDatabase();
     		}
 		},{
     		text: 'Alter Database',

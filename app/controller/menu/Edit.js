@@ -18,6 +18,10 @@ Ext.define('Planche.controller.menu.Edit', {
         },{
             text : 'Excute Query',
             scope : this.application,
+            handler : function(){
+
+                this.executeQuery();
+            },
             allowDisable : function(topBtn, menu){
 
                 if(!this.getActiveEditor()){
@@ -89,117 +93,117 @@ Ext.define('Planche.controller.menu.Edit', {
 
                 return false;
             }
-        },
-        '-'
-        ,{
-            text : 'Cut',
-            scope : this.application,
-            handler : function(){
+        }
+        // '-'
+        // ,{
+        //     text : 'Cut',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.getActiveEditor().cut();                
-            },
-            allowDisable : function(){
+        //         this.getActiveEditor().cut();                
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                if(!this.getActiveEditor().somethingSelected()){
+        //         if(!this.getActiveEditor().somethingSelected()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        },{
-            text : 'Copy',
-            scope : this.application,
-            handler : function(){
+        //         return false;
+        //     }
+        // },{
+        //     text : 'Copy',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.getActiveEditor().copy();                
-            },
-            allowDisable : function(){
+        //         this.getActiveEditor().copy();                
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                if(!this.getActiveEditor().somethingSelected()){
+        //         if(!this.getActiveEditor().somethingSelected()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        },{
-            text : 'Paste',
-            scope : this.application,
-            handler : function(){
+        //         return false;
+        //     }
+        // },{
+        //     text : 'Paste',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.getActiveEditor().paste();                
-            },
-            allowDisable : function(){
+        //         this.getActiveEditor().paste();                
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        },
-        '-'
-        ,{
-            text : 'Find',
-            scope : this.application,
-            handler : function(){
+        //         return false;
+        //     }
+        // },
+        // '-'
+        // ,{
+        //     text : 'Find',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.openFindPanel()                
-            },
-            allowDisable : function(){
+        //         this.openFindPanel()                
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        },{
-            text : 'Find Next',
-            scope : this.application,
-            handler : function(){
+        //         return false;
+        //     }
+        // },{
+        //     text : 'Find Next',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.openWindow('command.Find');                
-            },
-            allowDisable : function(){
+        //         this.openWindow('command.Find');                
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        },{
-            text : 'Replace',
-            scope : this.application,
-            handler : function(){
+        //         return false;
+        //     }
+        // },{
+        //     text : 'Replace',
+        //     scope : this.application,
+        //     handler : function(){
 
-                this.openWindow('command.Replace');               
-            },
-            allowDisable : function(){
+        //         this.openWindow('command.Replace');               
+        //     },
+        //     allowDisable : function(){
 
-                if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()){
 
-                    return true;
-                }
+        //             return true;
+        //         }
 
-                return false;
-            }
-        }]);
+        //         return false;
+        //     }
+        ]);
 
         this.added = true;
     },
