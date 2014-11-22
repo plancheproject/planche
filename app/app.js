@@ -16,6 +16,14 @@ Ext.application({
 			'Planche.lib.QueryParser',
 			'Planche.lib.QueryAlignment'
 		], this.initLayout, this);
+
+        //stop backspace
+        Ext.EventManager.addListener(Ext.getBody(), 'keydown', function(e){
+
+            if(e.getTarget().type != 'text' && e.getKey() == '8' ){
+                e.preventDefault();
+            }
+        });
     },
 
     include : function(includes, callback, scope){
@@ -1279,11 +1287,12 @@ Ext.application({
         if(!n) return null;
 		if(typeof depth == "undefined"){ depth = 1; }
 		if(!n.parentNode){ return null; }
-		if(!n.data.depth == depth){ return n.data.text; }
+		if(n.data.depth != depth){ 
 
-        while(n.parentNode && n.parentNode.data.depth >= depth) {
+            while(n.parentNode && n.parentNode.data.depth >= depth) {
 
-            n = n.parentNode;
+                n = n.parentNode;
+            }
         }
 
         if(return_node) {
@@ -1299,20 +1308,20 @@ Ext.application({
 	loadDatabaseContextMenu : function(){
 
 		return [
-  //       {
-  //   		text: 'Create Database',
-  //   		handler : function(){
+        {
+    		text: 'Create Database',
+    		handler : function(){
 
-  //               this.createDatabase();
-  //   		}
-		// },{
-  //   		text: 'Alter Database',
-  //           handler : function(){
+                this.createDatabase();
+    		}
+		},{
+    		text: 'Alter Database',
+            handler : function(){
 
-  //               var node = this.getSelectedNode();
-  //               this.alterDatabase(node);
-  //           }
-		// },
+                var node = this.getSelectedNode();
+                this.alterDatabase(node);
+            }
+		},
         {
     		text: 'Drop Database',
             handler : function(){
@@ -1327,16 +1336,14 @@ Ext.application({
                 var node = this.getSelectedNode();
                 this.truncateDatabase(node);
             }
+		},{
+    		text: 'Empty Database',
+            handler : function(){
+
+                var node = this.getSelectedNode();
+                this.emptyDatabase(node);
+            }
 		}
-
-  //       ,{
-  //   		text: 'Empty Database',
-  //           handler : function(){
-
-  //               var node = this.getSelectedNode();
-  //               this.emptyDatabase(node);
-  //           }
-		// }
         ];
 	},
 
@@ -2111,13 +2118,13 @@ Ext.application({
 
    	 	this.removeResultTabPanel();
 
-    	var panel = this.getActiveMessage();
-    	var dom = Ext.get(panel.getEl().query("div[id$=innerCt]"));
+    	var panel = this.getActiveMessage(),
+            dom = Ext.get(panel.getEl().query("div[id$=innerCt]")),
+            node = this.getSelectedNode(),
+            db = this.getParentNode(node);
+
     	dom.setHTML('');
 
-		var node = this.getSelectedNode();
-        var db = this.getParentNode(node);
-        
         if(!db){
 
             this.openMessage('No database selected.');
@@ -2166,13 +2173,16 @@ Ext.application({
 	                        msg += 'Total Time     : '+response.total_time;
 	                        messages.push(query.getSQL()+'<br/><br/>'+msg);
 	                    }
+
 	                    this.getActiveMainTab().setLoading(false);
 	                    tunneling();
 	                },
 	                failure : function(config, response){
 
-	                	messages.push(query.getSQL()+'<span class=\'query_err\'>▶ '+response.message+'</span>');
+	                	messages.push(this.generateErrorMessage(query.getSQL(), response.message));
+
 	                	this.getActiveMainTab().setLoading(false);
+
 	                	tunneling();
 	                }
 	            })
@@ -3117,5 +3127,10 @@ Ext.application({
 	showMessage : function(msg){
 
 		Ext.Msg.alert('Message', msg);
-	}
+	},
+
+    generateErrorMessage : function(query, message){
+
+        return query + '<span class=\'query_err\'>▶ '+message+'</span>';
+    }
 });
