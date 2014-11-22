@@ -1305,6 +1305,19 @@ Ext.application({
 		}
 	},
 
+    loadRootContextMenu : function(){
+
+        return [
+        {
+            text: 'Create Database',
+            handler : function(){
+
+                this.createDatabase();
+            }
+        }
+        ];
+    },
+
 	loadDatabaseContextMenu : function(){
 
 		return [
