@@ -1116,25 +1116,6 @@ Ext.application({
     	}, this);
     },
 
-    truncateDatabase : function(node){
-
-        var db = node.data.text;
-        Ext.Msg.confirm('Truncate Database \''+db+'\'', 'Do you really want to truncate the database?\n\nWarning: You will lose all data!', function(btn, text){
-
-            if (btn == 'yes'){
-
-                this.tunneling({
-                    db : db,
-                    query : this.getEngine().getQuery('TRUNCATE_DATABASE', db),
-                    success : function(config, response){
-
-    
-                    }
-                });
-            }
-        }, this);
-    },
-
     createDatabase : function(){
 
         this.openCreateDatabaseWindow();
@@ -1167,18 +1148,69 @@ Ext.application({
 
     truncateDatabase : function(node){
 
-        var db = node.data.text;
+        var db = node.data.text,
+            app = this;
+
         Ext.Msg.confirm('Truncate Database \''+db+'\'', 'Do you really want to truncate the database?\n\nWarning: You will lose all data!', function(btn, text){
 
             if (btn == 'yes'){
 
-                this.tunneling({
+                var queries = [],
+                    messages = [],
+                    tunneling;
+
+                app.getActiveMainTab().setLoading(true);
+
+                tunneling = function(){
+
+                    var query = queries.shift();
+
+                    if(query) {
+
+                        app.tunneling({
+                            db : db,
+                            query : query,
+                            success : function(config, response){
+
+                                tunneling();
+                            },
+                            failure : function(config, response){
+
+                                messages.push(app.generateErrorMessage(query, response.message));
+                                tunneling();
+                            }
+                        })
+                    }
+                    else {
+
+                        app.getActiveMainTab().setLoading(false);
+
+                        if(messages.length > 0){
+
+                            app.openMessage(messages);
+                        }
+                        else {
+
+                            Ext.Array.each(node.childNodes, function(childNode, idx){
+
+                                childNode.removeAll();
+                            });
+                        }
+                    }
+                };
+
+                app.tunneling({
                     db : db,
-                    query : this.getEngine().getQuery('TRUNCATE_DATABASE', db),
+                    query : app.getEngine().getQuery('SHOW_DATABASE_TABLES', db),
                     success : function(config, response){
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        Ext.Array.each(response.records, function(row, idx){
+
+                            var table = row[0];
+                            queries.push(app.getEngine().getQuery('DROP_TABLE', db, table));
+                        });
+
+                        tunneling();
                     }
                 });
             }
@@ -3097,7 +3129,7 @@ Ext.application({
 			},
 			failure		: function(config, response){
 
-				this.openMessage(response);
+				this.openMessage(response.message);
 			}
         });
         

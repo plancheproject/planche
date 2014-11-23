@@ -65,7 +65,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
                     },
                     failure : function(config, response){
 
-                        messages.push(app.generateErrorMessage(query, response.message));
+                        messages.push(app.generateErrorMessage(query.str, response.message));
 
                         tunneling();
                     }
