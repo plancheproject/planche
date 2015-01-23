@@ -24,6 +24,12 @@ Ext.application({
                 e.preventDefault();
             }
         });
+
+        window.onbeforeunload = function(){
+
+            var message = "Are you sure you want to quit planche?";
+            return message;
+        }
     },
 
     include : function(includes, callback, scope){
