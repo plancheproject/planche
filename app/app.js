@@ -1,12 +1,19 @@
+/*
+This file is part of Planche 0.1
 
+Contact: jjwcom@nate.com
+*/
 Ext.namespace('Planche');
-//set up config path for your app
 
+//set up config path for your app
 Ext.application({
 	appFolder	: '.',
 	name		: 'Planche',
 	history     : [],
 	launch		: function() {
+
+        // setup the state provider, all state information will be saved to a cookie
+        Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 
 		this.include([
 			'Planche.lib.Window',
@@ -32,6 +39,15 @@ Ext.application({
         }
     },
 
+    /**
+     * include
+     * 
+     * 컨트롤러 초기화 메소드.
+     * 
+     * @access public
+     *
+     * @return 
+     */
     include : function(includes, callback, scope){
 
 		var loading;
@@ -52,6 +68,15 @@ Ext.application({
 		}, scope))();
     },
 
+    /**
+     * initLayout
+     * 
+     * 레이아웃 초기화 메소드.
+     * 
+     * @access public
+     *
+     * @return 
+     */
     initLayout : function(){
 
         Ext.create('Ext.container.Viewport', {
@@ -71,6 +96,15 @@ Ext.application({
         this.initKeyMap();
     },
 
+    /**
+     * initTopMenu
+     * 
+     * 탑메뉴 초기화 메소드.
+     * 
+     * @access public
+     *
+     * @return 
+     */
     initTopMenu : function(){
 
         //'Other'
@@ -115,6 +149,15 @@ Ext.application({
         };
     },
 
+    /**
+     * initToolBar
+     * 
+     * 툴바 메소드.
+     * 
+     * @access public
+     *
+     * @return 
+     */
 	initToolBar : function(){
 
         return {
@@ -248,17 +291,28 @@ Ext.application({
         };
     },
 
+    /**
+     * initMainTab
+     * 
+     * 메인탭을 구성한다.
+     * 
+     * @access public
+     *
+     * @return 
+     */
     initMainTab : function(){
 
-    	//메인탭에 커넥션별 탭을 구성한다.정주원 
+    	//메인탭에 커넥션별 탭을 구성한다.
         return {
-			id		: 'main-tab',
-			xtype	: 'tabpanel',
-			flex	: 1,
-			width	: '100%',
-			height	: '100%',
-			border	: false,
-			margin	: '0px 0px 5px 0px'
+            id      : 'main-tab',
+            xtype   : 'tabpanel',
+            flex    : 1,
+            width   : '100%',
+            height  : '100%',
+            border  : false,
+            margin  : '0px 0px 5px 0px',
+            stateful: true,
+            stateId : 'main-tab'
         };
     },
 
@@ -659,7 +713,8 @@ Ext.application({
                 hideable : false,
                 menuDisabled: true,
                 draggable: false,
-                groupable: false
+                groupable: false,
+                renderer : 'htmlEncode'
             });
 
             columns.push(colObjs[col.name]);
@@ -2157,6 +2212,15 @@ Ext.application({
 		}
 	},
 
+    /**
+     * executeQuery
+     * 
+     * 선택된 쿼리를 재귀적으로 실행한다.
+     * 
+     * @access public
+     *
+     * @return 
+     */
 	executeQuery : function(){
 
 		var queries = this.getParsedQuery();
@@ -2241,6 +2305,7 @@ Ext.application({
 			else {
 
 				this.afterExecuteQuery(messages);
+                this.reloadTree(node);
 			}
 
 		}, this))();
@@ -3124,6 +3189,7 @@ Ext.application({
 			connectInfo	: this.getActiveMainTab().config.connectInfo,
 			db			: '',
 			query		: '',
+            type        : 'query',
 			async		: true,
 			success		: function(config, response){
 
@@ -3150,7 +3216,8 @@ Ext.application({
 				pass	: config.connectInfo.pass,
 				charset	: config.connectInfo.charset,
 				port	: config.connectInfo.port,
-				query   : config.query
+				query   : config.query,
+                type    : config.type
 		    },
 		    scope : this,
 		    success: function(response) {
