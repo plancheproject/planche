@@ -12,7 +12,13 @@ class Control {
 
     public function connect($host, $user, $pass, $db){
 
-        $this->conn = new mysqli($host, $user, $pass, $db);
+        $this->conn = @new mysqli($host, $user, $pass, $db);
+
+        if ($this->conn->connect_error) {
+            
+            $this->error('Connect Error (' . $this->conn->connect_errno . ') '. $this->conn->connect_error);
+            exit;
+        }
     }
 
     public function sendHeader(){
@@ -234,9 +240,10 @@ else {
 set_time_limit(0);
 
 $Planche = new Control();
-$Planche->connect($host, $user, $pass, $db);
+
 if(JSONP) $Planche->setCallback($callback);
 
+$Planche->connect($host, $user, $pass, $db);
 $Planche->setCharset($charset);
 $Planche->query($query);
 ?>
