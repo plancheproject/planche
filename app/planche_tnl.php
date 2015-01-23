@@ -181,16 +181,8 @@ class Control {
 
     public function removeHTML($value){
 
-        if(in_array($this->fields[$this->field_idx]['type'], array('blob', 'var_string'))){
-
-            $this->field_idx++;
-            return htmlspecialchars($value);
-        }
-        else {
-
-            $this->field_idx++;
-            return $value;
-        }
+        $this->field_idx++;
+        return $value;
     }
 
     public function output($output){
