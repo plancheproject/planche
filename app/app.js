@@ -1401,55 +1401,63 @@ Ext.application({
     loadRootContextMenu : function(){
 
         return [
-        {
-            text: 'Create Database',
-            handler : function(){
+            {
+                text: 'Create Database',
+                handler : function(){
 
-                this.createDatabase();
+                    this.createDatabase();
+                }
+            },
+            {
+                text: 'Refresh All',
+                handler : function(){
+
+                    var node = this.getSelectedNode();
+                    this.reloadTree(node);
+                }
             }
-        }
         ];
     },
 
 	loadDatabaseContextMenu : function(){
 
 		return [
-        {
-    		text: 'Create Database',
-    		handler : function(){
+            {
+        		text: 'Create Database',
+        		handler : function(){
 
-                this.createDatabase();
+                    this.createDatabase();
+        		}
+    		},{
+        		text: 'Alter Database',
+                handler : function(){
+
+                    var node = this.getSelectedNode();
+                    this.alterDatabase(node);
+                }
+    		},
+            {
+        		text: 'Drop Database',
+                handler : function(){
+
+                    var node = this.getSelectedNode();
+                    this.dropDatabase(node);
+                }
+    		},{
+        		text: 'Truncate Database',
+                handler : function(){
+
+                    var node = this.getSelectedNode();
+                    this.truncateDatabase(node);
+                }
+    		},{
+        		text: 'Empty Database',
+                handler : function(){
+
+                    var node = this.getSelectedNode();
+                    this.emptyDatabase(node);
+                }
     		}
-		},{
-    		text: 'Alter Database',
-            handler : function(){
-
-                var node = this.getSelectedNode();
-                this.alterDatabase(node);
-            }
-		},
-        {
-    		text: 'Drop Database',
-            handler : function(){
-
-                var node = this.getSelectedNode();
-                this.dropDatabase(node);
-            }
-		},{
-    		text: 'Truncate Database',
-            handler : function(){
-
-                var node = this.getSelectedNode();
-                this.truncateDatabase(node);
-            }
-		},{
-    		text: 'Empty Database',
-            handler : function(){
-
-                var node = this.getSelectedNode();
-                this.emptyDatabase(node);
-            }
-		}
         ];
 	},
 
