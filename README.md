@@ -42,7 +42,7 @@ http://www.youtube.com/embed/WCnXJXDRlYs
 License
 ----
 
-GPL v2
+GPL v3
 
 [CodeMirror]:http://codemirror.net/
 [Sencha ExtJS 4.2]:http://www.sencha.com/products/extjs/
