@@ -31,7 +31,7 @@ Ext.define('Planche.controller.table.EditScheme', {
             buttons : [{
                 text : isAlter ? 'Alter' : 'Create',
                 scope : this,
-                handler : isAlter ? this.alter : this.create,
+                handler : isAlter ? this.alter : this.create
             },{
                 text : 'Insert',
                 scope : this,
@@ -199,7 +199,7 @@ Ext.define('Planche.controller.table.EditScheme', {
             { text: 'Zerofill', xtype: 'checkcolumn', dataIndex: 'zerofill', width : 60 },
             { text: 'Comment', dataIndex: 'comment', flex: 1, editor: {
                 xtype: 'textfield'
-            }},
+            }}
         ];
     },
 
@@ -242,7 +242,7 @@ Ext.define('Planche.controller.table.EditScheme', {
         
         if(primaries.length > 0){
 
-            fields.push('\n\tPRIMARY KEY ('+primaries.join('')+')');
+            fields.push('\n\tPRIMARY KEY ('+primaries.join(',')+')');
         }
         query += fields.join(",")+');';
 

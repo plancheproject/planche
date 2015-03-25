@@ -114,7 +114,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
             buttons : [{
                 text : this.isAlter ? 'Alter' : 'Create',
                 scope : this,
-                handler : this.isAlter ? this.alter : this.create,
+                handler : this.isAlter ? this.alter : this.create
             },{
                 text : 'Cancel',
                 scope : this,

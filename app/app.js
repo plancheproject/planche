@@ -3218,14 +3218,14 @@ Ext.application({
 			callbackKey	: 'callback',
 			async		: config.async,
 			params		: {
-				db		: config.db,
-				host	: config.connectInfo.host,
-				user	: config.connectInfo.user,
-				pass	: config.connectInfo.pass,
-				charset	: config.connectInfo.charset,
-				port	: config.connectInfo.port,
-				query   : config.query,
-                type    : config.type
+                db     : config.db,
+                host   : config.connectInfo.host,
+                user   : config.connectInfo.user,
+                pass   : config.connectInfo.pass,
+                charset: config.connectInfo.charset,
+                port   : config.connectInfo.port,
+                query  : config.query,
+                type   : config.type
 		    },
 		    scope : this,
 		    success: function(response) {

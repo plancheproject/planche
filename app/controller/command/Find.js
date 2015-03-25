@@ -269,5 +269,5 @@ Ext.define('Planche.controller.command.Find', {
 
         var editor = this.application.getActiveEditor();
         editor.execCommand('findAll');
-    },
+    }
 });
