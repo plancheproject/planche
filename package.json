@@ -10,8 +10,8 @@
         "GUI",
         "ExtJS"
     ],
-    "license": "GPLv2",
-    "main": "app.js",
+    "license": "GPLv3",
+    "main": "index.html",
     "name": "planche",
     "repository": {
         "type": "git",

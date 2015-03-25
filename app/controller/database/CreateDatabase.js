@@ -19,15 +19,15 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         var app = this.getApplication(),
             me = this,
             queries = [
-                { key : 'collation', str : app.getEngine().getQuery('SHOW_COLLATION') },
-                { key : 'charset',   str : app.getEngine().getQuery('SHOW_CHARSET') },
-                { key : 'collation_val', str : app.getEngine().getQuery('COLLATION_DATABASE') },
-                { key : 'charset_val', str : app.getEngine().getQuery('CHARSET_DATABASE') }
+                { key : 'collation', str : app.getAPIS().getQuery('SHOW_COLLATION') },
+                { key : 'charset',   str : app.getAPIS().getQuery('SHOW_CHARSET') },
+                { key : 'collation_val', str : app.getAPIS().getQuery('COLLATION_DATABASE') },
+                { key : 'charset_val', str : app.getAPIS().getQuery('CHARSET_DATABASE') }
             ],
             tunneling,
             messages = [];
 
-        app.getActiveMainTab().setLoading(true);
+        app.getActiveConnectTab().setLoading(true);
 
         me.comboData = {};
         me.comboValue = {};
@@ -73,7 +73,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
             }
             else {
 
-                app.getActiveMainTab().setLoading(false);
+                app.getActiveConnectTab().setLoading(false);
 
                 if(messages.length == 0){
 
@@ -206,7 +206,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         }
 
         app.tunneling({
-            query : app.getEngine().getQuery('CREATE_DATABASE', db, charset, collation),
+            query : app.getAPIS().getQuery('CREATE_DATABASE', db, charset, collation),
             success : function(config, response){
 
                 var rootNode = app.getParentNode(node, 0, true);
@@ -254,7 +254,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
         app.tunneling({
             db : db,
-            query : app.getEngine().getQuery('ALTER_DATABASE', db, charset, collation),
+            query : app.getAPIS().getQuery('ALTER_DATABASE', db, charset, collation),
             success : function(config, response){
                 
                 btn.up('window').destroy();

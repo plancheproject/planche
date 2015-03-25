@@ -4,7 +4,7 @@ Ext.define('Planche.controller.menu.Other', {
     add : function(topBtn){
 
         topBtn.menu.add([{
-            text : '..',
+            text : '..'
         }]);
 
         this.added = true;

@@ -71,7 +71,7 @@ Ext.define('Planche.controller.command.Variables', {
         var db = app.getParentNode(node);
         app.tunneling({
             db : db,
-            query : app.getEngine().getQuery('SHOW_VARIABLES', db),
+            query : app.getAPIS().getQuery('SHOW_VARIABLES', db),
             success : Ext.Function.bind(function(config, response){
                 
                 var records = this.makeRecords(response.fields, response.records);

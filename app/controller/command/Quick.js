@@ -10,7 +10,7 @@ Ext.define('Planche.controller.command.Quick', {
         var db = dbNode.data.text;
         var tablesNode = dbNode.findChild('text', 'Tables');
 
-        app.expandTree(tablesNode);
+        tree.fireEvent('expandTree', tablesNode)
 
         var cmd = [
             { name : 'Paste Select', method : app.pasteSQLStatement, params : ['select'] },

@@ -96,7 +96,7 @@ Ext.define('Planche.controller.command.Status', {
         var db = app.getParentNode(node);
         app.tunneling({
             db : db,
-            query : app.getEngine().getQuery(query, db),
+            query : app.getAPIS().getQuery(query, db),
             success : Ext.Function.bind(function(config, response){
                 
                 var records = this.makeRecords(response.fields, response.records);

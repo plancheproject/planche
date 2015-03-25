@@ -105,7 +105,7 @@ Ext.define('Planche.controller.command.Process', {
         var db = app.getParentNode(node);
         app.tunneling({
             db : db,
-            query : app.getEngine().getQuery('SHOW_PROCESS_LIST', db),
+            query : app.getAPIS().getQuery('SHOW_PROCESS_LIST', db),
             success : Ext.Function.bind(function(config, response){
                 
                 var records = this.makeRecords(response.fields, response.records);

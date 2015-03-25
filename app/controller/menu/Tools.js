@@ -12,7 +12,7 @@ Ext.define('Planche.controller.menu.Tools', {
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -28,7 +28,7 @@ Ext.define('Planche.controller.menu.Tools', {
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -44,7 +44,7 @@ Ext.define('Planche.controller.menu.Tools', {
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }

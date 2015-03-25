@@ -8,7 +8,7 @@ Ext.define('Planche.controller.menu.Edit', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }

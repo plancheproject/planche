@@ -183,7 +183,7 @@ Ext.define('Planche.controller.table.EditScheme', {
                 scope : this,
                 store : Ext.Function.bind(function(){
 
-                    return this.getApplication().getEngine().getDataTypesToJSON();
+                    return this.getApplication().getAPIS().getDataTypesToJSON();
                 }, this)()
             }},
             { text: 'Length', dataIndex: 'len', width : 60, editor: {
@@ -223,20 +223,22 @@ Ext.define('Planche.controller.table.EditScheme', {
 
             if(!obj.data.field) return;
 
-            var field = '';
-            field += '\n\t`'+obj.data.field+'` '+obj.data.type;
-            field += obj.data.len ? '('+obj.data.len+')' : '';
-            field += obj.data.unsigned == true ? ' UNSIGNED' : '';
-            field += obj.data.zerofill == true ? ' ZEROFILL' : '';
-            field += obj.data.not_null == true ? ' NOT NULL' : '';
-            field += obj.data.default ? ' DEFAULT \''+obj.data.default+'\'' : '';
-            field += obj.data.auto_incr == true ? ' AUTO_INCREMENT' : '';
-            field += obj.data.comment ? ' COMMENT \''+obj.data.comment+'\'' : '';
+            var data = obj.data,
+                field = '';
+
+            field += '\n\t`'+data.field+'` '+data.type;
+            field += data.len ? '('+data.len+')' : '';
+            field += data.unsigned == true ? ' UNSIGNED' : '';
+            field += data.zerofill == true ? ' ZEROFILL' : '';
+            field += data.not_null == true ? ' NOT NULL' : '';
+            field += data['default'] ? ' DEFAULT \''+ data['default'] +'\'' : '';
+            field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
+            field += data.comment ? ' COMMENT \''+ (data.comment) +'\'' : '';
             fields.push(field);
 
-            if(obj.data.pk == true){
+            if(data.pk == true){
 
-                primaries.push('`'+obj.data.field+'`');
+                primaries.push('`'+data.field+'`');
             }
         });
         
@@ -298,20 +300,22 @@ Ext.define('Planche.controller.table.EditScheme', {
 
             if(!obj.data.field) return;
 
-            var field = '\n\tADD COLUMN';
-            field += ' `'+obj.data.field+'` '+obj.data.type;
-            field += obj.data.len ? '('+obj.data.len+')' : '';
-            field += obj.data.unsigned == true ? ' UNSIGNED' : '';
-            field += obj.data.zerofill == true ? ' ZEROFILL' : '';
-            field += obj.data.not_null == true ? ' NOT NULL' : '';
-            field += obj.data.default ? ' DEFAULT \''+obj.data.default+'\'' : '';
-            field += obj.data.auto_incr == true ? ' AUTO_INCREMENT' : '';
-            field += obj.data.comment ? ' COMMENT \''+obj.data.comment+'\'' : '';
+            var data = obj.data,
+                field = '\n\tADD COLUMN';
+
+            field += ' `'+data.field+'` '+data.type;
+            field += data.len ? '('+data.len+')' : '';
+            field += data.unsigned == true ? ' UNSIGNED' : '';
+            field += data.zerofill == true ? ' ZEROFILL' : '';
+            field += data.not_null == true ? ' NOT NULL' : '';
+            field += data['default'] ? ' DEFAULT \''+data['default']+'\'' : '';
+            field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
+            field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
 
-            if(obj.data.pk == true){
+            if(data.pk == true){
 
-                add_primaries.push('`'+obj.data.field+'`');
+                add_primaries.push('`'+data.field+'`');
             }
         });
 
@@ -332,27 +336,29 @@ Ext.define('Planche.controller.table.EditScheme', {
 
             if(!obj.data.field) return;
 
-            var field = '\n\tCHANGE `'+obj.raw.field+'`';
-            field += ' `'+obj.data.field+'` '+obj.data.type;
-            field += obj.data.len ? '('+obj.data.len+')' : '';
-            field += obj.data.unsigned == true ? ' UNSIGNED' : '';
-            field += obj.data.zerofill == true ? ' ZEROFILL' : '';
-            field += obj.data.not_null == true ? ' NOT NULL' : '';
-            field += obj.data.default ? ' DEFAULT \''+obj.data.default+'\'' : '';
-            field += obj.data.auto_incr == true ? ' AUTO_INCREMENT' : '';
-            field += obj.data.comment ? ' COMMENT \''+obj.data.comment+'\'' : '';
+            var data = obj.data,
+                field = '\n\tCHANGE `'+obj.raw.field+'`';
+
+            field += ' `'+data.field+'` '+data.type;
+            field += data.len ? '('+data.len+')' : '';
+            field += data.unsigned == true ? ' UNSIGNED' : '';
+            field += data.zerofill == true ? ' ZEROFILL' : '';
+            field += data.not_null == true ? ' NOT NULL' : '';
+            field += data['default'] ? ' DEFAULT \''+data['default']+'\'' : '';
+            field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
+            field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
 
             if(obj.raw.pk == true){
 
-                if(obj.data.pk != true){
+                if(data.pk != true){
 
-                    del_primaries.push('`'+obj.data.field+'`');
+                    del_primaries.push('`'+data.field+'`');
                 }
             }
-            else if(obj.raw.pk != true && obj.data.pk == true){
+            else if(obj.raw.pk != true && data.pk == true){
 
-                add_primaries.push('`'+obj.data.field+'`');
+                add_primaries.push('`'+data.field+'`');
             }
         });
 

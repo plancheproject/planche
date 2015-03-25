@@ -8,7 +8,7 @@ Ext.define('Planche.controller.menu.Connection', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -31,7 +31,7 @@ Ext.define('Planche.controller.menu.Connection', {
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -43,12 +43,12 @@ Ext.define('Planche.controller.menu.Connection', {
             scope : this.application,
             handler : function(){
 
-                var actSubTab = this.getActiveSubTab();
+                var actSubTab = this.getActiveQueryTab();
                 actSubTab.destroy();
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveSubTab()){
+                if(!this.getActiveQueryTab()){
 
                     return true;
                 }
@@ -60,8 +60,8 @@ Ext.define('Planche.controller.menu.Connection', {
             scope : this.application,
             handler : function(){
 
-                var tabPanel = this.getSubTab().query('tabpanel');
-                var actSubTab = this.getActiveSubTab();
+                var tabPanel = this.getQueryTabPanel().query('tabpanel');
+                var actSubTab = this.getActiveQueryTab();
 
                 Ext.Array.each(tabPanel, function(tab, idx){
 
@@ -72,18 +72,17 @@ Ext.define('Planche.controller.menu.Connection', {
                     else {
 
                         tab.addClass('x-tab-strip-closable');
-                        debugger;
                     }
                 });
             },
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveSubTab()){
+                if(!this.getActiveQueryTab()){
 
                     return true;
                 }
 
-                var tabPanel = this.getSubTab().query('tabpanel');
+                var tabPanel = this.getQueryTabPanel().query('tabpanel');
 
                 if(tabPanel.length < 2){
 
@@ -97,7 +96,7 @@ Ext.define('Planche.controller.menu.Connection', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -113,7 +112,7 @@ Ext.define('Planche.controller.menu.Connection', {
             scope : this.application,
             allowDisable : function(topBtn, menu){
 
-                if(!this.getActiveMainTab()){
+                if(!this.getActiveConnectTab()){
 
                     return true;
                 }
@@ -122,7 +121,7 @@ Ext.define('Planche.controller.menu.Connection', {
             },
             handler : function(){
 
-                var connections = this.getMainTab().query('>>tab');
+                var connections = this.getConnectTabPanel().query('>>tab');
                 Ext.Array.each(connections, function(tab, idx){
 
                     tab.destroy();

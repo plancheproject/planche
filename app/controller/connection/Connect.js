@@ -28,16 +28,20 @@ Ext.define('Planche.controller.connection.Connect', {
                 itemdblclick : function(view, record){
 
                     var win = view.up("window");
-                    var config = record.raw;
+                    var connInfo = record.raw;
 
-                    Ext.require('Planche.engine.MySQL', function(){
+                    var DBMS = connInfo.dbms || 'mysql';
 
-                        Ext.apply(config, {
-                            engine : Planche.engine.MySQL
+                    Ext.require('Planche.dbms.'+DBMS, function(){
+
+                        Ext.apply(connInfo, {
+                            DBMS : DBMS,
+                            APIS : Planche.dbms[DBMS]
                         });
 
-                        this.getApplication().initConnectTab(config);
                         win.hide();
+
+                        this.getApplication().initConnectTab(connInfo);
                     }, this);
                 }
             }
@@ -76,8 +80,9 @@ Ext.define('Planche.controller.connection.Connect', {
 
                     if(!sel) return;
 
-                    this.getApplication().initConnectTab(sel[0].raw);
                     win.hide();
+
+                    this.getApplication().initConnectTab(sel[0].raw);
                 }
             },{
                 text : 'Test Connect',
@@ -95,21 +100,21 @@ Ext.define('Planche.controller.connection.Connect', {
     makeListColumns : function(){   
         
         return [
-            { text: 'Host Name', dataIndex: 'host_name', width : 200, renderer: function(value, p, record){
+            { text: 'Host Name', dataIndex: 'hostName', width : 200, renderer: function(value, p, record){
                 
-                return Ext.String.format('<img src=\'./images/icon_database24x24.png\'> {0}', value);
+                return Ext.String.format('<img src=\'resources/images/icon_database24x24.png\'> {0}', value);
             }},
             { text: 'Host', dataIndex: 'host', width : 100, renderer: function(value, p, record){
                 
-                return Ext.String.format('<img src=\'./images/icon_server24x24.png\'> {0}', value);
+                return Ext.String.format('<img src=\'resources/images/icon_server24x24.png\'> {0}', value);
             }},
             { text: 'User', dataIndex: 'user', width : 100, renderer: function(value, p, record){
                 
-                return Ext.String.format('<img src=\'./images/icon_user24x24.png\'> {0}', value);
+                return Ext.String.format('<img src=\'resources/images/icon_user24x24.png\'> {0}', value);
             }},
             { text: 'Charset', dataIndex: 'charset', width : 100 },
             { text: 'Port', dataIndex: 'port', width : 60 },
-            { text: 'HTTP Tunneling URL', dataIndex: 'http_tunneling', flex : 1 }
+            { text: 'HTTP Tunneling URL', dataIndex: 'tunnelingURL', flex : 1 }
         ];
     }
 });

@@ -3,7 +3,6 @@
         "Jeong Ju Won <jjwcom@nate.com>"
     ],
     "dependencies": {
-        "extjs": "4.2.x",
         "codemirror": "4.7.x"
     },
     "description": "MySQL GUI Client Tool",
@@ -13,7 +12,7 @@
         "GUI",
         "ExtJS"
     ],
-    "license": "GPLv2",
+    "license": "GPLv3",
     "main": "index.html",
     "name": "planche",
     "private": true,

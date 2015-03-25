@@ -17,7 +17,7 @@ Ext.define('Planche.controller.menu.Database', {
         //     },
         //     allowDisable : function(topBtn, menu){
 
-        //         if(!this.getActiveMainTab()){
+        //         if(!this.getActiveConnectTab()){
 
         //             return true;
         //         }
@@ -36,7 +36,7 @@ Ext.define('Planche.controller.menu.Database', {
         //     },
         //     allowDisable : function(topBtn, menu){
 
-        //         if(!this.getActiveMainTab()){
+        //         if(!this.getActiveConnectTab()){
 
         //             return true;
         //         }
@@ -163,7 +163,7 @@ Ext.define('Planche.controller.menu.Database', {
             }]
         },{
             text : 'Create Schema For Database In HTML(Not Yet)',
-            disabled : true,
+            disabled : true
         }]);
 
         this.added = true;
