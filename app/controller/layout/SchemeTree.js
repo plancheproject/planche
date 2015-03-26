@@ -120,7 +120,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             db = node.parentNode.data.text;
         app.tunneling({
             db : db,
-            query : app.getAPIS().getQuery('SHOW_TABLE_STATUS', db),
+            query : app.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
             node : node,
             success : function(config, response){
 
