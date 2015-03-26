@@ -124,7 +124,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
 		app.tunneling({
 			db : db,
-			query : api.getQuery('SHOW_TABLE_STATUS', db),
+			query : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
 			node : node,
 			success : function(config, response){
 
@@ -145,7 +145,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		info		= app.getActiveInfoTab(),
 		dom			= Ext.get(info.getEl().query("div[id$=innerCt]")),
 		queries		= {
-			tables		: api.getQuery('SHOW_TABLE_STATUS', db),
+			tables		: api.getQuery('SHOW_ALL_TABLE_STATUS', db),
 			views		: api.getQuery('SHOW_VIEWS', db),
 			procedures	: api.getQuery('SHOW_PROCEDURES', db),
 			functions	: api.getQuery('SHOW_FUNCTIONS', db),
