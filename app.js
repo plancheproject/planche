@@ -1,8 +1,3 @@
-/*
-    This file is generated and updated by Sencha Cmd. You can edit this file as
-    needed for your application, but these edits will have to be merged by
-    Sencha Cmd when upgrading.
-*/
 
 Ext.application({
     name: 'Planche',
@@ -10,7 +5,14 @@ Ext.application({
     extend: 'Planche.Application',
     history     : [],
     autoCreateViewport: true,
-	launch		: function() {
+
+    /**
+     * launch planche
+     *
+     * @class Ext.application
+     * @constructor
+     */
+    launch : function() {
 
         // setup the state provider, all state information will be saved to a cookie
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
@@ -335,6 +337,12 @@ Ext.application({
         }
     },
 
+    /**
+     * execute query
+     *
+     * @method tunneling
+     * @param {String} config
+     */
     tunneling : function(config){
 
         var tab = this.getActiveConnectTab();
@@ -393,6 +401,82 @@ Ext.application({
                 config.failure.apply(this, [config, response]);
             }
         });
+    },
+
+    /**
+     * execute mulitple queries and run user callbacks
+     *
+     * @method multipleTunneling
+     * @param {String} db database name
+     * @param {Object} queries to be executed
+     * @param {Object} callbacks callback functions object
+     * @param {Object} scope scope
+     */
+    multipleTunneling : function(db, queries, callbacks, scope){
+
+        if(typeof scope == 'undefined') {
+
+            scope = this;
+        }
+
+        var app = this.getApplication(), tunneling, idx = 0, results = [];
+
+        Ext.applyIf(callbacks, {
+            'prevAllQueries' : function(){},
+            'prevQuery' : function(){},
+            'successQuery' : function(){},
+            'failureQuery' : function(){},
+            'afterQuery' : function(){},
+            'afterAllQueries' : function(){}
+        });
+
+        callbacks['prevAllQueries'].apply(scope, [queries]);
+
+        (tunneling = function(){
+
+            var query = queries.shift();
+
+            if(query) {
+
+                callbacks['prevQuery'].apply(scope, [idx, query]);
+
+                app.tunneling({
+                    db : db,
+                    query : query,
+                    success : function(config, response){
+
+                        callbacks['successQuery'].apply(scope, [idx, query, config, response]);
+
+                        results.push({
+                            config : config, 
+                            response : response
+                        });
+
+                        tunneling();
+                    },
+                    failure : function(config, response){
+
+                        callbacks['failureQuery'].apply(scope, [idx, query, config, response]);
+
+                        results.push({
+                            config : config, 
+                            response : response
+                        });
+
+                        tunneling();
+                    }
+                });
+
+                callbacks['afterQuery'].apply(scope, [idx, query]);
+
+                idx++;
+            }
+            else {
+
+                //complete all query
+                callbacks['afterAllQueries'].apply(scope, [queries, results]);
+            }
+        })();
     },
 
     pasteSQLStatement : function(mode, node){
@@ -729,7 +813,7 @@ Ext.application({
         var db = this.getParentNode(this.getSelectedNode());
         this.tunneling({
             db : db,
-            query : this.getAPIS().getQuery('SHOW_TABLE_STATUS', db),
+            query : this.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
             success : function(config, response){
 
                 this.openWindow('command.Quick', response);
@@ -836,49 +920,7 @@ Ext.application({
 
             if (btn == 'yes'){
 
-                var queries = [],
-                    messages = [],
-                    tunneling;
-
-                app.getActiveConnectTab().setLoading(true);
-
-                tunneling = function(){
-
-                    var query = queries.shift();
-
-                    if(query) {
-
-                        app.tunneling({
-                            db : db,
-                            query : query,
-                            success : function(config, response){
-
-                                tunneling();
-                            },
-                            failure : function(config, response){
-
-                                messages.push(app.generateErrorMessage(query, response.message));
-                                tunneling();
-                            }
-                        })
-                    }
-                    else {
-
-                        app.getActiveConnectTab().setLoading(false);
-
-                        if(messages.length > 0){
-
-                            app.openMessage(messages);
-                        }
-                        else {
-
-                            Ext.Array.each(node.childNodes, function(childNode, idx){
-
-                                childNode.removeAll();
-                            });
-                        }
-                    }
-                };
+                var queries = [], messages = [];
 
                 app.tunneling({
                     db : db,
@@ -891,7 +933,32 @@ Ext.application({
                             queries.push(app.getAPIS().getQuery('DROP_TABLE', db, table));
                         });
 
-                        tunneling();
+                        this.multipleTunneling(db, queries, {
+                            'prevAllQueries' : function(){
+
+                                app.getActiveConnectTab().setLoading(true);
+                            },
+                            'failureQuery'   : function(){
+
+                                messages.push(app.generateErrorMessage(query, response.message));
+                            },
+                            'afterAllQueries': function(){ 
+
+                                app.getActiveConnectTab().setLoading(false);
+
+                                if(messages.length > 0){
+
+                                    app.openMessage(messages);
+                                }
+                                else {
+
+                                    Ext.Array.each(node.childNodes, function(childNode, idx){
+
+                                        childNode.removeAll();
+                                    });
+                                }
+                            }
+                        });
                     }
                 });
             }
