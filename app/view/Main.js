@@ -11,13 +11,18 @@ Ext.define('Planche.view.Main', {
         type: 'vbox'
     },
 
+    /**
+     * Planche Main View
+     *
+     * @class Planche.view.Main
+     * @constructor
+     */
     initComponent : function(){
 
         this.items = [
             this.initTopMenu(),
             this.initToolBar(),
             this.initConnectTabPanel(),
-            //this.initFooter(),
             this.initContextMenu()
         ]
 
@@ -25,13 +30,9 @@ Ext.define('Planche.view.Main', {
     },
 
     /**
-     * initTopMenu
-     * 
-     * 탑메뉴 초기화 메소드.
-     * 
-     * @access public
+     * initialize top menu
      *
-     * @return 
+     * @method initTopMenu
      */
     initTopMenu : function(){
 
@@ -63,13 +64,9 @@ Ext.define('Planche.view.Main', {
     },
 
     /**
-     * initToolBar
-     * 
-     * 툴바 메소드.
-     * 
-     * @access public
+     * initialize tool-bar
      *
-     * @return 
+     * @method initToolBar
      */
     initToolBar : function(){
 
@@ -82,13 +79,9 @@ Ext.define('Planche.view.Main', {
     },
 
     /**
-     * initConnectTabPanel
-     * 
-     * 메인탭을 구성한다.
-     * 
-     * @access public
+     * initialize connnect tab panel
      *
-     * @return 
+     * @method initConnectTabPanel
      */
     initConnectTabPanel : function(){
 
@@ -107,13 +100,9 @@ Ext.define('Planche.view.Main', {
     },
 
     /**
-     * initContextMenu
-     * 
-     * 컨텍스트 메뉴를 구성한다.
-     * 
-     * @access public
+     * initialize context menu
      *
-     * @return 
+     * @method initContextMenu
      */
     initContextMenu : function(){
 
