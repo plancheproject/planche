@@ -2,14 +2,14 @@ Ext.define('Planche.controller.table.EditScheme', {
     extend: 'Ext.app.Controller',
     initWindow : function(db, tb, result){
 
-        var isAlter = (tb && result) ? true : false;
+        this.isAlter = (tb && result) ? true : false;
 
         Ext.create('Planche.lib.Window', {
             stateful: true,
-            title : isAlter ? 'Alter Table \''+tb+'\' in \''+db+'\'' : 'Create new table',
+            title : this.isAlter ? 'Alter Table \''+tb+'\' in \''+db+'\'' : 'Create new table',
             layout : 'fit',
             bodyStyle:"background-color:#FFFFFF",
-            width : 900,
+            width : 1000,
             height: 500,
             overflowY: 'auto',
             autoScroll : true,
@@ -19,19 +19,11 @@ Ext.define('Planche.controller.table.EditScheme', {
             shadow : false,
             autoShow : true,
             constrain : true,
-            items : this.initGrid(db, tb, result),
-            tbar : {
-                xtype : 'textfield',
-                width : '100%',
-                allowBlank: false,
-                emptyText : 'Enter new table name..',
-                disabled : isAlter,
-                value : isAlter ? tb : ''
-            },
+            items : this.initTabPanel(db, tb, result),
             buttons : [{
-                text : isAlter ? 'Alter' : 'Create',
+                text : this.isAlter ? 'Alter' : 'Create',
                 scope : this,
-                handler : isAlter ? this.alter : this.create
+                handler : this.isAlter ? this.alter : this.create
             },{
                 text : 'Insert',
                 scope : this,
@@ -49,7 +41,7 @@ Ext.define('Planche.controller.table.EditScheme', {
                 scope : this,
                 boxready : function(){
 
-                    if(isAlter){
+                    if(this.isAlter){
 
                         this.initAlterTable();
                     }
@@ -60,6 +52,20 @@ Ext.define('Planche.controller.table.EditScheme', {
                 }
             }
         });
+    },
+
+    initTabPanel : function(db, tb, result){
+
+        return {
+            xtype : 'tabpanel',
+            items : [
+                this.initGrid(db, tb, result),
+                this.initTablePropertiesTab(),
+                this.initTableIndexexTab(),
+                this.initTableSQLTab(),
+                this.initTableInfoTab()
+            ]
+        }
     },
 
     initGrid : function(db, tb, result){
@@ -111,6 +117,7 @@ Ext.define('Planche.controller.table.EditScheme', {
             id : 'table-window',
             border : false,
             isEdited : false,
+            title : 'Table Scheme',
             selModel: {
                 selType: 'cellmodel'
             },
@@ -121,6 +128,14 @@ Ext.define('Planche.controller.table.EditScheme', {
             ],
             columnLines: true,
             width : '100%',
+            tbar : {
+                xtype : 'textfield',
+                width : '100%',
+                allowBlank: false,
+                emptyText : 'Enter new table name..',
+                disabled : this.isAlter,
+                value : this.isAlter ? tb : ''
+            },
             flex  : 1,
             columns : columns,
             store: Ext.create('Ext.data.Store', {
@@ -153,6 +168,38 @@ Ext.define('Planche.controller.table.EditScheme', {
         });
 
         return this.grid;
+    },
+
+    initTablePropertiesTab : function(){
+
+        return {
+            xtype : 'panel',
+            title : 'Table Properties'
+        }
+    },
+
+    initTableIndexexTab : function(){
+
+        return {
+            xtype : 'panel',
+            title : 'Table Indexes'
+        }
+    },
+
+    initTableSQLTab : function(){
+
+        return {
+            xtype : 'panel',
+            title : 'Table SQL'
+        }
+    },
+
+    initTableInfoTab : function(){
+
+        return {
+            xtype : 'panel',
+            title : 'Table Information'
+        }
     },
 
     initCreateTable : function(){
