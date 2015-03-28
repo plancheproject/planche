@@ -25,37 +25,68 @@ Ext.application({
             }
         });
 
-        // window.onbeforeunload = function(){
+        window.onbeforeunload = function(){
 
-        //     var message = "Are you sure you want to quit planche?";
-        //     return message;
-        // }
+            var message = "Are you sure you want to quit planche?";
+            return message;
+        }
 
         this.initKeyMap();
     },
 
+    /**
+     * Return context menu component of scheme tree in left side bar
+     *
+     * @access public
+     * @method getSchemeContextMenu
+     */
     getSchemeContextMenu : function(){
 
         return Ext.getCmp('scheme-context-menu');
     },
 
+    /**
+     * Return toolbar component
+     *
+     * @access public
+     * @method getToolBar
+     */
     getToolBar : function(){
 
     	return Ext.getCmp('planche-toolbar');
     },
 
+    /**
+     * Return connect tabpanel
+     *
+     * @access public
+     * @method getConnectTabPanel
+     */
     getConnectTabPanel : function(){
 
     	return Ext.getCmp('connect-tab-panel');
     },
 
+    /**
+     * Return active connected tab
+     *
+     * @access public
+     * @method getActiveConnectTab
+     */
     getActiveConnectTab : function(){
 
     	var mainTab = this.getConnectTabPanel();
     	return mainTab.getActiveTab();
     },
 
-    closeActiveConnectionTab : function(){
+
+    /**
+     * Close the active connection tab
+     *
+     * @access public
+     * @method closeActiveConnectionTab
+     */
+     closeActiveConnectionTab : function(){
 
         var tab = this.getActiveConnectTab();
         if(!tab) return;
@@ -63,8 +94,15 @@ Ext.application({
         tab.destroy();
     },
 
+    /**
+     * Return active query tabpanel in active connect tab
+     *
+     * @access public
+     * @method getQueryTabPanel
+     */
     getQueryTabPanel : function(){
     	try {
+
     		return this.getActiveConnectTab().down("tabpanel");
 	    }
     	catch(e){
@@ -72,6 +110,12 @@ Ext.application({
     	}
     },
 
+    /**
+     * Return active query tab in active query tabpanel
+     *
+     * @access public
+     * @method getActiveQueryTab
+     */
     getActiveQueryTab : function(){
 
     	try {
@@ -82,6 +126,12 @@ Ext.application({
     	}
     },
 
+    /**
+     * Return active result tab in active query tab
+     *
+     * @access public
+     * @method getActiveResultTabPanel
+     */
     getActiveResultTabPanel : function(){
 
     	try {
@@ -94,12 +144,24 @@ Ext.application({
     	}
     },	    
 
+    /**
+     * destory active result tab in active result tabpanel
+     *
+     * @access public
+     * @method getActiveResultTabPanel
+     */
     removeResultTabPanel : function(){
 
         var tabpanel = this.getActiveResultTabPanel();
         tabpanel.items.each(function(cmp, idx){ if(idx > 3) cmp.destroy() });
     },
 
+    /**
+     * Return query editor in active query tab
+     *
+     * @access public
+     * @method getActiveResultTabPanel
+     */
     getActiveEditor : function(){
 
     	try {
