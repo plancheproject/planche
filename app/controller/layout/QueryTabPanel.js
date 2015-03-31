@@ -8,25 +8,27 @@ Ext.define('Planche.controller.layout.QueryTabPanel', {
     ],
     init : function(){
 
-        // this.control({
-        //     'scheme-tree' : {
-        //         beforeitemexpand : this.expandTree,
-        //         select : function(view){
+        this.control({
+            'query-tab-panel' : {
+                'initQueryTab' : this.initQueryTab
+            }
+        });
+    },
 
-        //             var treeview = view.views[0];                       
-        //             var tree = treeview.up("treepanel");
-        //             this.getApplication().setSelectedTree(tree);
-        //         },
-        //         show : function(tree){
+    initQueryTab : function(name, closable){
 
-        //             this.getApplication().setSelectedTree(tree);                     
-        //         },
-        //         boxready : function(tree){
+        var 
+        app      = this.getApplication(),
+        tabPanel = app.getQueryTabPanel(),
+        closable = closable !== false,
+        tab      = Ext.create('Planche.view.layout.QueryTab', {
+            title    : name,
+            closable : closable
+        });
 
-        //             var sel = this.getApplication().getSelectedTree();
-        //             if(!sel) Planche.selectedTree = tree;
-        //         }
-        //     }
-        // });
+        if(!tabPanel){ return; }
+        
+        tabPanel.add(tab);
+        tabPanel.setActiveTab(tab);
     }
 });
