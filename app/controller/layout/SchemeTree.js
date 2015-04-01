@@ -1,10 +1,7 @@
 Ext.define('Planche.controller.layout.SchemeTree', {
     extend: 'Ext.app.Controller',
-    controllers : [
-        'Planche.controller.layout.SchemeTreeContextMenu'
-    ],
     views : [
-        'Planche.view.layout.SchemeTree'
+        'layout.SchemeTree'
     ],
     stores : [
         'SchemeTree'
@@ -54,16 +51,18 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
     loadTree : function(node){
 
+
         var loadFunc = this['load'+(node.isRoot() ? 'Databases' : node.data.text.replace(/\s/gi, ''))];
+
         if(loadFunc) {
 
+            node.removeAll();
             Ext.Function.bind(loadFunc, this)(node);
         }
     },
 
     reloadTree : function(node){
 
-        node.removeAll();
         this.loadTree(node);
     },
 
@@ -105,6 +104,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                 });
 
                 if(children.length == 0){ return ; }
+
                 node.appendChild(children);
             },
             failure : function(){
@@ -350,4 +350,46 @@ Ext.define('Planche.controller.layout.SchemeTree', {
         });
     }
 });
+
+      // 과거 사용하던 코드 그 쓰임새가 기억이 나질 않아 일단 주석을 해둔다. 다시 찾아보아야한다.
+      //   var tree = this.getSelectedTree(),
+      //    root = tree.getRootNode(),
+      //    dbNode = null, chNode = null, category = null;
+
+      //    Ext.Array.each(result.refresh_queue, function(queue, idx){
+
+      //        if(queue.db){
+
+      //            dbNode = root.findChild('text', queue.db);
+      //        }
+      //        else {
+
+      //            dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
+      //        }
+
+      //        if(!dbNode){ return; }
+
+      //        tree.selModel.select(dbNode);
+
+      //        category = queue.category.charAt(0).toUpperCase();
+            // category = category + queue.category.toLowerCase().substr(1) + 's';
+            // chNode = dbNode.findChild('text', category);
+
+            // if(queue.mode == 'CREATE'){
+
+            //  chNode.appendChild([{
+      //               text : queue.name,
+      //               leaf : true
+      //           }]);
+            // }
+            // else if(queue.mode == 'DROP'){
+
+            //  chNode = chNode.findChild('text', queue.name);
+            //  chNode.remove();
+            // }
+            // else if(queue.mode == 'ALTER'){
+
+            // }
+
+      //    }, this);
 
