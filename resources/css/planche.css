@@ -1,0 +1,61 @@
+
+.CodeMirror {
+    line-height: 1.3;
+    font-family: consolas;
+}
+/*        .CodeMirror-selected { 
+    border : 1px solid #000000; 
+}*/
+/*        .CodeMirror-focused .CodeMirror-selected { 
+    border : 1px solid #000000; 
+}*/
+div.query_err{
+
+    padding-bottom:5px;
+    border-bottom: dotted 2px #009AD7;
+}
+
+div.query_err span.message {
+
+    margin-top:20px;
+    display : block;
+    color : red;
+}
+
+div.info { 
+
+    font-family: consolas;
+    font-size : 9pt;
+    padding : 5px;
+    border: dotted 1px #009AD7;
+    white-space: pre;
+}
+
+table.info { 
+
+    font-family: consolas;
+    font-size : 9pt;
+}
+
+table.info th{ 
+
+    color : #009AD7;
+}
+
+table.info td,
+table.info th{ 
+
+    padding : 2px;
+    border-bottom: dotted 1px #009AD7;
+    border-right: dotted 1px #009AD7;
+}
+
+table.info th:last-child,
+table.info td:last-child{ 
+
+    border-right: none;
+}
+
+.btn {
+  border-color: #9d9d9d;
+}
