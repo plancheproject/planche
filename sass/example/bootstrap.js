@@ -6,7 +6,14 @@
  */
 Ext.Loader.addClassPathMappings({
   "Ext": "../../ext/src",
+  "Ext.DomHelper": "../../ext/src/dom/Helper.js",
+  "Ext.DomQuery": "../../ext/src/dom/Query.js",
+  "Ext.EventObjectImpl": "../../ext/src/EventObject.js",
   "Ext.Msg": "../../ext/src/window/MessageBox.js",
+  "Ext.Supports": "../../ext/src/Support.js",
+  "Ext.cmd": "../../../../../bin/Sencha/Cmd/5.1.2.52/plugins/src",
+  "Ext.core.DomHelper": "../../ext/src/dom/Helper.js",
+  "Ext.core.DomQuery": "../../ext/src/dom/Query.js",
   "Ext.rtl.EventObjectImpl": "../../ext/src/rtl/EventObject.js",
   "Planche": "../../app"
 });
@@ -861,9 +868,15 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.menu.Window": [],
   "Planche.controller.query.Token": [],
   "Planche.controller.table.AdvancedProperties": [],
-  "Planche.controller.table.EditScheme": [],
+  "Planche.controller.table.EditIndexWindow": [],
+  "Planche.controller.table.EditSchemeWindow": [],
   "Planche.controller.table.EditTextColumn": [],
   "Planche.controller.table.ReorderColumns": [],
+  "Planche.controller.table.TableIndexesTab": [],
+  "Planche.controller.table.TableInfoTab": [],
+  "Planche.controller.table.TablePropertiesTab": [],
+  "Planche.controller.table.TableSQLTab": [],
+  "Planche.controller.table.TableSchemeTab": [],
   "Planche.controller.user.Users": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.ContextMenu": [],
@@ -886,7 +899,14 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.view.layout.ResultTabPanel": [],
   "Planche.view.layout.SchemeTree": [],
   "Planche.view.layout.TableDataTab": [],
-  "Planche.view.layout.Toolbar": []
+  "Planche.view.layout.Toolbar": [],
+  "Planche.view.table.EditIndexWindow": [],
+  "Planche.view.table.EditSchemeWindow": [],
+  "Planche.view.table.TableIndexesTab": [],
+  "Planche.view.table.TableInfoTab": [],
+  "Planche.view.table.TablePropertiesTab": [],
+  "Planche.view.table.TableSQLTab": [],
+  "Planche.view.table.TableSchemeTab": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "Ext.AbstractComponent": [],
@@ -1907,9 +1927,15 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.menu.Window": [],
   "Planche.controller.query.Token": [],
   "Planche.controller.table.AdvancedProperties": [],
-  "Planche.controller.table.EditScheme": [],
+  "Planche.controller.table.EditIndexWindow": [],
+  "Planche.controller.table.EditSchemeWindow": [],
   "Planche.controller.table.EditTextColumn": [],
   "Planche.controller.table.ReorderColumns": [],
+  "Planche.controller.table.TableIndexesTab": [],
+  "Planche.controller.table.TableInfoTab": [],
+  "Planche.controller.table.TablePropertiesTab": [],
+  "Planche.controller.table.TableSQLTab": [],
+  "Planche.controller.table.TableSchemeTab": [],
   "Planche.controller.user.Users": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.ContextMenu": [],
@@ -1956,6 +1982,23 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Planche.view.layout.Toolbar": [
     "widget.planche-toolbar"
+  ],
+  "Planche.view.table.EditIndexWindow": [],
+  "Planche.view.table.EditSchemeWindow": [],
+  "Planche.view.table.TableIndexesTab": [
+    "widget.table-indexes-tab"
+  ],
+  "Planche.view.table.TableInfoTab": [
+    "widget.table-info-tab"
+  ],
+  "Planche.view.table.TablePropertiesTab": [
+    "widget.table-properties-tab"
+  ],
+  "Planche.view.table.TableSQLTab": [
+    "widget.table-sql-tab"
+  ],
+  "Planche.view.table.TableSchemeTab": [
+    "widget.table-scheme-tab"
   ]
 });
 Ext.setVersion("ext-theme-base", "4.2.1");
