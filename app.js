@@ -277,24 +277,20 @@ Ext.application({
      */
     openWindow : function(id){
 
-        var args = Ext.toArray(arguments);
+        var args = Ext.toArray(arguments),
+            ctrl = this.getController(id),
+            cmp = Ext.getCmp('window-'+id);
+
         args.shift();
 
-    	Ext.require('Planche.controller.'+id, function(){
+        if(cmp){
 
-	        var ctrl = this.getController(id);
-
-	        var cmp = Ext.getCmp('window-'+id);
-
-	        if(cmp){
-
-	        	cmp.show();
-	        }
-	        else {
-
-		        ctrl.initWindow.apply(ctrl, args);
-	        }
-    	}, this);
+            cmp.show();
+        }
+        else {
+            
+            ctrl.initWindow.apply(ctrl, args);
+        }
     },
 
     initConnectTab : function(connInfo){
@@ -424,7 +420,7 @@ Ext.application({
             },
             failure     : function(config, response){
 
-                this.openMessage(response.message);
+                this.openMessage(this.generateError(config.query, response.message));
             }
         });
 
@@ -886,22 +882,15 @@ Ext.application({
     openAlterTableWindow : function(node){
 
         var db = this.getParentNode(node);
-        this.tunneling({
-            db : db,
-            query : 'SHOW FULL FIELDS FROM `'+db+'`.`'+node.data.text+'`',
-            success : function(config, response){
-
-                this.openWindow('table.EditScheme', db, node.data.text, response);
-            }
-        });
+        this.openWindow('table.EditSchemeWindow', db, node.data.text);
     },
 
     openCreateTableWindow : function(){
 
-        var node = this.getSelectedNode();
-        var db = this.getParentNode(node);
+        var node = this.getSelectedNode(),
+        db = this.getParentNode(node);
 
-        this.openWindow('table.EditScheme', db);
+        this.openWindow('table.EditSchemeWindow', db);
     },
 
     openCreateDatabaseWindow : function(node){
@@ -940,8 +929,10 @@ Ext.application({
         this.initQueryTab('Query');
     },
 
+    initQueryTab : function(name, closable){
 
-
+        this.getQueryTabPanel().fireEvent('initQueryTab', name, closable);
+    },
 
     createDatabase : function(){
 
@@ -1002,7 +993,7 @@ Ext.application({
                             },
                             'failureQuery'   : function(){
 
-                                messages.push(app.generateErrorMessage(query, response.message));
+                                messages.push(app.generateError(query, response.message));
                             },
                             'afterAllQueries': function(){ 
 
@@ -1222,7 +1213,11 @@ Ext.application({
 
         if(queries.length == 0){
 
-            this.openMessage('No query(s) were executed. Please enter a query in the SQL window or place the cursor inside a query.');
+            this.openMessage(this.generateError(
+                'Query was empty',
+                'No query(s) were executed. Please enter a query in the SQL editor or place the cursor inside a query.'
+            ));
+            
             return;
         }
 
@@ -1264,16 +1259,11 @@ Ext.application({
 
                         if(response.is_result_query == true){
 
-                            var grid = this.initQueryResult({
-                                icon   : 'images/icon_table.png',
+                            this.initQueryResult({
+                                icon   : 'resources/images/icon_table.png',
                                 closable : true,
                                 title : 'Result'
-                            }, db, query, response),
-
-                            tabpanel = this.getActiveResultTabPanel();
-
-                            tabpanel.add(grid);
-                            tabpanel.setActiveTab(grid);
+                            }, db, query, response);
                         }
                         else {
 
@@ -1289,7 +1279,7 @@ Ext.application({
                     },
                     failure : function(config, response){
 
-                        messages.push(this.generateErrorMessage(query.getSQL(), response.message));
+                        messages.push(this.generateError(query.getSQL(), response.message));
 
                         this.getActiveConnectTab().setLoading(false);
 
@@ -1313,47 +1303,22 @@ Ext.application({
         if(messages.length == 0){ return; }
         
         this.openMessage(messages);
+    },
 
-      //   var tree = this.getSelectedTree(),
-      //    root = tree.getRootNode(),
-      //    dbNode = null, chNode = null, category = null;
+    /**
+     * Trigger openMessage event with  some messages
+     *
+     * @access public
+     * @method getToolBar
+     */
+    openMessage : function(messages){
 
-      //    Ext.Array.each(result.refresh_queue, function(queue, idx){
+        this.getActiveMessageTab().fireEvent('openMessage', messages);
+    },
 
-      //        if(queue.db){
+    generateError : function(query, message){
 
-      //            dbNode = root.findChild('text', queue.db);
-      //        }
-      //        else {
-
-      //            dbNode = this.getParentNode(this.getSelectedNode(), 1, true);
-      //        }
-
-      //        if(!dbNode){ return; }
-
-      //        tree.selModel.select(dbNode);
-
-      //        category = queue.category.charAt(0).toUpperCase();
-            // category = category + queue.category.toLowerCase().substr(1) + 's';
-            // chNode = dbNode.findChild('text', category);
-
-            // if(queue.mode == 'CREATE'){
-
-            //  chNode.appendChild([{
-      //               text : queue.name,
-      //               leaf : true
-      //           }]);
-            // }
-            // else if(queue.mode == 'DROP'){
-
-            //  chNode = chNode.findChild('text', queue.name);
-            //  chNode.remove();
-            // }
-            // else if(queue.mode == 'ALTER'){
-
-            // }
-
-      //    }, this);
+        return '<div class="query_err">The Query : ' + query + '<span class="message"> '+message+'</span></div>';
     },
 
     getParsedQuery : function(){
@@ -1389,17 +1354,14 @@ Ext.application({
         }
     },
 
-
-
     openTable : function(node){
 
-        var tab = this.getActiveTableDataTab();
-        var db = this.getParentNode(node);
-
-        var parser = Ext.create('Planche.lib.QueryParser', this.getAPIS());
-        var queries = parser.parse(this.getAPIS().getQuery('OPEN_TABLE', db, node.data.text));
-
-        var query = queries[0];
+        var 
+        tab     = this.getActiveTableDataTab(),
+        db      = this.getParentNode(node),
+        parser  = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
+        queries = parser.parse(this.getAPIS().getQuery('OPEN_TABLE', db, node.data.text)),
+        query   = queries[0];
 
         this.tunneling({
             db : db,
@@ -1408,15 +1370,7 @@ Ext.application({
             tab : tab,
             success : function(config, response){
 
-                var tab = this.getActiveTableDataTab();
-                Ext.apply(tab, {
-                    loadedTable : node.data.text,
-                });
-                tab.removeAll();
-                var grid = this.initQueryResult({ openTable : true }, db, query, response);
-
-                tab.show();
-                tab.add(grid);
+                this.initQueryResult({ openTable : node.data.text }, db, query, response);
             }
         });
     },
@@ -1439,251 +1393,7 @@ Ext.application({
 
     initQueryResult : function(config, db, query, response){
 
-        config.tab = config.tab === true || true;
-        
-        var scheme = response.fields, records = response.records,
-            columns = [], fields = [], grid;
-
-        var loadGridRecord = Ext.Function.bind(function(cmd){
-
-            if(typeof cmd == 'undefined'){ cmd = ''; }
-    
-            var textRows = grid.down('text[text=Total]').next();
-            var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
-
-            var refreshPerSec = parseFloat(textRefreshPerSec.getValue());
-
-            textRows.setText('0');
-            
-            this.getActiveConnectTab().setLoading(true);
-
-            this.tunneling({
-                db : db,
-                query : query['get'+cmd+'SQL'](),
-                success : function(config, response){
-
-                    var data = this.makeRecords(scheme, response.records);              
-                    grid.store.loadData(data);
-                    this.getActiveConnectTab().setLoading(false);
-
-                    if(refreshPerSec > 0){
-
-                        setTimeout(loadGridRecord, refreshPerSec * 1000);
-                    }
-                }
-            });
-
-        }, this);
-
-        var updateToolbar = function(){
-
-            var textfield = grid.query('textfield'), btnPrev = grid.down('button[text=Previous]'), 
-                btnNext = grid.down('button[text=Next]'), textRows = grid.down('text[text=Total]').next();
-
-            btnNext.setDisabled(grid.store.data.length < query.end);
-            btnPrev.setDisabled(1 > query.start);
-
-            textfield[0].setValue(query.start);
-            textfield[1].setValue(query.end);
-
-            textRows.setText(grid.store.data.length);
-        };
-
-        var colObjs = {};
-
-        Ext.Array.each(scheme, function(col, idx){
-
-            colObjs[col.name] = Ext.create('Ext.grid.column.Column',{
-                text: col.name,
-                dataIndex: col.name,
-                listeners : {
-                    scope : this,
-                    dblclick :function(view, el, ridx, cidx, event, data){
-
-                        if(['blob', 'var_string'].indexOf(col.type) > -1){
-
-                            this.openWindow('table.EditTextColumn', data.get(col.name));
-                        }
-                    }
-                },
-                hideable : false,
-                menuDisabled: true,
-                draggable: false,
-                groupable: false,
-                renderer : 'htmlEncode'
-            });
-
-            columns.push(colObjs[col.name]);
-
-            fields.push(col.name);
-
-        }, this);
-
-        var storeConfig = {
-            fields: fields,
-            autoLoad : false,
-            pageSize: 10,
-            data : this.makeRecords(scheme, records),
-            remoteSort: true,
-            proxy: {
-                type: 'memory',
-                reader: {
-                    type: 'json'
-                }
-            }
-        };
-
-        var orderColumn    = null,
-            orderColumnDir = 'ASC';
-
-        if(config.openTable){
-
-            Ext.apply(storeConfig, {
-                sort : function(params){
-
-                    if(orderColumn != params.property){
-
-                        if(orderColumn != null){
-
-                            var column = colObjs[orderColumn];
-                                column.removeCls('x-column-header-sort-DESC');
-                                column.removeCls('x-column-header-sort-ASC');
-                        }
-
-                        orderColumnDir = orderColumn == null ? 'DESC' : 'ASC';
-                        orderColumn = params.property;
-                    }
-                    else {
-
-                        orderColumnDir = orderColumnDir == 'ASC' ? 'DESC' : 'ASC';
-                    }
-
-                    query.setOrderBy(orderColumn, orderColumnDir);
-
-                    loadGridRecord();
-                }
-            });
-        }
-        
-        var grid = Ext.create('Ext.grid.Panel', Ext.Object.merge({
-            xtype   : 'grid',
-            border  : true,
-            flex    : 1,
-            columnLines: true,
-            selModel : {
-                selType : 'checkboxmodel'
-            },
-            viewConfig: { 
-                emptyText : 'There are no items to show in this view.' 
-            },
-            plugins: {
-                ptype: 'bufferedrenderer'
-            },
-            tbar: [
-                { xtype: 'button', text: 'Add', disabled: true, cls : 'btn', scope: this, handler : function(btn){
-
-                }},
-                { xtype: 'button', text: 'Save', disabled: true, cls : 'btn', scope: this, handler : function(btn){
-
-                }},
-                { xtype: 'button', text: 'Del', disabled: true, cls : 'btn', scope: this, handler : function(btn){
-
-                }},
-                { xtype: 'tbseparator', margin : '0 5 0 5'},
-                { xtype: 'button', text: 'Previous', cls : 'btn', disalbed : true, scope: this, handler : function(btn){
-
-                    loadGridRecord('PrevRecordSet');
-                }},
-                { xtype: 'textfield', value: query.start, scope: this, listeners : {
-                    specialkey: function (field, el) {
-
-                        if (el.getKey() == Ext.EventObject.ENTER){
-                            
-                            query.start = parseInt(field.getValue(), 10);
-                            loadGridRecord();
-                        }
-                    }
-                }},
-                { xtype: 'button', text: 'Next', cls : 'btn', disalbed : true, scope: this, handler : function(btn){
-
-                    loadGridRecord('NextRecordSet');
-                }},
-                { xtype: 'text', text: 'Size', margin : '0 0 0 5' },
-                { xtype: 'textfield', value: query.end, scope: this, width : 80, margin : '0 0 0 5', listeners : {
-                    specialkey: function (field, el) {
-
-                        if (el.getKey() == Ext.EventObject.ENTER){
-
-                            query.end = parseInt(field.getValue(), 10);
-                            loadGridRecord();
-                        }
-                    }
-                }},
-                { xtype: 'tbseparator', margin : '0 5 0 5'},
-                { xtype: 'text',  text : 'Refresh Per Sec'},
-                { xtype: 'textfield', value: 0, scope: this, width : 40, margin : '0 0 0 5', listeners : {
-                    specialkey: function (field, el) {
-
-                        if (el.getKey() == Ext.EventObject.ENTER){
-
-                            loadGridRecord();
-                        }
-                    }
-                }},
-                { xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
-
-                    loadGridRecord();
-                }},
-                { xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', handler : function(btn){
-
-                    var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
-
-                    textRefreshPerSec.setValue(0);
-                }},
-                { xtype: 'tbseparator', margin : '0 5 0 5'},
-                { xtype: 'button', text: 'Tokens', cls : 'btn', scope: this, handler : function(btn){
-
-                    this.openTokenPanel(query.getTokens());
-                }}
-            ],
-            fbar : [
-                { xtype: 'text', text: 'Total' },
-                { xtype: 'text', text: '0', width : 50, rtl: true },
-                { xtype: 'text', text: 'Rows' }
-            ],
-            remoteSort: true,
-            store   : Ext.create('Ext.data.Store', storeConfig),
-            columns : columns
-        }, config));
-        
-        grid.store.on('datachanged', function(){
-
-            updateToolbar();
-        });
-
-        grid.on('sortchange', function(){
-
-            if(!orderColumn) return;
-            
-            setTimeout(function(){
-
-                var column = colObjs[orderColumn];
-
-                if(orderColumnDir == 'ASC'){
-
-                    column.removeCls('x-column-header-sort-DESC');
-                    column.addCls('x-column-header-sort-ASC');
-                }
-                else {
-
-                    column.removeCls('x-column-header-sort-ASC');
-                    column.addCls('x-column-header-sort-DESC');
-                }
-            }, 100);
-        });
-
-        updateToolbar();
-        return grid;
+        this.getActiveResultTabPanel().fireEvent('initQueryResult', config, db, query, response);
     },
 
     showMessage : function(msg){
@@ -1691,9 +1401,21 @@ Ext.application({
         Ext.Msg.alert('Message', msg);
     },
 
-    generateErrorMessage : function(query, message){
+    getAssocArray : function(fields, records){
 
-        return query + '<span class=\'query_err\'>▶ '+message+'</span>';
+        var tmp = [];
+        Ext.Array.each(records, function(record, ridx){
+
+            var row = {};
+            Ext.Array.each(fields, function(field, fidx){
+
+                row[field.name] = record[fidx];
+            });
+
+            tmp.push(row);
+        });
+
+        return tmp;
     },
 
     tokenize : function(){
