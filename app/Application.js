@@ -11,7 +11,7 @@ Ext.define('Planche.Application', {
         'Planche.lib.Query',
         'Planche.lib.QueryParser',
         'Planche.lib.QueryAlignment',
-        'Planche.dbms.mysql',
+        'Planche.dbms.mysql'
     ],
     views: [
         // TODO: add views here
@@ -19,33 +19,52 @@ Ext.define('Planche.Application', {
 
     controllers: [
         // TODO: add controllers here,
-        'Planche.controller.command.Find',
-        'Planche.controller.command.Flush',
-        'Planche.controller.command.Process',
-        'Planche.controller.command.Quick',
-        'Planche.controller.command.Status',
-        'Planche.controller.command.Variables',
-        'Planche.controller.connection.Connect',
-        'Planche.controller.database.CreateDatabase',
-        'Planche.controller.menu.Connection',
-        'Planche.controller.menu.Database',
-        'Planche.controller.menu.Edit',
-        'Planche.controller.menu.Table',
-        'Planche.controller.menu.Tools',
-        // 'Planche.controller.menu.Favorites',
-        // 'Planche.controller.menu.Help',
-        // 'Planche.controller.menu.Other',
-        // 'Planche.controller.menu.Powertools',
-        // 'Planche.controller.menu.Window'
+        'command.Find',
+        'command.Flush',
+        'command.Process',
+        'command.Quick',
+        'command.Status',
+        'command.Variables',
+        'connection.Connect',
+        'database.CreateDatabase',
+        'menu.Connection',
+        'menu.Database',
+        'menu.Edit',
+        'menu.Table',
+        'menu.Tools',
+        // 'menu.Favorites',
+        // 'menu.Help',
+        // 'menu.Other',
+        // 'menu.Powertools',
+        // 'menu.Window'
+        'query.Token',
 
+        'layout.SchemeTreeContextMenu',
+        'layout.SchemeTree',
+        'layout.QueryTabPanel',
+        'layout.QueryEditor',
+        'layout.ResultTabPanel',
+        'layout.QueryTab',
+        'layout.MessageTab',
+        'layout.TableDataTab',
+        'layout.InfoTab',
+        'layout.HistoryTab',
+        'layout.Toolbar',
+        'layout.ConnectTab',
 
-        'Planche.controller.query.Token',
-        'Planche.controller.table.AdvancedProperties',
-        'Planche.controller.table.EditScheme',
-        'Planche.controller.table.EditTextColumn',
-        'Planche.controller.table.ReorderColumns',
-        'Planche.controller.user.Users',
-        'Planche.controller.Main'
+        'table.EditSchemeWindow',
+        'table.AdvancedProperties',
+        'table.EditTextColumn',
+        'table.ReorderColumns',
+        'table.TableSchemeTab',
+        'table.TablePropertiesTab',
+        'table.TableIndexesTab',
+        'table.TableSQLTab',
+        'table.TableInfoTab',
+
+        'user.Users',
+
+        'Main'
     ],
 
     stores: [
