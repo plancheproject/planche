@@ -3,8 +3,6 @@ Ext.define('Planche.Application', {
 
     extend: 'Ext.app.Application',
     requires : [
-        'Ext.data.JsonP',
-        'Ext.window.MessageBox',
         'Planche.lib.Window',
         'Planche.lib.Menu',
         'Planche.lib.QueryTokenType',
@@ -14,7 +12,25 @@ Ext.define('Planche.Application', {
         'Planche.dbms.mysql'
     ],
     views: [
-        // TODO: add views here
+        'layout.ConnectTab',
+        'layout.HistoryTab',
+        'layout.InfoTab',
+        'layout.MessageTab',
+        'layout.QueryEditor',
+        'layout.QueryTab',
+        'layout.QueryTabPanel',
+        'layout.ResultTabPanel',
+        'layout.SchemeTree',
+        'layout.TableDataTab',
+        'layout.Toolbar',
+
+        'table.EditIndexWindow',
+        'table.EditSchemeWindow',
+        'table.TableIndexesTab',
+        'table.TableInfoTab',
+        'table.TablePropertiesTab',
+        'table.TableSchemeTab',
+        'table.TableSQLTab'
     ],
 
     controllers: [
