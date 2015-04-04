@@ -5,8 +5,6 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
     ],
     init : function(){
 
-        console.log('init');
-
         this.control({
             'table-scheme-tab' : {
                 beforeedit: this.beforeEdit,
