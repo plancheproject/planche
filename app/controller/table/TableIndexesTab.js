@@ -6,8 +6,9 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
     init : function(){
         
         this.control({
-            'table-indexes-tab' : {
-                boxready  : this.initTab
+            '#table-indexes-tab' : {
+                boxready  : this.initTab,
+                reload    : this.initTab
             },
             '#table-indexes-btn-create' : {
                 click : this.createIndex
@@ -23,6 +24,13 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
 
     createIndex : function(btn){
 
+        var 
+        app      = this.getApplication(),
+        tab      = Ext.getCmp('table-indexes-tab'),
+        db       = tab.getDatabase(),
+        tb       = tab.getTable();
+
+        app.openWindow('table.EditIndexWindow', db, tb);
     },
 
     editIndex : function(btn){
@@ -40,6 +48,8 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
             app.showMessage('Choose the index you want to edit.');
             return;
         }
+
+        app.openWindow('table.EditIndexWindow', db, tb, selList[0]);
     },
 
     deleteIndex : function(btn){
@@ -68,7 +78,7 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
                     query : app.getAPIS().getQuery('DROP_INDEX', db, tb, index),
                     success : function(config, response){
 
-                        tab.reload();
+                        tab.fireEvent('reload', tab);
                     }
                 });
             }

@@ -14,9 +14,6 @@ Ext.define('Planche.view.table.EditSchemeWindow', {
     shadow    : false,
     autoShow  : true,
     constrain : true,
-    items     : [
-    
-    ],
     buttons   : [{
         id     : 'edit-scheme-btn-close',
         text   : 'Close'

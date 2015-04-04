@@ -6,6 +6,8 @@ Ext.define('Planche.dbms.mysql', function(){
 		SHOW_ADVANCED_PROPERTIES: 'SHOW TABLE STATUS FROM `{0}` LIKE "{1}"',
 		SHOW_DATABASE			: 'SHOW DATABASES',
 		OPEN_TABLE				: 'SELECT * FROM `{0}`.`{1}`',
+		ADD_INDEX				: 'CREATE {4} INDEX {2} USING {5} ON `{0}`.`{1}`({3}) ',
+		DROP_INDEX				: 'ALTER TABLE `{0}`.`{1}` DROP KEY `{2}`',
 		SHOW_INDEX				: 'SHOW INDEX FROM `{0}`.`{1}`',
 		DROP_INDEX				: 'DROP INDEX `{2}` ON `{0}`.`{1}`',
 		SHOW_PROCEDURES			: 'SHOW PROCEDURE STATUS WHERE DB = "{0}"',

@@ -10,7 +10,7 @@ Ext.define('Planche.controller.user.Users', {
 
             fields.push(obj.dataIndex);
         });
-        console.log(result);
+
         var records = [];
         Ext.Array.each(result.records, function(row, ridx){
 
@@ -47,7 +47,6 @@ Ext.define('Planche.controller.user.Users', {
             constrain : true,
             items : [
                 Ext.create('Ext.grid.Panel', {
-                    id : 'connect-grid',
                     border : false,
                     columnLines: true,
                     width : '100%',
