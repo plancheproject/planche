@@ -480,12 +480,12 @@ Ext.application({
         var app = this.getApplication(), tunneling, idx = 0, results = [];
 
         Ext.applyIf(callbacks, {
-            'prevAllQueries' : function(){},
-            'prevQuery' : function(){},
-            'successQuery' : function(){},
-            'failureQuery' : function(){},
-            'afterQuery' : function(){},
-            'afterAllQueries' : function(){}
+            prevAllQueries : function(){},
+            prevQuery : function(){},
+            successQuery : function(){},
+            failureQuery : function(){},
+            afterQuery : function(){},
+            afterAllQueries : function(){}
         });
 
         callbacks['prevAllQueries'].apply(scope, [queries]);
@@ -987,15 +987,15 @@ Ext.application({
                         });
 
                         this.multipleTunneling(db, queries, {
-                            'prevAllQueries' : function(){
+                            prevAllQueries : function(queries){
 
                                 app.getActiveConnectTab().setLoading(true);
                             },
-                            'failureQuery'   : function(){
+                            failureQuery   : function(idx, query, config, response){
 
                                 messages.push(app.generateError(query, response.message));
                             },
-                            'afterAllQueries': function(){ 
+                            afterAllQueries : function(queries, results){ 
 
                                 app.getActiveConnectTab().setLoading(false);
 
@@ -1217,7 +1217,7 @@ Ext.application({
                 'Query was empty',
                 'No query(s) were executed. Please enter a query in the SQL editor or place the cursor inside a query.'
             ));
-            
+
             return;
         }
 
@@ -1275,6 +1275,7 @@ Ext.application({
                         }
 
                         this.getActiveConnectTab().setLoading(false);
+
                         tunneling();
                     },
                     failure : function(config, response){
