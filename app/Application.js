@@ -68,6 +68,7 @@ Ext.define('Planche.Application', {
         'layout.Toolbar',
         'layout.ConnectTab',
 
+        'table.EditIndexWindow',
         'table.EditSchemeWindow',
         'table.AdvancedProperties',
         'table.EditTextColumn',
