@@ -93,14 +93,14 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
 
     createTable : function(btn){
 
-        this[btn.getText().toLowerCase()]();
+        this[btn.getText().toLowerCase()](btn);
     },
 
     create : function(btn){
 
         var 
         app       = this.getApplication(),
-        tab       = btn.up("table-scheme-tab"),
+        tab       = Ext.getCmp("table-scheme-tab"),
         textfield = btn.up('window').down('textfield');
         table     = textfield.getValue();
 
@@ -153,7 +153,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
                 var tablesNode = app.getParentNode(node , 2, true);
                 tablesNode.appendChild({
                     text : table,
-                    icon : 'images/icon_table.png',
+                    icon : 'resources/images/icon_table.png',
                     leaf : false,
                     children : [{
                         text : 'Columns',
@@ -168,6 +168,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             },
             failure : function(config, response){
 
+                app.openMessage(app.generateError(config.query, response.message));
                 Ext.Msg.alert('Error', response.message);
             }
         });
@@ -177,7 +178,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
 
         var 
         app       = this.getApplication(),
-        tab       = btn.up("table-scheme-tab"),
+        tab       = Ext.getCmp("table-scheme-tab"),
         textfield = btn.up('window').down('textfield'),
         table     = textfield.getValue();
 
@@ -296,7 +297,8 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             },
             failure : function(config, response){
 
-                Ext.Msg.alert('Error', response.result);
+                app.openMessage(app.generateError(config.query, response.message));
+                Ext.Msg.alert('Error', response.message);
             }
         });
     },
@@ -307,6 +309,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         app      = this.getApplication(),
         db       = tab.getDatabase(),
         tb       = tab.getTable(),
+        store    = tab.getStore(),
         getMatch = function(str, pattern, idx){ 
 
             var r = str.match(pattern); 
@@ -318,7 +321,9 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         if(!tb){
 
             records.push({});
-            tab.getStore().loadData(records);
+            tab.getStore().load({
+                data : records
+            });
             return;
         }
 
@@ -350,8 +355,11 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
                     });
                 });
 
+                var store = tab.getStore();
+
                 records.push({});
-                tab.getStore().loadData(records);
+                store.loadData(records);
+                store.sync();
             }
         });
     }
