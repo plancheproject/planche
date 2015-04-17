@@ -6,7 +6,7 @@ Ext.define('Planche.controller.layout.QueryTabPanel', {
     views : [
         'layout.QueryTab'
     ],
-    init : function(){
+    init : function () {
 
         this.control({
             'query-tab-panel' : {
@@ -15,7 +15,7 @@ Ext.define('Planche.controller.layout.QueryTabPanel', {
         });
     },
 
-    initQueryTab : function(name, closable){
+    initQueryTab : function (name, closable) {
 
         var 
         app      = this.getApplication(),
@@ -26,7 +26,7 @@ Ext.define('Planche.controller.layout.QueryTabPanel', {
             closable : closable
         });
 
-        if(!tabPanel){ return; }
+        if(!tabPanel) { return; }
         
         tabPanel.add(tab);
         tabPanel.setActiveTab(tab);

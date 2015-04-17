@@ -1,6 +1,6 @@
 Ext.define('Planche.controller.query.Token', {
     extend: 'Ext.app.Controller',
-    initWindow : function(tokens){
+    initWindow : function (tokens) {
 
         this.tokens = tokens;
 
@@ -24,7 +24,7 @@ Ext.define('Planche.controller.query.Token', {
             buttons : [{
                 text : 'Close',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.destroy();
@@ -33,12 +33,12 @@ Ext.define('Planche.controller.query.Token', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -58,16 +58,16 @@ Ext.define('Planche.controller.query.Token', {
         return this.grid;
     },
 
-    makeData : function(){
+    makeData : function () {
 
         var type = [];
-        Ext.Object.each(Planche.lib.QueryTokenType.get(), function(idx, val){
+        Ext.Object.each(Planche.lib.QueryTokenType.get(), function (idx, val) {
 
             type[val] = idx;
         });
 
         var data = [];
-        Ext.Array.each(this.tokens, function(token, idx){
+        Ext.Array.each(this.tokens, function (token, idx) {
 
             data.push({type : type[token.type], token : token.value });
         });
@@ -75,13 +75,13 @@ Ext.define('Planche.controller.query.Token', {
         return data;
     },
 
-    makeRecords : function(fields, records){
+    makeRecords : function (fields, records) {
 
         var tmp = [];
-        Ext.Array.each(records, function(row, ridx){
+        Ext.Array.each(records, function (row, ridx) {
 
             var record = {};
-            Ext.Array.each(fields, function(col, cidx){
+            Ext.Array.each(fields, function (col, cidx) {
 
                 record[col.name] = row[cidx];
             });
@@ -91,7 +91,7 @@ Ext.define('Planche.controller.query.Token', {
         return tmp;
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
             { text: 'Token Type', dataIndex: 'type', width : 100},

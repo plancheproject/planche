@@ -1,14 +1,14 @@
 Ext.define('Planche.controller.menu.Table', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'Paste SQL Statement',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()){
+                if(!this.getSelectedNode()) {
 
                     return true;
                 }
@@ -18,7 +18,7 @@ Ext.define('Planche.controller.menu.Table', {
             menu : [{
                 text: 'INSERT INTO &lt;Table Name&gt;..',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.pasteSQLStatement('insert', node);
@@ -26,7 +26,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'UPDATE &lt;Table Name&gt; SET..',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.pasteSQLStatement('update', node);
@@ -34,7 +34,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'DELETE FROM &lt;Table Name&gt;..',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.pasteSQLStatement('delete', node);
@@ -42,7 +42,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.pasteSQLStatement('select', node);
@@ -54,16 +54,16 @@ Ext.define('Planche.controller.menu.Table', {
         },'-',{
             text : 'Open Table',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()){
+                if(!this.getSelectedNode()) {
 
                     return true;
                 }
 
                 return false;
             },
-            handler : function(){
+            handler : function () {
 
                 var node = this.getSelectedNode();
                 this.openTable(node);
@@ -71,32 +71,32 @@ Ext.define('Planche.controller.menu.Table', {
         },{
             text : 'Create Table',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()){
+                if(!this.getSelectedNode()) {
 
                     return true;
                 }
 
                 return false;
             },
-            handler : function(){
+            handler : function () {
 
                 this.openCreateTableWindow();
             }
         },{
             text : 'Alter Table',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()){
+                if(!this.getSelectedNode()) {
 
                     return true;
                 }
 
                 return false;
             },
-            handler : function(){
+            handler : function () {
 
                 var node = this.getSelectedNode();
                 this.openAlterTableWindow(node);
@@ -110,9 +110,9 @@ Ext.define('Planche.controller.menu.Table', {
         },{
             text : 'More Table Operations',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()){
+                if(!this.getSelectedNode()) {
 
                     return true;
                 }
@@ -122,7 +122,7 @@ Ext.define('Planche.controller.menu.Table', {
             menu : [{
                 text: 'Rename Table',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.renameTable(node);
@@ -130,7 +130,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'Truncate Table',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.truncateTable(node);
@@ -138,7 +138,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'Drop Table From Database',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.dropTable(node);
@@ -146,7 +146,7 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'Reorder Column(s)',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.openReorderColumns(node);
@@ -155,14 +155,14 @@ Ext.define('Planche.controller.menu.Table', {
                 text: 'Duplicate Table Structure/Data',
                 scope : this.application,
                 disabled : true,
-                handler : function(){
+                handler : function () {
 
                     
                 }
             },{
                 text: 'View Advanced Properties',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.openAdvancedProperties(node);
@@ -173,7 +173,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'MYISAM', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -181,7 +181,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'MRG_MYISAM', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -189,7 +189,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'CSV', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -197,7 +197,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'BLACKHOLE', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -205,7 +205,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'MEMORY', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -213,7 +213,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'FEDERATED', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -221,7 +221,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'ARCHIVE', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -229,7 +229,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'INNODB', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -237,7 +237,7 @@ Ext.define('Planche.controller.menu.Table', {
                     {
                         scope : this.application,
                         text : 'PERFORMANCE_SCHEMA', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             this.changeTableToType(btn.text);
                         }
@@ -276,16 +276,16 @@ Ext.define('Planche.controller.menu.Table', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx){
+        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
             
-            switch(typeof menu.allowDisable){
+            switch(typeof menu.allowDisable) {
 
                 case 'function':
 

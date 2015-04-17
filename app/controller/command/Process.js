@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.command.Process', {
     extend: 'Ext.app.Controller',
     grid : null,
-    initWindow : function(){
+    initWindow : function () {
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -23,14 +23,14 @@ Ext.define('Planche.controller.command.Process', {
             buttons : [{
                 text : 'Kill Process',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     
                 }
             },{
                 text : 'Close',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.destroy();
@@ -38,7 +38,7 @@ Ext.define('Planche.controller.command.Process', {
             }],
             listeners : {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     this.loadList();
                 }
@@ -46,12 +46,12 @@ Ext.define('Planche.controller.command.Process', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -71,17 +71,17 @@ Ext.define('Planche.controller.command.Process', {
                     scope : this,
                     specialkey: function (field, el) {
 
-                        if (el.getKey() == Ext.EventObject.ENTER){
+                        if (el.getKey() == Ext.EventObject.ENTER) {
 
                             this.loadList();
                         }
                     }
                 }},
-                { xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'Refresh', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function (btn) {
 
                     this.loadList();
                 }},
-                { xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'Stop', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function (btn) {
 
                     var textRefreshPerSec = this.grid.down('text[text=Refresh Per Sec]').next();
 
@@ -93,7 +93,7 @@ Ext.define('Planche.controller.command.Process', {
         return this.grid;
     },
 
-    loadList : function(){
+    loadList : function () {
 
         var textRefreshPerSec = this.grid.down('text[text=Refresh Per Sec]').next();
 
@@ -106,14 +106,14 @@ Ext.define('Planche.controller.command.Process', {
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery('SHOW_PROCESS_LIST', db),
-            success : Ext.Function.bind(function(config, response){
+            success : Ext.Function.bind(function (config, response) {
                 
                 var records = this.makeRecords(response.fields, response.records);
 
                 this.grid.store.loadData(records);
                 this.grid.setLoading(false);
 
-                if(refreshPerSec > 0){
+                if(refreshPerSec > 0) {
 
                     setTimeout(Ext.Function.bind(this.loadList, this), refreshPerSec * 1000);
                 }
@@ -121,13 +121,13 @@ Ext.define('Planche.controller.command.Process', {
         });
     },
 
-    makeRecords : function(fields, records){
+    makeRecords : function (fields, records) {
 
         var tmp = [];
-        Ext.Array.each(records, function(row, ridx){
+        Ext.Array.each(records, function (row, ridx) {
 
             var record = {};
-            Ext.Array.each(fields, function(col, cidx){
+            Ext.Array.each(fields, function (col, cidx) {
 
                 record[col.name] = row[cidx];
             });
@@ -136,7 +136,7 @@ Ext.define('Planche.controller.command.Process', {
 
         return tmp;
     },
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
             { text: 'Id', dataIndex: 'Id', width : 100},

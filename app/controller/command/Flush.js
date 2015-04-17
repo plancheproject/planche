@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.command.Flush', {
     extend: 'Ext.app.Controller',
     grid : null,
-    initWindow : function(){
+    initWindow : function () {
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -59,7 +59,7 @@ Ext.define('Planche.controller.command.Flush', {
         });
     },
 
-    initCheckBox : function(label, cmd, colspan){
+    initCheckBox : function (label, cmd, colspan) {
 
         var component = {
             xtype : 'checkbox',
@@ -68,7 +68,7 @@ Ext.define('Planche.controller.command.Flush', {
             handler : this.hanlderCheckBox
         };
 
-        if(typeof colspan != "undefined"){
+        if(typeof colspan != "undefined") {
 
             component.colspan = colspan;
         }
@@ -76,12 +76,12 @@ Ext.define('Planche.controller.command.Flush', {
         return component;
     },
 
-    hanlderCheckBox : function(checkbox, checked){
+    hanlderCheckBox : function (checkbox, checked) {
 
-        if(checkbox.cmd == 'ALL'){
+        if(checkbox.cmd == 'ALL') {
 
             var node = checkbox.nextNode();
-            while(node){
+            while(node) {
 
                 node.setValue(checked);
                 node = node.nextNode();
@@ -90,13 +90,13 @@ Ext.define('Planche.controller.command.Flush', {
         }
     },
 
-    flush : function(btn, e){
+    flush : function (btn, e) {
         
         var win = btn.up("window");      
         var checkAll = win.down("checkbox[boxLabel='FLUSH ALL']");
         var useNoWrite = win.down("checkbox[boxLabel='Use NO_WRITE_TO_BINLOG']");
 
-        if(useNoWrite.checked){
+        if(useNoWrite.checked) {
 
             useNoWrite = useNoWrite.cmd;
         }
@@ -107,16 +107,16 @@ Ext.define('Planche.controller.command.Flush', {
         
         var queries = [];
         var node = win.down("checkbox[boxLabel='Logs']");
-        while(node){
+        while(node) {
 
-            if(node.checked){
+            if(node.checked) {
 
                 queries.push('FLUSH ' + (useNoWrite ? useNoWrite+' ' : '') + node.cmd);
             }
             node = node.nextNode();
         }
 
-        if(queries.length == 0){
+        if(queries.length == 0) {
 
             Ext.Msg.alert('info', 'Must select any command');
             return;
@@ -125,13 +125,13 @@ Ext.define('Planche.controller.command.Flush', {
         this.execute(queries, win);
     },
 
-    close : function(btn, e){
+    close : function (btn, e) {
         
         var win = btn.up('window');
         win.destroy();
     },
 
-    execute : function(queries, win){
+    execute : function (queries, win) {
             
         var app  = this.getApplication(),
             node = app.getSelectedNode(),
@@ -141,7 +141,7 @@ Ext.define('Planche.controller.command.Flush', {
 
         var tunneling,
             messages = [];
-        (tunneling = Ext.Function.bind(function(){
+        (tunneling = Ext.Function.bind(function () {
 
             var query = queries.shift();
 
@@ -150,11 +150,11 @@ Ext.define('Planche.controller.command.Flush', {
                 app.tunneling({
                     db : db,
                     query : query,
-                    success : function(config, response){
+                    success : function (config, response) {
 
                         tunneling();
                     },
-                    failure : function(config, response){
+                    failure : function (config, response) {
 
                         Ext.Msg.alert('info', query+'<span class=\'query_err\'>▶ '+response.message+'</span>');
                         win.setLoading(false);

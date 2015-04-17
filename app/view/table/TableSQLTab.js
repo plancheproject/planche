@@ -8,7 +8,7 @@ Ext.define('Planche.view.table.TableSQLTab', {
         database : null,
         table : null
     },
-    initComponent : function(){
+    initComponent : function () {
 
         this.callParent(arguments);
     }

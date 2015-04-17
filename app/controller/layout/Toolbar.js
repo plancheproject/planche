@@ -3,7 +3,7 @@ Ext.define('Planche.controller.layout.Toolbar', {
     views : [
         'Planche.view.layout.Toolbar'
     ],
-    init : function(){
+    init : function () {
 
         var app = this.getApplication();
 
@@ -55,11 +55,11 @@ Ext.define('Planche.controller.layout.Toolbar', {
         });
     },
 
-    showMenu : function(btn){
+    showMenu : function (btn) {
 
         Ext.applyIf(btn, { custom : false });
 
-        if(btn.custom == true){ return; }
+        if(btn.custom == true) { return; }
 
         var id = 'menu.'+btn.text;
         var ctrl = this.getController(id, btn);

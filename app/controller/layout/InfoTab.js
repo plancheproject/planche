@@ -1,16 +1,16 @@
 Ext.define('Planche.controller.layout.InfoTab', {
     extend: 'Ext.app.Controller',
-    init : function(){
+    init : function () {
 
     	this.control({
     		'info-tab' : {
-		    	show : function(grid){
+		    	show : function (grid) {
 
 		    		this.openInfo(this.application.getSelectedNode());
 		    	}
     		},
 			'scheme-tree' : {
-               select : function(view){
+               select : function (view) {
 
                     var treeview = view.views[0];                       
                     var tree = treeview.up("treepanel");
@@ -21,33 +21,33 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
                     var node = app.getSelectedNode();
 
-                    if(node.data.depth == 1){
+                    if(node.data.depth == 1) {
 
                         var info = app.getActiveInfoTab();
-                        if(info.isVisible()){
+                        if(info.isVisible()) {
 
                             this.openInfo(node);
                         }
                     }
-                    else if(node.data.depth == 2){
+                    else if(node.data.depth == 2) {
 
                         var info = app.getActiveInfoTab();
-                        if(info.isVisible()){
+                        if(info.isVisible()) {
 
                             this.openInfo(node);
                         }
                     }
-                    else if(node.data.depth == 3){
+                    else if(node.data.depth == 3) {
 
                         var grid = app.getActiveTableDataTab();
                         
-                        if(grid.isVisible() && (app.getParentNode(node, 2) == 'Tables' || app.getParentNode(node, 2) == 'Views')){
+                        if(grid.isVisible() && (app.getParentNode(node, 2) == 'Tables' || app.getParentNode(node, 2) == 'Views')) {
 
                             app.openTable(node)
                         }
 
                         var info = app.getActiveInfoTab();
-                        if(info.isVisible()){
+                        if(info.isVisible()) {
 
                             this.openInfo(node);
                         }
@@ -57,14 +57,14 @@ Ext.define('Planche.controller.layout.InfoTab', {
     	});
     },
 
-	openInfo : function(node){
+	openInfo : function (node) {
 
 		var cmd = ['Database', 'Tables', 'Table'][node.data.depth - 1];
-		if(!cmd){ return; }
+		if(!cmd) { return; }
         this[['open', cmd, 'Info'].join("")](node);
 	},
 
-	openTableInfo : function(node){
+	openTableInfo : function (node) {
 
 		var 
 		app			= this.getApplication(),
@@ -81,7 +81,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		responses	= {},
 		tunneling;
 
-		(tunneling = Ext.Function.bind(function(){
+		(tunneling = Ext.Function.bind(function () {
 
 			var key = keys.shift();
 			if(key) {
@@ -90,7 +90,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 					db : db,
 					query : queries[key],
 					node : node,
-					success : function(config, response){
+					success : function (config, response) {
 
 						responses[key] = response;
 						tunneling();
@@ -112,7 +112,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		}, this))();
 	},
 
-	openTablesInfo : function(node){
+	openTablesInfo : function (node) {
 
 		var 
 		app		= this.getApplication(),
@@ -126,7 +126,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 			db : db,
 			query : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
 			node : node,
-			success : function(config, response){
+			success : function (config, response) {
 
 		        var html = [];
 		        html.push('<h1>Show Table Status</h1>');
@@ -136,7 +136,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		});
 	},
 
-	openDatabaseInfo : function(node){
+	openDatabaseInfo : function (node) {
 
 		var 
 		app			= this.getApplication(),
@@ -157,7 +157,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		responses	= {},
 		tunneling;
 
-		(tunneling = Ext.Function.bind(function(){
+		(tunneling = Ext.Function.bind(function () {
 
 			var key = keys.shift();
 			if(key) {
@@ -166,7 +166,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 					db : db,
 					query : queries[key],
 					node : node,
-					success : function(config, response){
+					success : function (config, response) {
 
 						responses[key] = response;
 						tunneling();
@@ -196,20 +196,20 @@ Ext.define('Planche.controller.layout.InfoTab', {
 		}, this))();
 	},
 
-	makeTableByRecord : function(record, html){
+	makeTableByRecord : function (record, html) {
 
 		var html = html || [];
         html.push('<table class="info" width="100%">');
         html.push('<tr>');
-        Ext.Array.each(record.fields, function(col, cidx){
+        Ext.Array.each(record.fields, function (col, cidx) {
 
             html.push('<th>'+col.name+'</th>');
         });
         html.push('</tr>');
-        Ext.Array.each(record.records, function(row, ridx){
+        Ext.Array.each(record.records, function (row, ridx) {
 
             html.push('<tr>');
-            Ext.Array.each(record.fields, function(col, cidx){
+            Ext.Array.each(record.fields, function (col, cidx) {
 
                 html.push('<td>'+row[cidx]+'</td>');
             });

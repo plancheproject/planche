@@ -1,10 +1,10 @@
 Ext.define('Planche.controller.layout.HistoryTab', {
     extend: 'Ext.app.Controller',
-    init : function(){
+    init : function () {
 
     	this.control({
     		'history-tab' : {
-				boxready : function(editor, width, height){
+				boxready : function (editor, width, height) {
 
 		            textarea = editor.getEl().query('textarea')[0];
 
@@ -19,12 +19,12 @@ Ext.define('Planche.controller.layout.HistoryTab', {
 		                    lineNumbers : false,
 		                    showCursorWhenSelecting : false
 		                }),
-		            	getEditor : function(){
+		            	getEditor : function () {
 		            		return this.editor;
 		            	}
 		            });
 
-					var task = new Ext.util.DelayedTask(function(){
+					var task = new Ext.util.DelayedTask(function () {
 
 					    editor.getEditor().setValue(this.application.history.join("\n"));
 
@@ -32,20 +32,20 @@ Ext.define('Planche.controller.layout.HistoryTab', {
 
 					task.delay(100);
 				},
-				resize : function(editor, width, height){
+				resize : function (editor, width, height) {
 
 					editor.getEditor().setSize(width, height);
 				},
-				activate : function(editor){
+				activate : function (editor) {
 
 					try{
 
-						if(editor.getEditor()){
+						if(editor.getEditor()) {
 
 							editor.getEditor().setValue(this.application.history.join("\n"));
 						}
 					}
-					catch(e){
+					catch(e) {
 
 					}
 

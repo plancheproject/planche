@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.table.AdvancedProperties', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(db, tb, result){
+    initWindow : function (db, tb, result) {
 
         Ext.create('Planche.lib.Window', {
             stateful: true,
@@ -26,7 +26,7 @@ Ext.define('Planche.controller.table.AdvancedProperties', {
             }],
             listeners: {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     this.initTableData(result);
                 }
@@ -34,12 +34,12 @@ Ext.define('Planche.controller.table.AdvancedProperties', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -64,12 +64,12 @@ Ext.define('Planche.controller.table.AdvancedProperties', {
     },
 
 
-    initTableData : function(result){
+    initTableData : function (result) {
 
         var store = this.columnGrid.getStore();
         
         var records = [];
-        Ext.Object.each(result.fields, function(idx, col){
+        Ext.Object.each(result.fields, function (idx, col) {
 
             records.push({
                 variable : col.name,
@@ -79,7 +79,7 @@ Ext.define('Planche.controller.table.AdvancedProperties', {
         store.insert(0, records);
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {   
 
         return [
             { text: 'Variable', dataIndex: 'variable', width : 120},
@@ -88,7 +88,7 @@ Ext.define('Planche.controller.table.AdvancedProperties', {
     },
 
 
-    close : function(btn){
+    close : function (btn) {
 
         btn.up('window').destroy();
     }

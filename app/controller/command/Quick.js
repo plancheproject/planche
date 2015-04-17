@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.command.Quick', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(records){
+    initWindow : function (records) {
 
         var app = this.getApplication();
 
@@ -29,9 +29,9 @@ Ext.define('Planche.controller.command.Quick', {
         ];
 
         var cmds = [];
-        Ext.Array.each(records.records, function(obj, idx){
+        Ext.Array.each(records.records, function (obj, idx) {
 
-            Ext.Array.each(cmd, function(obj2, idx2){
+            Ext.Array.each(cmd, function (obj2, idx2) {
 
                 cmds.push({
                     name : obj2.name + " "+ obj[0], 
@@ -83,7 +83,7 @@ Ext.define('Planche.controller.command.Quick', {
                     }),
                     listeners : {
                         scope : this,
-                        select : function(combo, records){
+                        select : function (combo, records) {
 
                             var selData = records[0].raw;
                             var selCommand = cmd[selData.value];
@@ -98,21 +98,21 @@ Ext.define('Planche.controller.command.Quick', {
                                 var panel = combo.up('panel');
                                 panel.destroy();
                             }
-                            catch(e){
+                            catch(e) {
 
                             }
 
                             return ;
                         },
-                        boxready : function(combo){
+                        boxready : function (combo) {
                             
-                            task.delay(100, function(combo){
+                            task.delay(100, function (combo) {
 
                                 combo.doQuery('');
 
                             }, this, [combo]);
                         },
-                        activate : function(combo){
+                        activate : function (combo) {
                             //console.log('activate', combo);
                         // Ext.getCmp('quick-combo').focus();
                         // Ext.getCmp('quick-combo').focusInput();
@@ -128,7 +128,7 @@ Ext.define('Planche.controller.command.Quick', {
         return this.window;
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
             { name: 'cmd' }

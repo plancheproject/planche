@@ -1,4 +1,4 @@
-Ext.define('Planche.lib.QueryAlignment', function(){
+Ext.define('Planche.lib.QueryAlignment', function () {
 
 	var type;
 
@@ -14,30 +14,30 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 
 	return {
 		singleton: true,
-		constructor: function(config) {
+		constructor: function (config) {
 
 			this.callParent(arguments);
 			type = Planche.lib.QueryTokenType.get();
 		},
-		alignment : function(query){
+		alignment : function (query) {
 
 			var tmp = '';
 			var indent = 1;
 			var tab = '';
 			var prev = '';
-			Ext.Array.each(query.getTokens(), function(token, idx){
+			Ext.Array.each(query.getTokens(), function (token, idx) {
 
 				prev = tmp[tmp.length - 1] || '';
 
-				if(token.type == type.SPACE){
+				if(token.type == type.SPACE) {
 
-					if(token.value.match(/\n/)){
+					if(token.value.match(/\n/)) {
 
 						return;
 					}
-					else if(token.value == ' '){
+					else if(token.value == ' ') {
 
-						if(prev == ' '){
+						if(prev == ' ') {
 
 							return;
 						}
@@ -47,16 +47,16 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 					return;
 				}
 
-				if(token.type == type.DELIMITER){
+				if(token.type == type.DELIMITER) {
 
 					tmp += token.value;
 					tmp += '\n\n';
 					return;
 				}
 
-				if(token.type == type.STRING){
+				if(token.type == type.STRING) {
 					
-					if(token.value.toUpperCase() == "BEGIN"){
+					if(token.value.toUpperCase() == "BEGIN") {
 
 						tmp += token.value;
 						tmp += '\n\n';
@@ -64,10 +64,10 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 						indent++;
 						return;
 					}
-					else if(token.value.toUpperCase() == "END"){
+					else if(token.value.toUpperCase() == "END") {
 
 						indent--;
-						if(indent < 1){ indent = 1; }
+						if(indent < 1) { indent = 1; }
 						tmp += (prev == '\n' ? '' : '\n');
 					}
 
@@ -75,21 +75,21 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 					return;
 				}
 
-				if(token.type == type.JOIN){
+				if(token.type == type.JOIN) {
 
 					tmp += (prev == '\n' ? '' : '\n')+tab;
 					tmp += token.value.toUpperCase();
 					return;
 				}
 
-				if(newLineKeywords.indexOf(token.value.toUpperCase()) > -1){
+				if(newLineKeywords.indexOf(token.value.toUpperCase()) > -1) {
 
 					tmp += (prev == '\n' ? '' : '\n')+tab;
 					tmp += token.value.toUpperCase();
 					return;
 				}
 
-				if(token.type == type.COMMENT){
+				if(token.type == type.COMMENT) {
 
 					tmp += (prev == '\n' ? '' : '\n')+tab;
 					tmp += token.value;
@@ -97,28 +97,28 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 					return;
 				}
 
-				if(tabKeywords.indexOf(token.value.toUpperCase()) > -1){
+				if(tabKeywords.indexOf(token.value.toUpperCase()) > -1) {
 
 					tmp += (prev == '\n' ? '' : '\n')+'\t'+tab;
 					tmp += token.value.toUpperCase();
 					return;
 				}
 
-				if(token.type == type.KEYWORD){
+				if(token.type == type.KEYWORD) {
 
 					tmp += token.value.toUpperCase();
 					return;
 				}
 
-				if(token.type == type.FUNCTION){
+				if(token.type == type.FUNCTION) {
 
 					tmp += token.value.toUpperCase();
 					return;
 				}
 
-				if(token.type == type.BOUNDARY){
+				if(token.type == type.BOUNDARY) {
 
-					if(token.value == '('){
+					if(token.value == '(') {
 
 						tmp += token.value;
 						tmp += '\n';
@@ -126,10 +126,10 @@ Ext.define('Planche.lib.QueryAlignment', function(){
 						tab = new Array(indent).join("\t");
 						return;
 					}
-					else if(token.value == ')'){
+					else if(token.value == ')') {
 
 						indent--;
-						if(indent < 1){ indent = 1; }
+						if(indent < 1) { indent = 1; }
 						tab = new Array(indent).join("\t");
 						tmp += (prev == '\n' ? '' : '\n')+tab;
 						tmp += token.value;

@@ -1,9 +1,5 @@
 Ext.define('Planche.view.Main', {
     extend  : 'Ext.container.Container',
-    requires:[
-        'Ext.tab.Panel',
-        'Ext.layout.container.VBox'
-    ],
     xtype   : 'app-main',
     style   : { "background" : "#E0E0E0" },
     padding : 5,
@@ -17,7 +13,7 @@ Ext.define('Planche.view.Main', {
      * @class Planche.view.Main
      * @constructor
      */
-    initComponent : function(){
+    initComponent : function () {
 
         this.items = [
             this.initTopMenu(),
@@ -34,10 +30,10 @@ Ext.define('Planche.view.Main', {
      *
      * @method initTopMenu
      */
-    initTopMenu : function(){
+    initTopMenu : function () {
 
         //'Other'
-        //'Favorites', 
+        //'Favorites',
         var menus = ['Connection', 'Edit', 'Database', 'Table', 'Tools'];
 
         return {
@@ -48,10 +44,10 @@ Ext.define('Planche.view.Main', {
                 xtype: 'splitbutton',
                 split: false
             },
-            items : function(){
+            items : function () {
 
                 var tmp = [];
-                Ext.Array.each(menus, function(name, idx){
+                Ext.Array.each(menus, function (name, idx) {
 
                     tmp.push({ text : name, menu : Ext.create('Ext.menu.Menu') });
                 });
@@ -68,7 +64,7 @@ Ext.define('Planche.view.Main', {
      *
      * @method initToolBar
      */
-    initToolBar : function(){
+    initToolBar : function () {
 
         return {
             xtype  : 'planche-toolbar',
@@ -83,7 +79,7 @@ Ext.define('Planche.view.Main', {
      *
      * @method initConnectTabPanel
      */
-    initConnectTabPanel : function(){
+    initConnectTabPanel : function () {
 
         //메인탭에 커넥션별 탭을 구성한다.
         return {
@@ -104,7 +100,7 @@ Ext.define('Planche.view.Main', {
      *
      * @method initContextMenu
      */
-    initContextMenu : function(){
+    initContextMenu : function () {
 
         return {
             xtype : 'menu',

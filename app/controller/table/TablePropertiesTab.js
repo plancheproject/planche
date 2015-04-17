@@ -3,7 +3,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
     views : [
         'table.TablePropertiesTab'
     ],
-    init : function(){
+    init : function () {
         
         this.control({
             'table-properties-tab' : {
@@ -12,14 +12,14 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
         });
     },
 
-    initTab : function(tab){
+    initTab : function (tab) {
 
         var 
         app = this.getApplication(),
         db  = tab.getDatabase(),
         tb  = tab.getTable();
 
-        if(!tb){
+        if(!tb) {
 
             return;
         }
@@ -28,7 +28,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery('SHOW_TABLE_STATUS', db, tb),
-            success : function(config, response){
+            success : function (config, response) {
 
                 console.log(response.records);
             }

@@ -1,12 +1,12 @@
 Ext.define('Planche.controller.connection.Connect', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(){
+    initWindow : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -25,14 +25,14 @@ Ext.define('Planche.controller.connection.Connect', {
             store: store,
             listeners : {
                 scope : this,
-                itemdblclick : function(view, record){
+                itemdblclick : function (view, record) {
 
                     var win = view.up("window");
                     var connInfo = record.raw;
 
                     var DBMS = connInfo.dbms || 'mysql';
 
-                    Ext.require('Planche.dbms.'+DBMS, function(){
+                    Ext.require('Planche.dbms.'+DBMS, function () {
 
                         Ext.apply(connInfo, {
                             DBMS : DBMS,
@@ -47,7 +47,7 @@ Ext.define('Planche.controller.connection.Connect', {
             }
         });
 
-        store.on('refresh', function(store, records, successful, eOpts){
+        store.on('refresh', function (store, records, successful, eOpts) {
 
             this.getSelectionModel().select(store.getAt(0));
             //debugger;
@@ -73,7 +73,7 @@ Ext.define('Planche.controller.connection.Connect', {
             buttons : [{
                 text : 'Connect',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     var sel = win.down('grid').getSelectionModel().getSelection();
@@ -89,7 +89,7 @@ Ext.define('Planche.controller.connection.Connect', {
                 disabled: true
             }],
             listeners : {
-                boxready : function(){
+                boxready : function () {
 
                     store.loadData(Planche.config.hosts);
                 }
@@ -97,18 +97,18 @@ Ext.define('Planche.controller.connection.Connect', {
         });
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
-            { text: 'Host Name', dataIndex: 'hostName', width : 200, renderer: function(value, p, record){
+            { text: 'Host Name', dataIndex: 'hostName', width : 200, renderer: function (value, p, record) {
                 
                 return Ext.String.format('<img src=\'resources/images/icon_database24x24.png\'> {0}', value);
             }},
-            { text: 'Host', dataIndex: 'host', width : 100, renderer: function(value, p, record){
+            { text: 'Host', dataIndex: 'host', width : 100, renderer: function (value, p, record) {
                 
                 return Ext.String.format('<img src=\'resources/images/icon_server24x24.png\'> {0}', value);
             }},
-            { text: 'User', dataIndex: 'user', width : 100, renderer: function(value, p, record){
+            { text: 'User', dataIndex: 'user', width : 100, renderer: function (value, p, record) {
                 
                 return Ext.String.format('<img src=\'resources/images/icon_user24x24.png\'> {0}', value);
             }},

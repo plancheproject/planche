@@ -1,14 +1,14 @@
 Ext.define('Planche.controller.menu.Edit', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'Refresh Object Browser',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -18,13 +18,13 @@ Ext.define('Planche.controller.menu.Edit', {
         },{
             text : 'Excute Query',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.executeQuery();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveEditor()){
+                if(!this.getActiveEditor()) {
 
                     return true;
                 }
@@ -36,13 +36,13 @@ Ext.define('Planche.controller.menu.Edit', {
         ,{
             text : 'SQL Formatter',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.formatQuery();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveEditor()){
+                if(!this.getActiveEditor()) {
 
                     return true;
                 }
@@ -54,18 +54,18 @@ Ext.define('Planche.controller.menu.Edit', {
         ,{
             text : 'Undo',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.getActiveEditor().undo(); 
             },
-            allowDisable : function(){
+            allowDisable : function () {
 
-                if(!this.getActiveEditor()){
+                if(!this.getActiveEditor()) {
 
                     return true;
                 }
 
-                if(this.getActiveEditor().historySize().undo < 1){
+                if(this.getActiveEditor().historySize().undo < 1) {
 
                     return true;
                 }
@@ -75,18 +75,18 @@ Ext.define('Planche.controller.menu.Edit', {
         },{
             text : 'Redo',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.getActiveEditor().redo();                
             },
-            allowDisable : function(){
+            allowDisable : function () {
 
-                if(!this.getActiveEditor()){
+                if(!this.getActiveEditor()) {
 
                     return true;
                 }
 
-                if(this.getActiveEditor().historySize().redo < 1){
+                if(this.getActiveEditor().historySize().redo < 1) {
 
                     return true;
                 }
@@ -98,18 +98,18 @@ Ext.define('Planche.controller.menu.Edit', {
         // ,{
         //     text : 'Cut',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.getActiveEditor().cut();                
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
 
-        //         if(!this.getActiveEditor().somethingSelected()){
+        //         if(!this.getActiveEditor().somethingSelected()) {
 
         //             return true;
         //         }
@@ -119,18 +119,18 @@ Ext.define('Planche.controller.menu.Edit', {
         // },{
         //     text : 'Copy',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.getActiveEditor().copy();                
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
 
-        //         if(!this.getActiveEditor().somethingSelected()){
+        //         if(!this.getActiveEditor().somethingSelected()) {
 
         //             return true;
         //         }
@@ -140,13 +140,13 @@ Ext.define('Planche.controller.menu.Edit', {
         // },{
         //     text : 'Paste',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.getActiveEditor().paste();                
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
@@ -158,13 +158,13 @@ Ext.define('Planche.controller.menu.Edit', {
         // ,{
         //     text : 'Find',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.openFindPanel()                
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
@@ -174,13 +174,13 @@ Ext.define('Planche.controller.menu.Edit', {
         // },{
         //     text : 'Find Next',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.openWindow('command.Find');                
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
@@ -190,13 +190,13 @@ Ext.define('Planche.controller.menu.Edit', {
         // },{
         //     text : 'Replace',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.openWindow('command.Replace');               
         //     },
-        //     allowDisable : function(){
+        //     allowDisable : function () {
 
-        //         if(!this.getActiveEditor()){
+        //         if(!this.getActiveEditor()) {
 
         //             return true;
         //         }
@@ -208,16 +208,16 @@ Ext.define('Planche.controller.menu.Edit', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx){
+        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
             
-            switch(typeof menu.allowDisable){
+            switch(typeof menu.allowDisable) {
 
                 case 'function':
 

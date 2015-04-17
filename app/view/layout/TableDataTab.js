@@ -10,17 +10,17 @@ Ext.define('Planche.view.layout.TableDataTab', {
 	flex	: 1,
     listeners : {
     	scope : this,
-    	show : function(grid){
+    	show : function (grid) {
 
     // 		var node = this.getSelectedNode();
     // 		var tree = this.getSelectedTree();
 
-    // 		if(!node){ return; }
+    // 		if(!node) { return; }
 
-	   //      if(node.data.depth == 3 && (this.getParentNode(node, 2) == 'Tables' || this.getParentNode(node, 2) == 'Views')){
+	   //      if(node.data.depth == 3 && (this.getParentNode(node, 2) == 'Tables' || this.getParentNode(node, 2) == 'Views')) {
 
 				// var tab = this.getActiveTableDataTab();
-				// if(tab.loadedTable == node.data.text){ return; }
+				// if(tab.loadedTable == node.data.text) { return; }
 	   //      	this.openTable(node);
 	   //      }
     	}

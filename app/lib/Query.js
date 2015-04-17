@@ -1,5 +1,5 @@
 Ext.define('Planche.lib.Query', {
-	constructor : function(query){
+	constructor : function (query) {
 
 		Ext.apply(this, query);
 
@@ -7,7 +7,7 @@ Ext.define('Planche.lib.Query', {
 		this.orderDirection = '';
 	},
 
-	getPrevRecordSetSQL : function(){
+	getPrevRecordSetSQL : function () {
 
 		this.start -= this.end;
 
@@ -16,14 +16,14 @@ Ext.define('Planche.lib.Query', {
 		return this.getSQL();
 	},
 
-	getNextRecordSetSQL : function(){
+	getNextRecordSetSQL : function () {
 
 		this.start += this.end;
 
 		return this.getSQL();
 	},
 
-	getPrevRecordSQL : function(){
+	getPrevRecordSQL : function () {
 
 		this.start--;
 
@@ -32,20 +32,20 @@ Ext.define('Planche.lib.Query', {
 		return this.getSQL();
 	},
 
-	getNextRecordSQL : function(){
+	getNextRecordSQL : function () {
 
 		this.start++;
 
 		return this.getSQL();
 	},
 
-	getSQL : function(){
+	getSQL : function () {
 		
-		if(this.isSelectQuery == true){
+		if(this.isSelectQuery == true) {
 
 			var sql = this.sql;
 
-			if(this.orderColumn && this.orderDirection){
+			if(this.orderColumn && this.orderDirection) {
 
 				sql += ' ORDER BY ' + this.orderColumn + ' ' + this.orderDirection;
 			}
@@ -60,49 +60,49 @@ Ext.define('Planche.lib.Query', {
 		}
 	},
 
-	getRawSQL : function(){
+	getRawSQL : function () {
 
 		return this.raw;
 	},
 
-	getTokens : function(){
+	getTokens : function () {
 
 		return this.tokens;
 	},
 
-	isSelectQuery : function(){
+	isSelectQuery : function () {
 
 		return this.selectQuery;
 	},
 
-	isDelimiter : function(){
+	isDelimiter : function () {
 
 		return this.delimiter;
 	},
 
-	hasNext : function(){
+	hasNext : function () {
 
 		return this.raw.length > this.end ? true : false;
 	},
 
-	setRecords : function(records){
+	setRecords : function (records) {
 
 		Ext.apply(this, {
 			records : records
 		});
 	},
 
-	setOrderBy : function(column, direction){
+	setOrderBy : function (column, direction) {
 
 		this.orderColumn = column;
 		this.orderDirection = direction;
 	},
 
-	isSelectedQuery : function(line, cursor){
+	isSelectedQuery : function (line, cursor) {
 
 		var linecursor = parseFloat(line + "." + cursor);
 
-		if(this.sline <= linecursor && linecursor >= this.eline){
+		if(this.sline <= linecursor && linecursor >= this.eline) {
 
 			return true;
 		}

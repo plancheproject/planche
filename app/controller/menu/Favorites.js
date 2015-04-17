@@ -1,11 +1,11 @@
 Ext.define('Planche.controller.menu.Favorites', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'Add to Favorites',
-            hidden : function(){
+            hidden : function () {
 
                 return false;
             }()
@@ -18,9 +18,9 @@ Ext.define('Planche.controller.menu.Favorites', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }

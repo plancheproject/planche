@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.menu.Other', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : '..'
@@ -10,9 +10,9 @@ Ext.define('Planche.controller.menu.Other', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }

@@ -1,6 +1,6 @@
 Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
     extend: 'Ext.app.Controller',
-    init : function(){
+    init : function () {
 
         this.control({
             'scheme-tree' : {
@@ -9,7 +9,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         });
     },
 
-    initContextMenu : function(view, record, item, index, e, eOpts){
+    initContextMenu : function (view, record, item, index, e, eOpts) {
 
         //서버트리의 이벤트를 잡아 내서 node위에서 right click을 했을 경우만 
         //context메뉴를 보여준다.
@@ -21,15 +21,15 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             data = node.getData(),
             cmd;
 
-        if(data.depth == 0){
+        if(data.depth == 0) {
 
             cmd = 'Root';
         }               
-        else if(data.depth == 1){
+        else if(data.depth == 1) {
 
             cmd = 'Database';
         }
-        else if(data.depth == 3 || data.depth == 5){
+        else if(data.depth == 3 || data.depth == 5) {
 
             cmd = node.parentNode.getData().text;
             cmd = cmd.substring(0, cmd.length - 1).replace(/\s/gi, '');
@@ -39,50 +39,56 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             cmd = data.text.replace(/\s/gi, '');
         }
         
-        if(!this['load'+cmd+'ContextMenu']){ return; }
+        if(!this['load'+cmd+'ContextMenu']) { return; }
 
         menu.removeAll();
         menu.add(this['load'+cmd+'ContextMenu']());
         menu.showAt(e.getXY());
     },
 
-    loadRootContextMenu : function(){
+    loadRootContextMenu : function () {
 
         var app = this.getApplication();
 
         return [
             {
                 text: 'Create Database',
-                handler : function(){
+                handler : function () {
 
                     app.createDatabase();
                 }
             },
             {
                 text: 'Refresh All',
-                handler : function(){
+                handler : function () {
 
-                    var node = app.getSelectedNode();
-                    app.reloadTree(node);
+                    app.reloadTree();
                 }
             }
         ];
     },
 
-    loadDatabaseContextMenu : function(){
+    loadDatabaseContextMenu : function () {
 
         var app = this.getApplication();
 
         return [
             {
+                text: 'Refresh Databases',
+                handler : function () {
+
+                    app.reloadTree();
+                }
+            },
+            {
                 text: 'Create Database',
-                handler : function(){
+                handler : function () {
 
                     app.createDatabase();
                 }
             },{
                 text: 'Alter Database',
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.alterDatabase(node);
@@ -90,21 +96,21 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },
             {
                 text: 'Drop Database',
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.dropDatabase(node);
                 }
             },{
                 text: 'Truncate Database',
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.truncateDatabase(node);
                 }
             },{
                 text: 'Empty Database',
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.emptyDatabase(node);
@@ -113,25 +119,31 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         ];
     },
 
-    loadTablesContextMenu : function(){
+    loadTablesContextMenu : function () {
 
         var app = this.getApplication();
         return [{
+            text: 'Refresh Tables',
+            handler : function () {
+
+                app.reloadTree();
+            }
+        }, {
             text: 'Create Table',
-            handler : function(){
+            handler : function () {
 
                 app.openCreateTableWindow();
             }
-        },{
+        }, {
             text: 'Copy Table(s) To Differnt Host/Database',
             disabled : true,
-            handler : function(){
+            handler : function () {
 
             }
         }];
     },
 
-    loadTableContextMenu : function(){
+    loadTableContextMenu : function () {
 
         var app = this.getApplication();
 
@@ -142,10 +154,10 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },
             listeners : {
                 scope : this,
-                activate : function(menu){
+                activate : function (menu) {
 
                     var subTab = app.getActiveQueryTab();
-                    Ext.Object.each(menu.menu.items.items, function(idx, obj){ 
+                    Ext.Object.each(menu.menu.items.items, function (idx, obj) { 
                         obj[subTab ? 'enable' : 'disable'](); 
                     });
                 }
@@ -153,7 +165,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             menu : [{
                 text: 'INSERT INTO &lt;Table Name&gt;..',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('insert', node);
@@ -161,7 +173,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'UPDATE &lt;Table Name&gt; SET..',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('update', node);
@@ -169,7 +181,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'DELETE FROM &lt;Table Name&gt;..',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('delete', node);
@@ -177,7 +189,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('select', node);
@@ -186,27 +198,27 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         },{
             text: 'Copy Table(s) To Differnt Host/Database',
             disabled : true,
-            handler : function(){
+            handler : function () {
 
             }
         },{
             xtype: 'menuseparator'
         },{
             text: 'Open Table',
-            handler : function(){
+            handler : function () {
 
                 app.openTable(app.getSelectedNode());
             }
         },{
             text: 'Create Table',
-            handler : function(){
+            handler : function () {
 
                 app.openCreateTableWindow();
             }
         },{
             text: 'Alter Table',
             scope : this,
-            handler : function(){
+            handler : function () {
                 
                 var node = app.getSelectedNode();
                 app.openAlterTableWindow(node);
@@ -216,7 +228,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             menu : [{
                 text: 'Rename Table',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.renameTable(node);
@@ -224,7 +236,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'Truncate Table',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.truncateTable(node);
@@ -232,7 +244,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'Drop Table From Database',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.dropTable(node);
@@ -240,7 +252,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             },{
                 text: 'Reorder Column(s)',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.openReorderColumns(node);
@@ -249,13 +261,13 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                 text: 'Duplicate Table Structure/Data',
                 scope : this,
                 disabled : true,
-                handler : function(){
+                handler : function () {
 
                 }
             },{
                 text: 'View Advanced Properties',
                 scope : this,
-                handler : function(){
+                handler : function () {
 
                     var node = app.getSelectedNode();
                     app.openAdvancedProperties(node);
@@ -266,63 +278,63 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                     {
                         scope : this,
                         text : 'MYISAM', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'MRG_MYISAM', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'CSV', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'BLACKHOLE', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'MEMORY', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'FEDERATED', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'ARCHIVE', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'INNODB', 
-                        handler : function(btn){
+                        handler : function (btn) {
                             app.changeTableToType(btn.text);
                         }
                     },
                     {
                         scope : this,
                         text : 'PERFORMANCE_SCHEMA', 
-                        handler : function(btn){
+                        handler : function (btn) {
 
                             app.changeTableToType(btn.text);
                         }
@@ -333,7 +345,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             xtype: 'menuseparator'
         },{
             text: 'Create Trigger',
-            handler : function(){
+            handler : function () {
 
                 var node = app.getSelectedNode();
                 app.createTrigger(node);
@@ -341,11 +353,17 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadViewsContextMenu : function(){
+    loadViewsContextMenu : function () {
 
         return [{
+            text: 'Refresh Views',
+            handler : function () {
+
+                app.reloadTree();
+            }
+        },{
             text: 'Create View',
-            handler : function(){
+            handler : function () {
 
                 this.getApplication().createView();
             }
@@ -372,58 +390,64 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadViewContextMenu : function(){
+    loadViewContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
             text: 'Create View',
-            handler : function(){
+            handler : function () {
 
                 app.createView();
             }
         },
         {
             text: 'Alter View',
-            handler : function(){
+            handler : function () {
 
                 app.alterView();
             }
         },
         {
             text: 'Drop View',
-            handler : function(){
+            handler : function () {
 
             }
         },
         {
             text: 'Rename View',
-            handler : function(){
+            handler : function () {
 
             }
         },
         {
             text: 'Export View',
-            handler : function(){
+            handler : function () {
 
             }
         },
         {
             text: 'Open View',
-            handler : function(){
+            handler : function () {
 
                 app.openTable(app.getSelectedNode());
             }
         }];
     },
 
-    loadEventsContextMenu : function(){
+    loadEventsContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
+            text: 'Refresh Events',
+            handler : function () {
+
+                app.reloadTree();
+            }
+        },{
             text: 'Create Event',
-            handler : function(){
+            handler : function () {
 
                 app.createEvent();
             }
@@ -442,47 +466,53 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadEventContextMenu : function(){
+    loadEventContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
             text: 'Create Event',
-            handler : function(){
+            handler : function () {
 
                 app.createEvent();
             }
         },
         {
             text: 'Alter Event',
-            handler : function(){
+            handler : function () {
 
                 app.alterEvent();
             }
         },
         {
             text: 'Drop Event',
-            handler : function(){
+            handler : function () {
 
                 app.dropEvent();
             }
         },
         {
             text: 'Rename Event',
-            handler : function(){
+            handler : function () {
 
                 app.renameEvent();
             }
         }];
     },
 
-    loadTriggersContextMenu : function(){
+    loadTriggersContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
+            text: 'Refresh Triggers',
+            handler : function () {
+
+                app.reloadTree();
+            }
+        },{
             text: 'Create Trigger',
-            handler : function(){
+            handler : function () {
 
                 app.createTrigger();
             }
@@ -501,49 +531,55 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadTriggerContextMenu : function(){
+    loadTriggerContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
             text: 'Create Trigger',
-            handler : function(){
+            handler : function () {
 
                 app.createTrigger();
             }
         },
         {
             text: 'Alter Trigger',
-            handler : function(){
+            handler : function () {
 
                 app.alterTrigger();
             }
         },
         {
             text: 'Drop Trigger',
-            handler : function(){
+            handler : function () {
 
                 app.dropTrigger();
             }
         },
         {
             text: 'Rename Trigger',
-            handler : function(){
+            handler : function () {
 
                 app.renameTrigger();
             }
         }];
     },
 
-    loadFunctionsContextMenu : function(){
+    loadFunctionsContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Create Function',
-            handler : function(){
+            text: 'Refresh Functions',
+            handler : function () {
 
-                app.createFunction();
+                app.reloadTree();
+            }
+        },{
+            text: 'Create Function',
+            handler : function () {
+
+                app.createfunction ();
             }
         },
         {
@@ -556,40 +592,46 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadFunctionContextMenu : function(){
+    loadFunctionContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
             text: 'Create Function',
-            handler : function(){
+            handler : function () {
 
-                app.createFunction();
+                app.createfunction ();
             }
         },
         {
             text: 'Alter Function',
-            handler : function(){
+            handler : function () {
 
-                app.alterFunction();
+                app.alterfunction ();
             }
         },
         {
             text: 'Drop Function',
-            handler : function(){
+            handler : function () {
 
-                app.dropFunction();
+                app.dropfunction ();
             }
         }];
     },
 
-    loadProceduresContextMenu : function(){
+    loadProceduresContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
+            text: 'Refresh Procedures',
+            handler : function () {
+
+                app.reloadTree();
+            }
+        },{
             text: 'Create Procedure',
-            handler : function(){
+            handler : function () {
 
                 app.createProcedure();
             }
@@ -604,27 +646,27 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadProcedureContextMenu : function(){
+    loadProcedureContextMenu : function () {
 
         var app = this.getApplication();
 
         return [{
             text: 'Create Procedure',
-            handler : function(){
+            handler : function () {
 
                 app.createProcedure();
             }
         },
         {
             text: 'Alter Procedure',
-            handler : function(){
+            handler : function () {
 
                 app.alterProcedure();
             }
         },
         {
             text: 'Drop Procedure',
-            handler : function(){
+            handler : function () {
 
                 app.dropProcedure();
             }

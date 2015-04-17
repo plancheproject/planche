@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.command.Variables', {
     extend: 'Ext.app.Controller',
     grid : null,
-    initWindow : function(){
+    initWindow : function () {
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -23,7 +23,7 @@ Ext.define('Planche.controller.command.Variables', {
             buttons : [{
                 text : 'Close',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.destroy();
@@ -31,7 +31,7 @@ Ext.define('Planche.controller.command.Variables', {
             }],
             listeners : {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     this.loadList();
                 }
@@ -39,12 +39,12 @@ Ext.define('Planche.controller.command.Variables', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -63,7 +63,7 @@ Ext.define('Planche.controller.command.Variables', {
         return this.grid;
     },
 
-    loadList : function(){
+    loadList : function () {
 
         var app = this.application;
 
@@ -72,7 +72,7 @@ Ext.define('Planche.controller.command.Variables', {
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery('SHOW_VARIABLES', db),
-            success : Ext.Function.bind(function(config, response){
+            success : Ext.Function.bind(function (config, response) {
                 
                 var records = this.makeRecords(response.fields, response.records);
 
@@ -83,13 +83,13 @@ Ext.define('Planche.controller.command.Variables', {
         });
     },
 
-    makeRecords : function(fields, records){
+    makeRecords : function (fields, records) {
 
         var tmp = [];
-        Ext.Array.each(records, function(row, ridx){
+        Ext.Array.each(records, function (row, ridx) {
 
             var record = {};
-            Ext.Array.each(fields, function(col, cidx){
+            Ext.Array.each(fields, function (col, cidx) {
 
                 record[col.name] = row[cidx];
             });
@@ -98,7 +98,7 @@ Ext.define('Planche.controller.command.Variables', {
 
         return tmp;
     },
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
             { text: 'Variable Name', dataIndex: 'Variable_name', width : 300},

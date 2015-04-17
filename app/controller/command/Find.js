@@ -1,14 +1,14 @@
 Ext.define('Planche.controller.command.Find', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(records){
+    initWindow : function (records) {
 
-        var mainTab = this.application.getMainTab();
+        var mainTab = this.application.getConnectTabPanel();
         var findText = Ext.create('Ext.form.field.Text', {
             flex : 1, scope: this, listeners : {
                 specialkey: function (field, el) {
 
-                    if (el.getKey() == Ext.EventObject.ENTER){
+                    if (el.getKey() == Ext.EventObject.ENTER) {
                         
                         this.find();
                     }
@@ -38,40 +38,40 @@ Ext.define('Planche.controller.command.Find', {
                 margin : '0 5 0 0'
             },
             items : [
-                { xtype: 'button', text: '.*', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: '.*', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
-                { xtype: 'button', text: 'Aa', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Aa', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
-                { xtype: 'button', text: '\"\"', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: '\"\"', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
-                { xtype: 'button', text: 'Wrap', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Wrap', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
-                { xtype: 'button', text: 'In Selection', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'In Selection', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
-                { xtype: 'button', text: 'Highlight', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Highlight', cls : 'btn', scope: this, handler : function (btn) {
 
                     btn.toggle();
                 }},
                 findText,
-                { xtype: 'button', text: 'Find', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Find', cls : 'btn', scope: this, handler : function (btn) {
 
                     this.find();
                 }},
-                { xtype: 'button', text: 'Find Prev', cls : 'btn', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Find Prev', cls : 'btn', scope: this, handler : function (btn) {
 
                     this.findPrev();
                 }},
-                { xtype: 'button', text: 'Find All', cls : 'btn', margin : '0 0 0 0', scope: this, handler : function(btn){
+                { xtype: 'button', text: 'Find All', cls : 'btn', margin : '0 0 0 0', scope: this, handler : function (btn) {
 
                     this.findAll();
                 }}
@@ -79,14 +79,14 @@ Ext.define('Planche.controller.command.Find', {
         }).showBy(Ext.getBody());
 
         var pos = { line : 0, ch : 0 };
-        CodeMirror.commands.find = function(cm) { 
+        CodeMirror.commands.find = function (cm) { 
             
             var cursor = cm.getCursor();
             pos = pos.line == cursor.line && pos.ch == cursor.ch ? pos : cm.getCursor();
 
             var sword = 'e';
 
-            if(!sword){
+            if(!sword) {
 
                 return;
             }
@@ -102,16 +102,16 @@ Ext.define('Planche.controller.command.Find', {
 
 
             //라인을 검사하여 마지막에 위치해 있는경우 멈춘다.
-            if(pos.line == lastLine && pos.ch){
+            if(pos.line == lastLine && pos.ch) {
 
             }
 
             lineLoop:
-            while(typeof (str = cm.getLine(pos.line)) != "undefined"){
+            while(typeof (str = cm.getLine(pos.line)) != "undefined") {
 
                 currLine = pos.line;
 
-                // if(prev){
+                // if(prev) {
 
                 //     str = str.slice(0, )
                 // } 
@@ -123,7 +123,7 @@ Ext.define('Planche.controller.command.Find', {
 
                     console.log(pos.ch, to);
                     //debugger;
-                    if(pos.ch >= to){
+                    if(pos.ch >= to) {
 
                         continue;
                     }
@@ -135,19 +135,19 @@ Ext.define('Planche.controller.command.Find', {
 
                     pos = {line : currLine, ch : to };
 
-                    if(all == false){
+                    if(all == false) {
      
                         break lineLoop;
                     }
                 }
                 
-                if(prev){
+                if(prev) {
 
                     currLine--;
 
-                    if(currLine < 0){
+                    if(currLine < 0) {
 
-                        if(all){
+                        if(all) {
 
                             currLine = lastLine;
                         }
@@ -161,9 +161,9 @@ Ext.define('Planche.controller.command.Find', {
 
                     currLine++;
 
-                    if(currLine > lastLine){
+                    if(currLine > lastLine) {
 
-                        if(all){
+                        if(all) {
 
                             currLine = 0;
                         }
@@ -181,7 +181,7 @@ Ext.define('Planche.controller.command.Find', {
         };
 
 
-        CodeMirror.commands.findPrev = function(cm) { 
+        CodeMirror.commands.findPrev = function (cm) { 
             
             var cursor = cm.getCursor();
             
@@ -190,7 +190,7 @@ Ext.define('Planche.controller.command.Find', {
 
             var sword = findText.getValue();
 
-            if(!sword){
+            if(!sword) {
 
                 return;
             }
@@ -198,7 +198,7 @@ Ext.define('Planche.controller.command.Find', {
             var regexp = new RegExp(sword, "gi");
             var match;
             var sel = [];
-            while(typeof line != "undefined"){
+            while(typeof line != "undefined") {
 
                 while ((match = regexp.exec(line)) != null) {
 
@@ -216,7 +216,7 @@ Ext.define('Planche.controller.command.Find', {
             cm.setSelections(sel);
         };
 
-        CodeMirror.commands.findAll = function(cm) { 
+        CodeMirror.commands.findAll = function (cm) { 
             
             var cursor = cm.getCursor();
             
@@ -225,7 +225,7 @@ Ext.define('Planche.controller.command.Find', {
 
             var sword = findText.getValue();
 
-            if(!sword){
+            if(!sword) {
 
                 return;
             }
@@ -233,7 +233,7 @@ Ext.define('Planche.controller.command.Find', {
             var regexp = new RegExp(sword, "gi");
             var match;
             var sel = [];
-            while(typeof line != "undefined"){
+            while(typeof line != "undefined") {
 
                 while ((match = regexp.exec(line)) != null) {
 
@@ -253,19 +253,19 @@ Ext.define('Planche.controller.command.Find', {
 
     },
 
-    find : function(){
+    find : function () {
 
         var editor = this.application.getActiveEditor();
         editor.execCommand('find');
     },
 
-    findPrev : function(){
+    findPrev : function () {
 
         var editor = this.application.getActiveEditor();
         editor.execCommand('findPrev');
     },
 
-    findAll : function(){
+    findAll : function () {
 
         var editor = this.application.getActiveEditor();
         editor.execCommand('findAll');

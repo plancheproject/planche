@@ -3,7 +3,7 @@ Ext.define('Planche.controller.table.TableSQLTab', {
     views : [
         'table.TableInfoTab'
     ],
-    init : function(){
+    init : function () {
         
         this.control({
             'table-sql-tab' : {

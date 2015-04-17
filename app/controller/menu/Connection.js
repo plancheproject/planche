@@ -1,14 +1,14 @@
 Ext.define('Planche.controller.menu.Connection', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'New Connection Using Current Setting',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -18,20 +18,20 @@ Ext.define('Planche.controller.menu.Connection', {
         },{
             text : 'New Connection',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.openConnPanel();
             }
         },{
             text : 'New Query Editor',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.openQueryTab();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -41,14 +41,14 @@ Ext.define('Planche.controller.menu.Connection', {
         },{
             text : 'Close Tab',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 var actSubTab = this.getActiveQueryTab();
                 actSubTab.destroy();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveQueryTab()){
+                if(!this.getActiveQueryTab()) {
 
                     return true;
                 }
@@ -58,14 +58,14 @@ Ext.define('Planche.controller.menu.Connection', {
         },{
             text : 'Close Other Tabs',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 var tabPanel = this.getQueryTabPanel().query('tabpanel');
                 var actSubTab = this.getActiveQueryTab();
 
-                Ext.Array.each(tabPanel, function(tab, idx){
+                Ext.Array.each(tabPanel, function (tab, idx) {
 
-                    if(actSubTab != tab.up()){
+                    if(actSubTab != tab.up()) {
 
                         tab.up().destroy();
                     }
@@ -75,16 +75,16 @@ Ext.define('Planche.controller.menu.Connection', {
                     }
                 });
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveQueryTab()){
+                if(!this.getActiveQueryTab()) {
 
                     return true;
                 }
 
                 var tabPanel = this.getQueryTabPanel().query('tabpanel');
 
-                if(tabPanel.length < 2){
+                if(tabPanel.length < 2) {
 
                     return true;
                 }
@@ -94,35 +94,35 @@ Ext.define('Planche.controller.menu.Connection', {
         },{
             text : 'Disconnect',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
 
                 return false;
             },
-            handler : function(){
+            handler : function () {
 
                 this.closeActiveConnectionTab();
             }
         },{
             text : 'Disconnect All',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
 
                 return false;
             },
-            handler : function(){
+            handler : function () {
 
                 var connections = this.getConnectTabPanel().query('>>tab');
-                Ext.Array.each(connections, function(tab, idx){
+                Ext.Array.each(connections, function (tab, idx) {
 
                     tab.destroy();
                 });
@@ -132,16 +132,16 @@ Ext.define('Planche.controller.menu.Connection', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx){
+        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
             
-            switch(typeof menu.allowDisable){
+            switch(typeof menu.allowDisable) {
 
                 case 'function':
 

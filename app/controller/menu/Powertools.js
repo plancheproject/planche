@@ -1,11 +1,11 @@
 Ext.define('Planche.controller.menu.Powertools', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'New Connection Using Current Setting',
-            disable : function(){
+            disable : function () {
 
                 return false;
             }
@@ -26,9 +26,9 @@ Ext.define('Planche.controller.menu.Powertools', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }

@@ -16,7 +16,7 @@ Ext.define('Planche.view.table.TableSchemeTab', {
     columnLines: true,
     width : '100%',
     flex  : 1,
-    initComponent : function(){
+    initComponent : function () {
 
         var app = this.getApplication(),
             tb = this.getTable();
@@ -73,7 +73,7 @@ Ext.define('Planche.view.table.TableSchemeTab', {
         var fields  = [];
 
         //create grid fields
-        Ext.each(this.columns, function(obj){
+        Ext.each(this.columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });

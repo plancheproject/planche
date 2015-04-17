@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.menu.Database', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'Copy Database To Different Host/Database(Not Yet)',
@@ -11,13 +11,13 @@ Ext.define('Planche.controller.menu.Database', {
         // {
         //     text : 'Create Database',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         this.createDatabase();
         //     },
-        //     allowDisable : function(topBtn, menu){
+        //     allowDisable : function (topBtn, menu) {
 
-        //         if(!this.getActiveConnectTab()){
+        //         if(!this.getActiveConnectTab()) {
 
         //             return true;
         //         }
@@ -29,14 +29,14 @@ Ext.define('Planche.controller.menu.Database', {
         // {
         //     text : 'Alter Database',
         //     scope : this.application,
-        //     handler : function(){
+        //     handler : function () {
 
         //         var node = this.getSelectedNode();
         //         this.alterDatabase(node);
         //     },
-        //     allowDisable : function(topBtn, menu){
+        //     allowDisable : function (topBtn, menu) {
 
-        //         if(!this.getActiveConnectTab()){
+        //         if(!this.getActiveConnectTab()) {
 
         //             return true;
         //         }
@@ -48,12 +48,12 @@ Ext.define('Planche.controller.menu.Database', {
         {
             text : 'Create',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
                 var node = this.getSelectedNode();
                 var db = this.getParentNode(node);
 
-                if(!db){
+                if(!db) {
 
                     return true;
                 }
@@ -63,42 +63,42 @@ Ext.define('Planche.controller.menu.Database', {
             menu : [{
                 text : 'Table',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     this.openCreateTableWindow();
                 }
             },{
                 text : 'View',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     this.createView();
                 }
             },{
                 text : 'Stored Procedure',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     this.createProcedure();
                 }
             },{
                 text : 'Function',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
-                    this.createFunction();
+                    this.createfunction ();
                 }
             },{
                 text : 'Trigger',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     this.createTrigger();
                 }
             },{
                 text : 'Event',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     this.createEvent();
                 }
@@ -106,12 +106,12 @@ Ext.define('Planche.controller.menu.Database', {
         },{
             text : 'More Database Operations',
             scope : this.application,
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
                 var node = this.getSelectedNode();
                 var db = this.getParentNode(node);
 
-                if(!db){
+                if(!db) {
 
                     return true;
                 }
@@ -121,7 +121,7 @@ Ext.define('Planche.controller.menu.Database', {
             menu : [{
                 text : 'Drop Database',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.dropDatabase(node);
@@ -129,7 +129,7 @@ Ext.define('Planche.controller.menu.Database', {
             },{
                 text : 'Truncate Database',
                 scope : this.application,
-                handler : function(){
+                handler : function () {
 
                     var node = this.getSelectedNode();
                     this.truncateDatabase(node);
@@ -139,7 +139,7 @@ Ext.define('Planche.controller.menu.Database', {
             // ,{
             //     text : 'Empty Database',
             //     scope : this.application,
-            //     handler : function(){
+            //     handler : function () {
 
             //         var node = this.getSelectedNode();
             //         this.emptyDatabase(node);
@@ -169,16 +169,16 @@ Ext.define('Planche.controller.menu.Database', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx){
+        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
             
-            switch(typeof menu.allowDisable){
+            switch(typeof menu.allowDisable) {
 
                 case 'function':
 

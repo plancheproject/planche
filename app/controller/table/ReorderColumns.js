@@ -1,13 +1,13 @@
 Ext.define('Planche.controller.table.ReorderColumns', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(db, tb, result){
-
+    initWindow : function (db, tb, result) {
+ 
         Ext.create('Planche.lib.Window', {
             stateful: true,
-            title : 'Reorder columns \''+tb+'\' in \''+db+'\'',
+            title : 'Reorder columns \'' + tb + '\' in \'' + db + '\'',
             layout : 'fit',
-            bodyStyle:"background-color:#FFFFFF",
+            bodyStyle: "background-color:#FFFFFF",
             width : 400,
             height: 300,
             overflowY: 'auto',
@@ -23,22 +23,22 @@ Ext.define('Planche.controller.table.ReorderColumns', {
                 text : 'Up',
                 scope : this,
                 handler : this.up
-            },{
+            }, {
                 text : 'Down',
                 scope : this,
                 handler : this.down
-            },{
+            }, {
                 text : 'Save',
                 scope : this,
                 handler : this.save
-            },{
+            }, {
                 text : 'Close',
                 scope : this,
                 handler : this.close
             }],
             listeners: {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     this.initTableData(result);
                 }
@@ -46,12 +46,12 @@ Ext.define('Planche.controller.table.ReorderColumns', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
-        var columns = this.makeListColumns();
-
-        var fields = [];
-        Ext.each(columns, function(obj){
+        var columns = this.makeListColumns(),
+            fields  = [];
+        
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -68,7 +68,7 @@ Ext.define('Planche.controller.table.ReorderColumns', {
             flex  : 1,
             columns : columns,
             store: Ext.create('Ext.data.Store', {
-                fields:fields
+                fields: fields
             })
         });
 
@@ -76,12 +76,12 @@ Ext.define('Planche.controller.table.ReorderColumns', {
     },
 
 
-    initTableData : function(result){
+    initTableData : function (result) {
 
-        var store = this.grid.getStore();
+        var store = this.grid.getStore(),
+            records = [];
         
-        var records = [];
-        Ext.Object.each(result.records, function(idx, row){
+        Ext.Object.each(result.records, function (idx, row) {
 
             records.push({
                 field : row[0],
@@ -91,42 +91,44 @@ Ext.define('Planche.controller.table.ReorderColumns', {
         store.insert(0, records);
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {
 
         return [
             { text: 'Field', dataIndex: 'field', width : 120},
             { text: 'Type', dataIndex: 'type', flex : 1}
         ];
     },
-
-    up : function(btn){
+    
+    up: function (btn) {
 
         this.moveSelectedRow('up');
     },
 
-    down : function(btn){
+    down : function (btn) {
 
         this.moveSelectedRow('down');
     },
 
-    save : function(btn){
+    save : function (btn) {
 
         btn.up('window').destroy();
     },
 
-    close : function(btn){
+    close : function (btn) {
 
         btn.up('window').destroy();
     },
 
-    moveSelectedRow : function(direction) {
+    moveSelectedRow : function (direction) {
 
-        var record = this.grid.getSelectionModel().getSelection()[0];
+        var record = this.grid.getSelectionModel().getSelection()[0],
+            index = this.grid.getStore().indexOf(record);
+        
         if (!record) {
             return;
         }
-        var index = this.grid.getStore().indexOf(record);
-        if (direction == 'up') {
+        
+        if (direction === 'up') {
             index--;
             if (index < 0) {
                 return;

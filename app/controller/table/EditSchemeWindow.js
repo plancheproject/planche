@@ -8,7 +8,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         'table.TableSQLTab',
         'table.TableInfoTab'
     ],
-    init : function(){
+    init : function () {
 
         this.control({
             '#edit-scheme-btn-close' : {
@@ -17,7 +17,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         });
     },
 
-    initWindow : function(db, tb){
+    initWindow : function (db, tb) {
 
         var title = (tb ? 'Alter Table \''+tb+'\' in \''+db+'\'' : 'Create new table');
         Ext.create('Planche.view.table.EditSchemeWindow', {
@@ -26,7 +26,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         });
     },
 
-    initTabPanel : function(db, tb){
+    initTabPanel : function (db, tb) {
 
         return {
             xtype : 'tabpanel',
@@ -40,7 +40,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    initTableSchemeTab : function(db, tb){
+    initTableSchemeTab : function (db, tb) {
 
         return {
             xtype      : 'table-scheme-tab',
@@ -50,7 +50,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    initTablePropertiesTab : function(db, tb){
+    initTablePropertiesTab : function (db, tb) {
 
         return {
             xtype      : 'table-properties-tab',
@@ -60,7 +60,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    initTableIndexexTab : function(db, tb){
+    initTableIndexexTab : function (db, tb) {
 
         return {
             xtype      : 'table-indexes-tab',
@@ -70,7 +70,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    initTableSQLTab : function(db, tb){
+    initTableSQLTab : function (db, tb) {
 
         return {
             xtype      : 'table-sql-tab',
@@ -80,7 +80,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    initTableInfoTab : function(db, tb){
+    initTableInfoTab : function (db, tb) {
 
         return {
             xtype      : 'table-info-tab',
@@ -90,14 +90,14 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
         }
     },
 
-    cancel : function(btn){
+    cancel : function (btn) {
 
         var tab = Ext.getCmp('table-scheme-tab');
-        if(tab.getEdited()){
+        if(tab.getEdited()) {
 
-            Ext.Msg.confirm('Cancel', 'You will lose all changes. Do you want to quit?', function(btn, text){
+            Ext.Msg.confirm('Cancel', 'You will lose all changes. Do you want to quit?', function (btn, text) {
 
-                if (btn == 'yes'){
+                if (btn == 'yes') {
 
                     this.up('window').destroy();
                 }

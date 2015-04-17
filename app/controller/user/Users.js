@@ -1,23 +1,23 @@
 Ext.define('Planche.controller.user.Users', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(db, tb, result){
+    initWindow : function (db, tb, result) {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
 
         var records = [];
-        Ext.Array.each(result.records, function(row, ridx){
+        Ext.Array.each(result.records, function (row, ridx) {
 
             var record = {};
-            Ext.Array.each(result.fields, function(col, cidx){
+            Ext.Array.each(result.fields, function (col, cidx) {
 
-                if(cidx > 1){
+                if(cidx > 1) {
 
                     record[col.name] = row[cidx] == 'Y' ? true : false;
                 }
@@ -61,7 +61,7 @@ Ext.define('Planche.controller.user.Users', {
             buttons : [{
                 text : 'Save Changes',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.hide();
@@ -69,7 +69,7 @@ Ext.define('Planche.controller.user.Users', {
             },{
                 text : 'Cancel Changes',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.hide();
@@ -77,7 +77,7 @@ Ext.define('Planche.controller.user.Users', {
             },{
                 text : 'Close',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.hide();
@@ -86,14 +86,14 @@ Ext.define('Planche.controller.user.Users', {
         });
     },
 
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
-            { text: 'Host', dataIndex: 'Host', width : 100, renderer: function(value, p, record){
+            { text: 'Host', dataIndex: 'Host', width : 100, renderer: function (value, p, record) {
                 
                 return Ext.String.format('<img src=\'./images/icon_server.png\'> {0}', value);
             }},
-            { text: 'User', dataIndex: 'User', width : 100, renderer: function(value, p, record){
+            { text: 'User', dataIndex: 'User', width : 100, renderer: function (value, p, record) {
                 
                 return Ext.String.format('<img src=\'./images/icon_user.png\'> {0}', value);
             }},

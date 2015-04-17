@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.command.Status', {
     extend: 'Ext.app.Controller',
     grid : null,
-    initWindow : function(){
+    initWindow : function () {
 
         Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
@@ -23,7 +23,7 @@ Ext.define('Planche.controller.command.Status', {
             buttons : [{
                 text : 'Close',
                 scope : this,
-                handler : function(btn, e){
+                handler : function (btn, e) {
                     
                     var win = btn.up('window');
                     win.destroy();
@@ -31,7 +31,7 @@ Ext.define('Planche.controller.command.Status', {
             }],
             listeners : {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     this.loadList();
                 }
@@ -39,12 +39,12 @@ Ext.define('Planche.controller.command.Status', {
         });
     },
 
-    initGrid : function(){
+    initGrid : function () {
 
         var columns = this.makeListColumns();
 
         var fields = [];
-        Ext.each(columns, function(obj){
+        Ext.each(columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });
@@ -59,21 +59,21 @@ Ext.define('Planche.controller.command.Status', {
                 fields: fields
             }),
             tbar : [
-                { xtype: 'button', text: 'All', cls : 'btn', pressed: true, scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'All', cls : 'btn', pressed: true, scope: this, margin : '0 0 0 5', scope : this, handler : function (btn) {
 
                     Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
                     btn.toggle(true);
 
                     this.loadList();
                 }},
-                { xtype: 'button', text: 'Global', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'Global', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function (btn) {
 
                     Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
                     btn.toggle(true);
 
                     this.loadList('GLOBAL');
                 }},
-                { xtype: 'button', text: 'Session', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function(btn){
+                { xtype: 'button', text: 'Session', cls : 'btn', scope: this, margin : '0 0 0 5', scope : this, handler : function (btn) {
 
                     Ext.invoke(btn.up("grid").query('>>button'), 'toggle', false);
                     btn.toggle(true);
@@ -86,7 +86,7 @@ Ext.define('Planche.controller.command.Status', {
         return this.grid;
     },
 
-    loadList : function(cmd){
+    loadList : function (cmd) {
 
         var query = typeof cmd == 'undefined' ? 'SHOW_STATUS' : 'SHOW_'+cmd+'_STATUS';
 
@@ -97,7 +97,7 @@ Ext.define('Planche.controller.command.Status', {
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery(query, db),
-            success : Ext.Function.bind(function(config, response){
+            success : Ext.Function.bind(function (config, response) {
                 
                 var records = this.makeRecords(response.fields, response.records);
 
@@ -108,13 +108,13 @@ Ext.define('Planche.controller.command.Status', {
         });
     },
 
-    makeRecords : function(fields, records){
+    makeRecords : function (fields, records) {
 
         var tmp = [];
-        Ext.Array.each(records, function(row, ridx){
+        Ext.Array.each(records, function (row, ridx) {
 
             var record = {};
-            Ext.Array.each(fields, function(col, cidx){
+            Ext.Array.each(fields, function (col, cidx) {
 
                 record[col.name] = row[cidx];
             });
@@ -123,7 +123,7 @@ Ext.define('Planche.controller.command.Status', {
 
         return tmp;
     },
-    makeListColumns : function(){   
+    makeListColumns : function () {   
         
         return [
             { text: 'Variable Name', dataIndex: 'Variable_name', width : 300},

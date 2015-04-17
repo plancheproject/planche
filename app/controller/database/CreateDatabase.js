@@ -1,12 +1,12 @@
 Ext.define('Planche.controller.database.CreateDatabase', {
     extend: 'Ext.app.Controller',
-    initWindow : function(node){
+    initWindow : function (node) {
 
         var db = '';
 
         this.isAlter = node ? true : false;
 
-        if(this.isAlter){
+        if(this.isAlter) {
 
             db = node.data.text;
         }
@@ -14,7 +14,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         this.loadData(db);
     },
 
-    loadData : function(db){
+    loadData : function (db) {
 
         var app = this.getApplication(),
             me = this,
@@ -32,7 +32,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         me.comboData = {};
         me.comboValue = {};
 
-        (tunneling = Ext.Function.bind(function(){
+        (tunneling = Ext.Function.bind(function () {
 
             var query = queries.shift();
 
@@ -41,12 +41,12 @@ Ext.define('Planche.controller.database.CreateDatabase', {
                 app.tunneling({
                     db : db,
                     query : query.str,
-                    success : function(config, response){
+                    success : function (config, response) {
 
-                        if(query.key == 'collation' || query.key == 'charset'){
+                        if(query.key == 'collation' || query.key == 'charset') {
 
                             var tmp = [];
-                            Ext.Array.each(response.records, function(row, idx){
+                            Ext.Array.each(response.records, function (row, idx) {
 
                                 tmp.push({
                                     id : row[0],
@@ -63,7 +63,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                         tunneling();
                     },
-                    failure : function(config, response){
+                    failure : function (config, response) {
 
                         messages.push(app.generateErrorMessage(query.str, response.message));
 
@@ -75,7 +75,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                 app.getActiveConnectTab().setLoading(false);
 
-                if(messages.length == 0){
+                if(messages.length == 0) {
 
                     this.initCreateWindow(db);
                 }
@@ -88,7 +88,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         }, me))();
     },
 
-    initCreateWindow : function(db){
+    initCreateWindow : function (db) {
 
         Ext.create('Planche.lib.Window', {
             stateful: true,
@@ -123,7 +123,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         });
     },
 
-    initDatabaseName : function(database){
+    initDatabaseName : function (database) {
 
         return {
             id : 'database-name',
@@ -136,7 +136,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         };
     },
     
-    initDatabaseCollation : function(){
+    initDatabaseCollation : function () {
 
         this.comboData.collation.unshift({
             id : '', text : 'Database Collation'
@@ -151,7 +151,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         return this.comboCollation;
     },
 
-    initDatabaseCharSet : function(){
+    initDatabaseCharSet : function () {
 
         this.comboData.charset.unshift({
             id : '', text : 'Database Charset'
@@ -166,7 +166,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         return this.comboCharset;
     },
 
-    initComboBox : function(id, data, value){
+    initComboBox : function (id, data, value) {
 
         var store = new Ext.data.Store({
             fields: ['id','text'],
@@ -190,7 +190,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         return combo;
     },
 
-    create : function(btn){
+    create : function (btn) {
 
         var textfield = btn.up('window').down('textfield'),
             db        = textfield.getValue(),
@@ -207,7 +207,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
         app.tunneling({
             query : app.getAPIS().getQuery('CREATE_DATABASE', db, charset, collation),
-            success : function(config, response){
+            success : function (config, response) {
 
                 var rootNode = app.getParentNode(node, 0, true);
                 rootNode.appendChild({
@@ -237,14 +237,14 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                 btn.up('window').destroy();
             },
-            failure : function(config, response){
+            failure : function (config, response) {
 
                 Ext.Msg.alert('Error', response.message);
             }
         });
     },
 
-    alter : function(btn){
+    alter : function (btn) {
          
         var app       = this.getApplication(),
             node      = app.getSelectedNode(),
@@ -255,18 +255,18 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery('ALTER_DATABASE', db, charset, collation),
-            success : function(config, response){
+            success : function (config, response) {
                 
                 btn.up('window').destroy();
             },
-            failure : function(config, response){
+            failure : function (config, response) {
 
                 Ext.Msg.alert('Error', response.result);
             }
         });
     },
 
-    cancel : function(btn){
+    cancel : function (btn) {
 
         btn.up('window').destroy();
     }

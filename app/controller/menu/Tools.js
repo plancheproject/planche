@@ -1,18 +1,18 @@
 Ext.define('Planche.controller.menu.Tools', {
     extend: 'Ext.app.Controller',
     added : false,
-    add : function(topBtn){
+    add : function (topBtn) {
 
         topBtn.menu.add([{
             text : 'Show Process List',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.openProcessPanel();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -22,13 +22,13 @@ Ext.define('Planche.controller.menu.Tools', {
         },{
             text : 'Show Variables',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.openVariablesPanel();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -38,13 +38,13 @@ Ext.define('Planche.controller.menu.Tools', {
         },{
             text : 'Show Status',
             scope : this.application,
-            handler : function(){
+            handler : function () {
 
                 this.openStatusPanel();
             },
-            allowDisable : function(topBtn, menu){
+            allowDisable : function (topBtn, menu) {
 
-                if(!this.getActiveConnectTab()){
+                if(!this.getActiveConnectTab()) {
 
                     return true;
                 }
@@ -56,16 +56,16 @@ Ext.define('Planche.controller.menu.Tools', {
         this.added = true;
     },
 
-    show : function(topBtn){
+    show : function (topBtn) {
 
-        if(!this.added){
+        if(!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx){
+        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
             
-            switch(typeof menu.allowDisable){
+            switch(typeof menu.allowDisable) {
 
                 case 'function':
 

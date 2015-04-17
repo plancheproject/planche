@@ -11,7 +11,7 @@ Ext.define('Planche.view.table.TablePropertiesTab', {
     items : [
     	
     ],
-    initComponent : function(){
+    initComponent : function () {
 
         this.callParent(arguments);
     }

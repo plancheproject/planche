@@ -4,21 +4,21 @@ Ext.define('Planche.controller.layout.ConnectTab', {
         'layout.SchemeTree',
         'layout.QueryTabPanel'
     ],
-    init : function(){
+    init : function () {
 
         this.control({
             'connect-tab' : {
-                boxready : function(tab){
+                boxready : function (tab) {
 
                     // main.setActiveTab(tab);
                     //this.initQueryTab('Query', false);
                     this.getApplication().checkToolbar();
                 },
-                activate : function(tab){
+                activate : function (tab) {
 
                     this.getApplication().checkToolbar();
                 },
-                destroy : function(tab){
+                destroy : function (tab) {
                     
                     this.getApplication().checkToolbar();
                 }

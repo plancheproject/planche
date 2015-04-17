@@ -1,4 +1,4 @@
-Ext.define('Planche.lib.QueryTokenType', function(){
+Ext.define('Planche.lib.QueryTokenType', function () {
 
 	var type = {
 		STRING			: 0,
@@ -24,11 +24,11 @@ Ext.define('Planche.lib.QueryTokenType', function(){
 
 	return {
 		singleton: true,
-		constructor: function(config) {
+		constructor: function (config) {
 
 			this.callParent(arguments);
 		},
-		get : function(){
+		get : function () {
 
 			return type; 
 		}

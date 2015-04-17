@@ -4,7 +4,7 @@ Ext.define('Planche.controller.layout.QueryTab', {
         'layout.QueryEditor',
         'layout.ResultTabPanel'
     ],
-    init : function(){
+    init : function () {
 
     }
 });

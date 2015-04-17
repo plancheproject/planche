@@ -1,10 +1,10 @@
 Ext.define('Planche.controller.layout.QueryEditor', {
     extend: 'Ext.app.Controller',
-    init : function(){
+    init : function () {
 
     	this.control({
     		'query-editor' : {
-				boxready : function(editor, width, height){
+				boxready : function (editor, width, height) {
 
 		            textarea = editor.getEl().query('textarea')[0];
 
@@ -17,13 +17,13 @@ Ext.define('Planche.controller.layout.QueryEditor', {
 		                    matchBrackets : true,
 		                    autofocus: true
 		                }),
-		            	getEditor : function(){
+		            	getEditor : function () {
 
 		            		return this.editor;
 		            	}
 		            });
 				},
-				resize : function(editor, width, height){
+				resize : function (editor, width, height) {
 
 					editor.getEditor().setSize(width, height);
 				}

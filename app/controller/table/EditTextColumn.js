@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.table.EditTextColumn', {
     extend: 'Ext.app.Controller',
 
-    initWindow : function(content){
+    initWindow : function (content) {
 
         Ext.create('Planche.lib.Window', {
             stateful: true,
@@ -37,7 +37,7 @@ Ext.define('Planche.controller.table.EditTextColumn', {
             }],
             listeners: {
                 scope : this,
-                boxready : function(){
+                boxready : function () {
 
                     
                 }
@@ -45,7 +45,7 @@ Ext.define('Planche.controller.table.EditTextColumn', {
         });
     },
 
-    htmlspecialchars_decode : function(string, quote_style) {
+    htmlspecialchars_decode : function (string, quote_style) {
 
       var optTemp = 0,
         i = 0,

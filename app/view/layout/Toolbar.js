@@ -74,7 +74,7 @@ Ext.define('Planche.view.layout.Toolbar', {
         //             text : 'Prepare',
         //             cls : 'btn',
         //             scope : this,
-        //             handler : function(btn){
+        //             handler : function (btn) {
 
         //             }
         //            }

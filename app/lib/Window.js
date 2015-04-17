@@ -3,20 +3,20 @@ Ext.define('Planche.lib.Window', {
     config : {
         buttons : []
     },
-    initComponent : function(){
+    initComponent : function () {
 
         this.callParent(arguments);
 
-        if(typeof this.buttons == 'undefined' || this.buttons == null){
+        if(typeof this.buttons == 'undefined' || this.buttons == null) {
 
             this.buttons = [];
         }
 
-        if(this.closable){
+        if(this.closable) {
 
             this.buttons.push({
                 text: '닫기',
-                handler: function(button, event){
+                handler: function (button, event) {
                                                 
                     var win = button.up("window");
                     win.destroy();
@@ -29,14 +29,14 @@ Ext.define('Planche.lib.Window', {
     bodyStyle:"background-color:#FFFFFF",
     tools: [{
         type:'maximize',
-        handler: function(event, toolEl, owner, tool){
+        handler: function (event, toolEl, owner, tool) {
 
             owner.up("window").toggleMaximize();
         }
     },{
         hidden : true,
         type:'restore',
-        handler: function(event, toolEl, owner, tool){
+        handler: function (event, toolEl, owner, tool) {
 
             var win = owner.up("window");
 
