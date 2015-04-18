@@ -12,7 +12,7 @@ Ext.define('Planche.view.table.TableIndexesTab', {
     selModel : {
         singleSelect:true
     },
-    initComponent : function(){
+    initComponent : function () {
 
         var app = this.getApplication(),
             tb = this.getTable();
@@ -38,7 +38,7 @@ Ext.define('Planche.view.table.TableIndexesTab', {
         var fields  = [];
 
         //create grid fields
-        Ext.each(this.columns, function(obj){
+        Ext.each(this.columns, function (obj) {
 
             fields.push(obj.dataIndex);
         });

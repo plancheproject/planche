@@ -3,7 +3,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
     views : [
         'table.TableSchemeTab'
     ],
-    init : function(){
+    init : function () {
 
         this.control({
             'table-scheme-tab' : {
@@ -23,11 +23,11 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         });
     },
 
-    edit : function(editor, e){
+    edit : function (editor, e) {
                     
         var tab = Ext.getCmp("table-scheme-tab");
 
-        if(e.originalValue != e.value){
+        if(e.originalValue != e.value) {
 
             tab.setEdited(true);
         }
@@ -35,7 +35,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         tab.getView().focus();
     },
 
-    beforeEdit : function(editor, e){
+    beforeEdit : function (editor, e) {
 
         var 
         tab       = Ext.getCmp("table-scheme-tab"),
@@ -45,20 +45,20 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         selection = selModel.getSelection()[0],
         index     = store.indexOf(selection) + 1;
 
-        if(index == store.getCount()){
+        if(index == store.getCount()) {
 
             store.insert(store.getCount(), [{}]);
         }
     },
 
-    insertRow : function(btn){
+    insertRow : function (btn) {
 
         var tab = btn.up("table-scheme-tab"),
             store = tab.getStore(),
             selModel = tab.getSelectionModel(),
             selection = selModel.getSelection()[0];
 
-        if(selection){
+        if(selection) {
 
             var index = store.indexOf(selection);
             store.insert(index, [{}]);
@@ -69,7 +69,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         }
     },
 
-    deleteRow : function(btn){
+    deleteRow : function (btn) {
 
         var tab = btn.up("table-scheme-tab"),
             store = tab.getStore(),
@@ -77,8 +77,8 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             selection = selModel.getSelection()[0],
             cnt = store.getCount();
 
-        if(!selection){ return; }
-        if(cnt == 1){ return; }
+        if(!selection) { return; }
+        if(cnt == 1) { return; }
         if(selModel.getCurrentPosition().row == 0) {
 
             selModel.move('down');
@@ -91,12 +91,12 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         store.remove(selection);
     },
 
-    createTable : function(btn){
+    createTable : function (btn) {
 
         this[btn.getText().toLowerCase()](btn);
     },
 
-    create : function(btn){
+    create : function (btn) {
 
         var 
         app       = this.getApplication(),
@@ -116,7 +116,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             primaries = [], fields = [],
             store = tab.getStore();
             
-        Ext.Object.each(store.getRange(), function(idx, obj){
+        Ext.Object.each(store.getRange(), function (idx, obj) {
 
             if(!obj.data.field) return;
 
@@ -133,13 +133,13 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             field += data.comment ? ' COMMENT \''+ (data.comment) +'\'' : '';
             fields.push(field);
 
-            if(data.pk == true){
+            if(data.pk == true) {
 
                 primaries.push('`'+data.field+'`');
             }
         });
         
-        if(primaries.length > 0){
+        if(primaries.length > 0) {
 
             fields.push('\n\tPRIMARY KEY ('+primaries.join(',')+')');
         }
@@ -148,7 +148,9 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         app.tunneling({
             db : db,
             query : query,
-            success : function(config, response){
+            success : function (config, response) {
+
+                app.openMessage(app.generateSuccessMsg(config.query, 'Create table success'));
 
                 var tablesNode = app.getParentNode(node , 2, true);
                 tablesNode.appendChild({
@@ -166,7 +168,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
 
                 btn.up('window').destroy();
             },
-            failure : function(config, response){
+            failure : function (config, response) {
 
                 app.openMessage(app.generateError(config.query, response.message));
                 Ext.Msg.alert('Error', response.message);
@@ -174,7 +176,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         });
     },
 
-    alter : function(btn){
+    alter : function (btn) {
 
         var 
         app       = this.getApplication(),
@@ -196,8 +198,8 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         del_primaries = [],
         primaries     = [],
         fields        = [];
-        
-        Ext.Object.each(store.getNewRecords(), function(idx, obj){
+
+        Ext.Object.each(store.getNewRecords(), function (idx, obj) {
 
             if(!obj.data.field) return;
 
@@ -214,26 +216,26 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
 
-            if(data.pk == true){
+            if(data.pk == true) {
 
                 add_primaries.push('`'+data.field+'`');
             }
         });
 
-        Ext.Object.each(store.getRemovedRecords(), function(idx, obj){
+        Ext.Object.each(store.getRemovedRecords(), function (idx, obj) {
 
             if(!obj.raw.field) return;
 
             var field = '\n\tDROP COLUMN `'+obj.raw.field+'`';
             fields.push(field);
 
-            if(obj.raw.pk == true){
+            if(obj.raw.pk == true) {
 
                 del_primaries.push('`'+obj.raw.field+'`');
             }
         });
 
-        Ext.Object.each(store.getUpdatedRecords(), function(idx, obj){
+        Ext.Object.each(store.getUpdatedRecords(), function (idx, obj) {
 
             if(!obj.data.field) return;
 
@@ -250,27 +252,27 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
 
-            if(obj.raw.pk == true){
+            if(obj.raw.pk == true) {
 
-                if(data.pk != true){
+                if(data.pk != true) {
 
                     del_primaries.push('`'+data.field+'`');
                 }
             }
-            else if(obj.raw.pk != true && data.pk == true){
+            else if(obj.raw.pk != true && data.pk == true) {
 
                 add_primaries.push('`'+data.field+'`');
             }
         });
 
        
-        if(del_primaries.length > 0 || add_primaries.length > 0){
+        if(del_primaries.length > 0 || add_primaries.length > 0) {
 
             fields.push('DROP PRIMARY KEY');
             var primaries = [];
-            Ext.Object.each(store.getRange(), function(idx, obj){
+            Ext.Object.each(store.getRange(), function (idx, obj) {
 
-                if(obj.data.pk == true){
+                if(obj.data.pk == true) {
 
                     primaries.push('`'+obj.data.field+'`');
                 }
@@ -280,37 +282,46 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
 
         query += fields.join(",")+';';
 
+        tab.setLoading(true);
+
         app.tunneling({
             db : db,
             query : query,
-            success : function(config, response){
+            success : function (config, response) {
 
-                Ext.Object.each(node.childNodes, Ext.Function.bind(function(idx, child){
+                app.openMessage(app.generateSuccessMsg(config.query, 'Modify table success'));
 
-                    if(child.childNodes.length > 0){
+                Ext.Object.each(node.childNodes, Ext.Function.bind(function (idx, child) {
+
+                    if(child.childNodes.length > 0) {
 
                         this.reloadTree(child);
                     }
                 }, this));
-                
+
                 btn.up('window').destroy();
+
+                tab.setLoading(false);
             },
-            failure : function(config, response){
+            failure : function (config, response) {
 
                 app.openMessage(app.generateError(config.query, response.message));
+
                 Ext.Msg.alert('Error', response.message);
+
+                tab.setLoading(false);
             }
         });
     },
 
-    initTableSchemeTab : function(tab){
+    initTableSchemeTab : function (tab) {
 
         var 
         app      = this.getApplication(),
         db       = tab.getDatabase(),
         tb       = tab.getTable(),
         store    = tab.getStore(),
-        getMatch = function(str, pattern, idx){ 
+        getMatch = function (str, pattern, idx) { 
 
             var r = str.match(pattern); 
             if(r) r = r[idx];
@@ -318,7 +329,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
         },
         records = [];
 
-        if(!tb){
+        if(!tb) {
 
             records.push({});
             tab.getStore().load({
@@ -327,13 +338,15 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             return;
         }
 
+        tab.setLoading(true);
+
         //load table fileds list
         app.tunneling({
             db : db,
             query : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb),
-            success : function(config, response){
+            success : function (config, response) {
 
-                Ext.Object.each(response.records, function(idx, row){
+                Ext.Object.each(response.records, function (idx, row) {
 
                     var 
                     type     = getMatch(row[1], /[a-zA-Z]+/, 0),
@@ -345,11 +358,11 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
                         'field'    : row[0],
                         'type'     : type,
                         'len'      : len, 
-                        'default'  : row[5] == "NULL" ? "" : row[5],
-                        'pk'       : row[4] == "PRI" ? true : false,
-                        'not_null' : row[3] == "NO" ? true : false,
+                        'default'  : (row[5] == "NULL" ? "" : row[5]),
+                        'pk'       : (row[4] == "PRI" ? true : false),
+                        'not_null' : (row[3] == "NO" ? true : false),
                         'unsigned' : unsigned,
-                        'auto_incr': row[6] == "auto_increment" ? true : false,
+                        'auto_incr': (row[6] == "auto_increment" ? true : false),
                         'zerofill' : zerofill,
                         'comment'  : row[8]
                     });
@@ -357,9 +370,12 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
 
                 var store = tab.getStore();
 
-                records.push({});
                 store.loadData(records);
                 store.sync();
+
+                store.insert(store.getCount(), [{}]);
+
+                tab.setLoading(false);
             }
         });
     }
