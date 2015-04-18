@@ -1,6 +1,6 @@
 {
   "name": "codemirror",
-  "version": "4.7.0",
+  "version": "5.1.0",
   "main": [
     "lib/codemirror.js",
     "lib/codemirror.css"
@@ -17,13 +17,13 @@
     "package.json"
   ],
   "homepage": "https://github.com/marijnh/CodeMirror",
-  "_release": "4.7.0",
+  "_release": "5.1.0",
   "_resolution": {
     "type": "version",
-    "tag": "4.7.0",
-    "commit": "7509c24b6ad61d1583d0c6fe31b75f984d1c439a"
+    "tag": "5.1.0",
+    "commit": "8fa467e250d68a567bbc7759a921aed7329ecbca"
   },
   "_source": "git://github.com/marijnh/CodeMirror.git",
-  "_target": "4.7.x",
+  "_target": "5.1.0",
   "_originalSource": "codemirror"
 }
