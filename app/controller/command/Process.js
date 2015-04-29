@@ -3,7 +3,12 @@ Ext.define('Planche.controller.command.Process', {
     grid : null,
     initWindow : function () {
 
-        Ext.create('Planche.lib.Window', {
+        var app = this.getApplication(),
+            api = app.getAPIS(),
+            me  = this,
+            win = null;
+
+        win = Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
             stateful: true,
             title : 'Show Process List',
@@ -24,8 +29,31 @@ Ext.define('Planche.controller.command.Process', {
                 text : 'Kill Process',
                 scope : this,
                 handler : function (btn, e) {
-                    
-                    
+
+                    var selected = this.grid.selModel.getSelection();
+
+                    if(selected.length == 0){
+
+                        Ext.Msg.alert('info', 'Please select a process id');
+                        return;
+                    }
+
+                    win.setLoading(true);
+
+                    app.tunneling({
+                        db : '',
+                        query : api.getQuery('KILL_QUERY', selected[0].data.Id),
+                        success : function(config, response){
+                            
+                            me.loadList();
+                            win.setLoading(false);                
+                        },
+                        failure : function(config, response){
+
+                            Ext.Msg.alert('error', app.generateError(config.query, response.message));
+                            win.setLoading(false); 
+                        }
+                    });
                 }
             },{
                 text : 'Close',
