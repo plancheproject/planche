@@ -17,10 +17,11 @@ Ext.define('Planche.controller.table.TableInfoTab', {
         var app     = this.getApplication(),
             node    = app.getSelectedNode(),
             db      = app.getParentNode(node),
-            tab     = node.data.text,
+            tb      = node.data.text,
             api     = app.getAPIS(),
             me      = this,
-            dom     = Ext.get(tab.getEl().query("div[id$=innerCt]")),
+            el      = tab.getEl(),
+            dom     = Ext.get(el.query("div[id$=innerCt]")),
             queries = [
                 api.getQuery('SHOW_FULL_FIELDS', db, tb),
                 api.getQuery('TABLE_KEYS_INFO', db, tb)
