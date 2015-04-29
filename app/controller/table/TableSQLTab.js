@@ -7,6 +7,53 @@ Ext.define('Planche.controller.table.TableSQLTab', {
         
         this.control({
             'table-sql-tab' : {
+                boxready : this.initTab,
+                resize : this.resizeTab
+            }
+        });
+    },
+
+    resizeTab : function(tab, width, height){
+
+        tab.getEditor().setSize(width, height);
+    },
+
+    initTab : function(tab, width, height){
+
+        var app     = this.getApplication(),
+            node    = app.getSelectedNode(),
+            db      = app.getParentNode(node),
+            query   = app.getAPIS().getQuery('TABLE_CREATE_INFO', db, node.data.text),
+            textarea = tab.getEl().query('textarea')[0];
+
+        Ext.apply(tab, {
+            editor : CodeMirror.fromTextArea(textarea, {
+                mode: 'text/x-mysql',
+                indentWithTabs: true,
+                smartIndent: true,
+                lineNumbers: true,
+                matchBrackets : true,
+                autofocus: true
+            }),
+            getEditor : function () {
+
+                return this.editor;
+            }
+        });
+
+        tab.setLoading(true);
+
+        app.tunneling({
+            db : db,
+            query : query,
+            success : function(config, response){
+                    
+                tab.getEditor().setValue(response.records[0][1]);
+                tab.setLoading(false);                
+            },
+            failure : function(config, response){
+
+                tab.setLoading(false);
             }
         });
     }
