@@ -12,20 +12,20 @@ Ext.application({
      * @class Ext.application
      * @constructor
      */
-    launch : function() {
+    launch : function () {
 
         // setup the state provider, all state information will be saved to a cookie
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 
         //stop backspace
-        Ext.EventManager.addListener(Ext.getBody(), 'keydown', function(e){
+        Ext.EventManager.addListener(Ext.getBody(), 'keydown', function (e) {
 
-            if(e.getTarget().type != 'text' && e.getKey() == '8' ){
+            if (e.getTarget().type !== 'text' && e.getKey() === '8') {
                 e.preventDefault();
             }
         });
 
-        window.onbeforeunload = function(){
+        window.onbeforeunload = function () {
 
             var message = "Are you sure you want to quit planche?";
             return message;
@@ -40,7 +40,7 @@ Ext.application({
      * @access public
      * @method getSchemeContextMenu
      */
-    getSchemeContextMenu : function(){
+    getSchemeContextMenu : function () {
 
         return Ext.getCmp('scheme-context-menu');
     },
@@ -51,9 +51,9 @@ Ext.application({
      * @access public
      * @method getToolBar
      */
-    getToolBar : function(){
-
-    	return Ext.getCmp('planche-toolbar');
+    getToolBar : function () {
+        
+        return Ext.getCmp('planche-toolbar');
     },
 
     /**
@@ -62,9 +62,9 @@ Ext.application({
      * @access public
      * @method getConnectTabPanel
      */
-    getConnectTabPanel : function(){
-
-    	return Ext.getCmp('connect-tab-panel');
+    getConnectTabPanel : function () {
+        
+        return Ext.getCmp('connect-tab-panel');
     },
 
     /**
@@ -73,7 +73,7 @@ Ext.application({
      * @access public
      * @method getActiveConnectTab
      */
-    getActiveConnectTab : function(){
+    getActiveConnectTab : function () {
 
     	var mainTab = this.getConnectTabPanel();
     	return mainTab.getActiveTab();
@@ -255,6 +255,14 @@ Ext.application({
 			return n.data.text;
 		}
 	},
+
+    reloadTree : function(){
+
+        var tree = this.getSelectedTree(),
+            node = this.getSelectedNode();
+
+        tree.fireEvent('reloadTree', node);
+    },
 
     checkToolbar : function(){
 
@@ -455,7 +463,15 @@ Ext.application({
                 }
             },
             failure : function(response){
-                
+
+                if(response == 'error'){
+
+                    response = {
+                        success : false,
+                        message : 'Can\'t connect to MySQL Server'
+                    }
+                }
+
                 config.failure.apply(this, [config, response]);
             }
         });
@@ -480,13 +496,15 @@ Ext.application({
         var app = this.getApplication(), tunneling, idx = 0, results = [];
 
         Ext.applyIf(callbacks, {
-            prevAllQueries : function(){},
-            prevQuery : function(){},
-            successQuery : function(){},
-            failureQuery : function(){},
-            afterQuery : function(){},
+            prevAllQueries  : function(){},
+            prevQuery       : function(){},
+            successQuery    : function(){},
+            failureQuery    : function(){},
+            afterQuery      : function(){},
             afterAllQueries : function(){}
         });
+
+        var execQueries = [];
 
         callbacks['prevAllQueries'].apply(scope, [queries]);
 
@@ -495,6 +513,8 @@ Ext.application({
             var query = queries.shift();
 
             if(query) {
+
+                execQueries.push(query);
 
                 callbacks['prevQuery'].apply(scope, [idx, query]);
 
@@ -532,7 +552,7 @@ Ext.application({
             else {
 
                 //complete all query
-                callbacks['afterAllQueries'].apply(scope, [queries, results]);
+                callbacks['afterAllQueries'].apply(scope, [execQueries, results]);
             }
         })();
     },
@@ -1291,9 +1311,7 @@ Ext.application({
             else {
 
                 this.afterExecuteQuery(messages);
-
-                var tree = this.getSelectedTree();
-                tree.fireEvent('reloadTree', node);
+                this.reloadTree();
             }
 
         }, this))();
@@ -1315,6 +1333,11 @@ Ext.application({
     openMessage : function(messages){
 
         this.getActiveMessageTab().fireEvent('openMessage', messages);
+    },
+
+    generateSuccessMsg : function(query, message){
+
+        return '<div class="query_success">The Query : ' + query + '<span class="message"> '+message+'</span></div>';
     },
 
     generateError : function(query, message){
