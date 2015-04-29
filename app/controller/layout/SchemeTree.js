@@ -79,6 +79,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 Ext.Array.each(response.records, function (row, idx) {
 
@@ -111,8 +113,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                 if (children.length == 0) { return; }
 
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -136,6 +136,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -158,8 +160,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -183,6 +183,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -194,9 +196,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                 });
 
                 if (children.length == 0) { return; }
-                node.appendChild(children);
-
-                tree.setLoading(false);
+                node.appendChild(children);                
             },
             failure: function (config, response) {
 
@@ -220,6 +220,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -232,8 +234,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -257,6 +257,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -269,8 +271,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -294,6 +294,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -306,8 +308,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -331,6 +331,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -343,8 +345,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -369,6 +369,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 Ext.Array.each(response.records, function (row, idx) {
@@ -383,8 +385,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
@@ -409,6 +409,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function (config, response) {
 
+                tree.setLoading(false);
+
                 var children = [];
                 node.removeAll();
                 var groups = {};
@@ -429,8 +431,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                 if (children.length == 0) { return; }
                 node.appendChild(children);
-
-                tree.setLoading(false);
             },
             failure: function (config, response) {
 
