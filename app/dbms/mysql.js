@@ -58,7 +58,8 @@ Ext.define('Planche.dbms.mysql', function () {
         SHOW_COLLATION          : 'SHOW COLLATION',
         CHARSET_DATABASE        : 'SHOW VARIABLES LIKE \'character_set_database\'',
         COLLATION_DATABASE      : 'SHOW VARIABLES LIKE \'collation_database\'',
-        SHOW_DATABASE_TABLES    : 'SHOW FULL TABLES FROM `{0}` WHERE table_type = \'BASE TABLE\''
+        SHOW_DATABASE_TABLES    : 'SHOW FULL TABLES FROM `{0}` WHERE table_type = \'BASE TABLE\'',
+        KILL_QUERY              : 'KILL {0}'
     };
 
     var joins = ['NATURAL JOIN', 'INNER JOIN', 'LFET INNER JOIN', 'RIGHT INNER JOIN', 'LEFT OUTER JOIN', 'LEFT JOIN', 'RIGHT OUTER JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'JOIN'];
