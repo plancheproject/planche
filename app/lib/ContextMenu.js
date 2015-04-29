@@ -1,7 +1,7 @@
 Ext.define('Planche.lib.ContextMenu', {
     extend : 'Ext.menu.Menu',
     margin: '0 0 10 0',
-    initComponent : function(){
+    initComponent : function () {
 
         this.callParent(arguments);
     },
@@ -16,10 +16,10 @@ Ext.define('Planche.lib.ContextMenu', {
         },
         listeners : {
             scope : this,
-            activate : function(menu){
+            activate : function (menu) {
 
                 var subTab = this.getActiveSubTab();
-                Ext.Object.each(menu.menu.items.items, function(idx, obj){ 
+                Ext.Object.each(menu.menu.items.items, function (idx, obj) { 
                     obj[subTab ? 'enable' : 'disable'](); 
                 });
             }
@@ -27,7 +27,7 @@ Ext.define('Planche.lib.ContextMenu', {
         menu : [{
             text: 'INSERT INTO &lt;Table Name&gt;..',
             scope : this,
-            handler : function(){
+            handler : function () {
 
                 var n = this.getSelectedNode();
                 this.fireEvent('paste-sql-statement-insert', n);
@@ -35,7 +35,7 @@ Ext.define('Planche.lib.ContextMenu', {
         },{
             text: 'UPDATE &lt;Table Name&gt; SET..',
             scope : this,
-            handler : function(){
+            handler : function () {
 
                 var n = this.getSelectedNode();
                 this.fireEvent('paste-sql-statement-update', n);
@@ -43,7 +43,7 @@ Ext.define('Planche.lib.ContextMenu', {
         },{
             text: 'DELETE FROM &lt;Table Name&gt;..',
             scope : this,
-            handler : function(){
+            handler : function () {
 
                 var n = this.getSelectedNode();
                 this.fireEvent('paste-sql-statement-delete', n);
@@ -51,7 +51,7 @@ Ext.define('Planche.lib.ContextMenu', {
         },{
             text: 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
             scope : this,
-            handler : function(){
+            handler : function () {
 
                 var n = this.getSelectedNode();
                 this.fireEvent('paste-sql-statement-select', n);
@@ -60,7 +60,7 @@ Ext.define('Planche.lib.ContextMenu', {
     },{
         id : 'btn-context-each-tb-copy',
         text: 'Copy Table(s) To Differnt Host/Database',
-        handler : function(){
+        handler : function () {
 
         }
     },{
@@ -68,21 +68,21 @@ Ext.define('Planche.lib.ContextMenu', {
     },{
         id : 'btn-context-each-tb-open',
         text: 'Open Table',
-        handler : function(){
+        handler : function () {
 
             this.openTable(this.getSelectedNode());
         }
     },{
         id : 'btn-context-each-tb-create',
         text: 'Create Table',
-        handler : function(){
+        handler : function () {
 
         }
     },{
         id : 'btn-context-each-tb-alter',
         text: 'Alter Table',
         scope : this,
-        handler : function(){
+        handler : function () {
 
             this.openTableWindow();
         }
@@ -91,37 +91,37 @@ Ext.define('Planche.lib.ContextMenu', {
         text: 'More Table Operations',
         menu : [{
             text: 'Rename Table',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'Truncate Table',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'Drop Table From Database',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'Reorder Column(s)',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'Duplicate Table Structure/Data',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'View Advanced Properties',
-            handler : function(){
+            handler : function () {
 
             }
         },{
             text: 'Change Table To Type',
-            handler : function(){
+            handler : function () {
 
             }
         }]
@@ -130,7 +130,7 @@ Ext.define('Planche.lib.ContextMenu', {
     },{
         id : 'btn-context-each-tb-create-trigger',
         text: 'Create Trigger',
-        handler : function(){
+        handler : function () {
 
         }
     }]
