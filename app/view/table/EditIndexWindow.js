@@ -66,8 +66,8 @@ Ext.define('Planche.view.table.EditIndexWindow', {
             emptyText : 'Enter index name'
         },
         fbar      : [{
+            flex      : 1,
             xtype     : 'radiogroup',
-            width     : '100%',
             fieldLabel: 'Index Options',
             id        : 'edit-index-option',
             defaults  : {
@@ -86,14 +86,24 @@ Ext.define('Planche.view.table.EditIndexWindow', {
                 boxLabel  : 'Fulltext',
                 name      : 'edit-index-option',
                 inputValue: 'FULLTEXT'
+            }]
+        },{
+            flex      : 1,
+            xtype     : 'radiogroup',
+            fieldLabel: 'Using',
+            id        : 'edit-index-using',
+            defaults  : {
+                xtype: 'radiofield'
+            },
+            items     : [{
+                boxLabel  : 'BTree',
+                name      : 'edit-index-using',
+                checked   : true,
+                inputValue: 'BTREE'
             }, {
-                boxLabel  : 'Spatial',
-                name      : 'edit-index-option',
-                inputValue: 'SPATIAL'
-            }, {
-                boxLabel  : 'Primary key',
-                name      : 'edit-index-option',
-                inputValue: 'PRIMARY'
+                boxLabel  : 'Hash',
+                name      : 'edit-index-using',
+                inputValue: 'HASH'
             }]
         }]
     }],
