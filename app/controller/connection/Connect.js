@@ -112,6 +112,10 @@ Ext.define('Planche.controller.connection.Connect', {
                 
                 return Ext.String.format('<img src=\'resources/images/icon_user24x24.png\'> {0}', value);
             }},
+            { text: 'Request Type', dataIndex: 'requestType', width : 100, renderer : function(value){
+
+                return value ? value.toUpperCase() : 'AJAX';
+            }},
             { text: 'Charset', dataIndex: 'charset', width : 100 },
             { text: 'Port', dataIndex: 'port', width : 60 },
             { text: 'HTTP Tunneling URL', dataIndex: 'tunnelingURL', flex : 1 }
