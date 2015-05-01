@@ -24,6 +24,7 @@ Ext.define('Planche.view.layout.ConnectTab', {
         charset     : 'utf8',
         port        : 3306,
         DBMS        : 'mysql',
-        APIS        : Planche.dbms.mysql
+        APIS        : Planche.dbms.mysql,
+        requestType : 'ajax'
     }
 });
