@@ -1,7 +1,12 @@
 Ext.define('Planche.dbms.mysql', function () {
 
     var queries = {
-        SELECT_USER             : 'SELECT * FROM `mysql`.`user`',
+        SELECT_ALL_USER         : 'SELECT * FROM `mysql`.`user`',
+        SELECT_USER             : 'SELECT * FROM `mysql`.`user` WHERE user="{0}" AND host="{1}"',
+        CREATE_USER             : 'CREATE USER `{0}`@`{1}` IDENTIFIED BY "{2}"',
+        DELETE_USER             : 'DROP USER `{0}`@`{1}`',
+        GRANT_USAGE             : 'GRANT USAGE ON {2} TO `{0}`@`{1}` WITH {3}',
+        RENAME_USER             : 'RENAME USER `{0}`@`{1}` TO `{2}`@`{3}`',
         SHOW_FULL_FIELDS        : 'SHOW FULL FIELDS FROM `{0}`.`{1}`',
         SHOW_ADVANCED_PROPERTIES: 'SHOW TABLE STATUS FROM `{0}` LIKE "{1}"',
         SHOW_DATABASE           : 'SHOW DATABASES',

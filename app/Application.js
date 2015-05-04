@@ -30,7 +30,13 @@ Ext.define('Planche.Application', {
         'table.TableInfoTab',
         'table.TablePropertiesTab',
         'table.TableSchemeTab',
-        'table.TableSQLTab'
+        'table.TableSQLTab',
+
+        'user.Grant',
+        'user.GrantSchemeTree',
+        'user.GrantUserList',
+        'user.GrantPrivList',
+        'user.UserAdd'
     ],
 
     controllers: [
@@ -79,12 +85,16 @@ Ext.define('Planche.Application', {
         'table.TableSQLTab',
         'table.TableInfoTab',
 
-        'user.Users',
+        'Main',
 
-        'Main'
+        'user.Grant',
+        'user.UserAdd'
     ],
 
     stores: [
+
+        'GrantSchemeTree',
+        'SchemeTree'
         // TODO: add stores here
     ]
 });
