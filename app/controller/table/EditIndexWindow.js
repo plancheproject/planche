@@ -132,6 +132,12 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
                     option.setValue({'edit-index-option': optionVal});
                 }
 
+                if(messages.length > 0) {
+
+                    app.showMessage(messages);
+                    return;
+                }
+
                 win.setLoading(false);
             }
         });
