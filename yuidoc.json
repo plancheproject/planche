@@ -7,8 +7,8 @@
         "outdir": "./build/apidocs",
         "ignorePaths": "build, ext, sass, node_modules, resources",
         "exclude": "build, ext, sass, node_modules, resources",
-        "paths": [ 
-        	"./app"
+        "paths": [
+            "./app"
         ]
     }
 }

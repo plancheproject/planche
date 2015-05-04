@@ -876,7 +876,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.table.TablePropertiesTab": [],
   "Planche.controller.table.TableSQLTab": [],
   "Planche.controller.table.TableSchemeTab": [],
-  "Planche.controller.user.Users": [],
+  "Planche.controller.user.Grant": [],
+  "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.ContextMenu": [],
   "Planche.lib.Menu": [],
@@ -885,6 +886,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.Window": [],
+  "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [],
   "Planche.view.Viewport": [],
@@ -905,7 +907,12 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.view.table.TableInfoTab": [],
   "Planche.view.table.TablePropertiesTab": [],
   "Planche.view.table.TableSQLTab": [],
-  "Planche.view.table.TableSchemeTab": []
+  "Planche.view.table.TableSchemeTab": [],
+  "Planche.view.user.Grant": [],
+  "Planche.view.user.GrantPrivList": [],
+  "Planche.view.user.GrantSchemeTree": [],
+  "Planche.view.user.GrantUserList": [],
+  "Planche.view.user.UserAdd": []
 });
 Ext.ClassManager.addNameAliasMappings({
   "Ext.AbstractComponent": [],
@@ -1935,7 +1942,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.table.TablePropertiesTab": [],
   "Planche.controller.table.TableSQLTab": [],
   "Planche.controller.table.TableSchemeTab": [],
-  "Planche.controller.user.Users": [],
+  "Planche.controller.user.Grant": [],
+  "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.ContextMenu": [],
   "Planche.lib.Menu": [],
@@ -1944,6 +1952,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.Window": [],
+  "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [
     "widget.app-main"
@@ -1998,6 +2007,21 @@ Ext.ClassManager.addNameAliasMappings({
   ],
   "Planche.view.table.TableSchemeTab": [
     "widget.table-scheme-tab"
+  ],
+  "Planche.view.user.Grant": [
+    "widget.grant"
+  ],
+  "Planche.view.user.GrantPrivList": [
+    "widget.grant-priv-list"
+  ],
+  "Planche.view.user.GrantSchemeTree": [
+    "widget.grant-scheme-tree"
+  ],
+  "Planche.view.user.GrantUserList": [
+    "widget.grant-user-list"
+  ],
+  "Planche.view.user.UserAdd": [
+    "widget.user-add"
   ]
 });
 Ext.setVersion("ext-theme-base", "4.2.1");
