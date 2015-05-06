@@ -50,7 +50,8 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
             var r = str.match(pattern);
             if (r) r = r[idx];
             return r;
-        };
+        },
+        messages     = [];
 
         if(!tb) {
 
