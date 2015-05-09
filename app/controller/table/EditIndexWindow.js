@@ -58,6 +58,8 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
             return;
         }
 
+        queries.push(app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb));
+
         if(indexName) {
 
             editMode = true;
@@ -66,8 +68,6 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
         }
 
         win.setLoading(true);
-
-        queries.push(app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb));
 
         app.multipleTunneling(db, queries, {
             failureQuery   : function (idx, query, config, response) {
@@ -80,8 +80,7 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
 
                 if(editMode){
 
-                    var records = app.getAssocArray(results[0].response.fields, results[0].response.records);
-
+                    var records = app.getAssocArray(results[1].response.fields, results[1].response.records);
                     Ext.Array.each(records, function(obj, idx){
 
                         if(obj.Non_unique == '0'){
@@ -99,26 +98,30 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
                         };
                     });
 
+                    option.setValue({'edit-index-option': optionVal});
+                }
 
-                    var result  = results[1].response.records,
-                        records = [];
-                    Ext.Object.each(result, function (idx, row) {
+                var result  = results[0].response.records,
+                    records = [];
+                Ext.Object.each(result, function (idx, row) {
 
-                        var
-                            type     = getMatch(row[1], /[a-zA-Z]+/, 0),
-                            len      = getMatch(row[1], /\((.*)\)/, 1),
-                            unsigned = getMatch(row[1], /unsigned/, 0),
-                            zerofill = getMatch(row[1], /zerofill/, 0);
+                    var
+                        type     = getMatch(row[1], /[a-zA-Z]+/, 0),
+                        len      = getMatch(row[1], /\((.*)\)/, 1),
+                        unsigned = getMatch(row[1], /unsigned/, 0),
+                        zerofill = getMatch(row[1], /zerofill/, 0);
 
-                        records.push({
-                            'field'    : row[0],
-                            'type'     : type,
-                            'comment'  : row[8],
-                            'use'      : false,
-                            'sort'     : null,
-                            'length'   : null
-                        });
+                    records.push({
+                        'field'    : row[0],
+                        'type'     : type,
+                        'comment'  : row[8],
+                        'use'      : false,
+                        'sort'     : null,
+                        'length'   : null
                     });
+                });
+
+                if(editMode){
 
                     Ext.Array.each(records, function(obj, idx){
 
@@ -127,11 +130,9 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
                             records[idx].use = true;
                         }
                     });
-
-                    me.loadColumns(records);
-
-                    option.setValue({'edit-index-option': optionVal});
                 }
+
+                me.loadColumns(records);
 
                 if(messages.length > 0) {
 
