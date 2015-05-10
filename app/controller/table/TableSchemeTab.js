@@ -211,7 +211,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             field += data.unsigned == true ? ' UNSIGNED' : '';
             field += data.zerofill == true ? ' ZEROFILL' : '';
             field += data.not_null == true ? ' NOT NULL' : '';
-            field += data['default'] ? ' DEFAULT \''+data['default']+'\'' : '';
+            field += data['default'] ? ' DEFAULT '+data['default'] : '';
             field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
             field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
@@ -247,7 +247,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             field += data.unsigned == true ? ' UNSIGNED' : '';
             field += data.zerofill == true ? ' ZEROFILL' : '';
             field += data.not_null == true ? ' NOT NULL' : '';
-            field += data['default'] ? ' DEFAULT \''+data['default']+'\'' : '';
+            field += data['default'] ? ' DEFAULT '+data['default'] : '';
             field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
             field += data.comment ? ' COMMENT \''+data.comment+'\'' : '';
             fields.push(field);
