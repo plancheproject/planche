@@ -31,7 +31,18 @@ Quick Start
 1. Download planche-master.zip
 2. Upload "app/planche_tnl.php" file on your web server
 3. Open app/config-host.js
-4. Add your host that "app/planche_tnl.php" file was uploaded
+4. Add your host tunnling file was uploaded
+
+php tunnling file
+"resources/tunneling/php/planche_tnl.php" 
+
+You must upload the file.
+
+nodejs tunnling file
+"resources/tunneling/nodejs/planche_tnl.js" 
+
+You must upload the file.
+Run 
 ```
 
 Watch the video
