@@ -2,10 +2,10 @@ Ext.define('Planche.view.user.GrantPrivList', {
     extend       : 'Ext.grid.Panel',
     alias        : 'widget.grant-priv-list',
     emptyText    : 'There\'s no data to display',
-    initComponent: function () {
+    initComponent: function() {
 
         this.selModel = Ext.create('Ext.selection.CheckboxModel', {
-            mode : 'multi'
+            mode: 'multi'
         });
 
         this.columns = [

@@ -35,7 +35,7 @@ Ext.define('Planche.view.user.Grant', {
         id  : 'grant-close',
         text: 'Close'
     }],
-    initComponent: function () {
+    initComponent: function() {
 
         this.items = [{
             xtype      : 'grant-user-list',

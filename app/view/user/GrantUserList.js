@@ -4,7 +4,7 @@ Ext.define('Planche.view.user.GrantUserList', {
     config       : {
         application: null
     },
-    initComponent: function () {
+    initComponent: function() {
 
         var app = this.getApplication();
 
@@ -14,7 +14,7 @@ Ext.define('Planche.view.user.GrantUserList', {
             flex        : 1,
             sortable    : false,
             menuDisabled: true,
-            renderer    : function (value, p, record) {
+            renderer    : function(value, p, record) {
 
                 return Ext.String.format('<img src=\'resources/images/icon_user.png\'> {0}', value + '@' + record.raw.Host);
             }
