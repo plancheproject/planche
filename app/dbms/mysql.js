@@ -1,12 +1,17 @@
-Ext.define('Planche.dbms.mysql', function () {
+Ext.define('Planche.dbms.mysql', function(){
 
     var queries = {
         SELECT_ALL_USER         : 'SELECT * FROM `mysql`.`user`',
         SELECT_USER             : 'SELECT * FROM `mysql`.`user` WHERE user="{0}" AND host="{1}"',
         CREATE_USER             : 'CREATE USER `{0}`@`{1}` IDENTIFIED BY "{2}"',
         DELETE_USER             : 'DROP USER `{0}`@`{1}`',
-        GRANT_USAGE             : 'GRANT USAGE ON {2} TO `{0}`@`{1}` WITH {3}',
+        GRANT                   : 'GRANT {0} ON {3} TO `{1}`@`{2}` {4}',
         RENAME_USER             : 'RENAME USER `{0}`@`{1}` TO `{2}`@`{3}`',
+        USER_PRIV               : 'SELECT * FROM `mysql`.`user` WHERE USER = "{0}" AND HOST = "{1}"',
+        USER_DATABASE_PRIV      : 'SELECT * FROM `mysql`.`db` WHERE USER = "{0}" AND HOST = "{1}"',
+        USER_TABLE_PRIV         : 'SELECT Db, Table_name, Table_priv FROM `mysql`.`tables_priv` WHERE USER = "{0}" AND HOST = "{1}"',
+        USER_COLUMN_PRIV        : 'SELECT Db, Table_name, Column_name, Column_priv FROM `mysql`.`columns_priv` WHERE USER = "{0}" AND HOST = "{1}"',
+        USER_PROC_PRIV          : 'SELECT Db, Routine_name, Routine_type, Proc_priv FROM `mysql`.`procs_priv` WHERE USER = "{0}" AND HOST = "{1}"',
         SHOW_FULL_FIELDS        : 'SHOW FULL FIELDS FROM `{0}`.`{1}`',
         SHOW_ADVANCED_PROPERTIES: 'SHOW TABLE STATUS FROM `{0}` LIKE "{1}"',
         SHOW_DATABASE           : 'SHOW DATABASES',
@@ -76,47 +81,49 @@ Ext.define('Planche.dbms.mysql', function () {
 
     return {
         singleton         : true,
-        constructor       : function (config) {
+        constructor       : function(config){
+
 
             this.callParent(arguments);
         },
-        getQuery          : function (query) {
+        getQuery          : function(query){
 
             var args = Ext.Array.slice(arguments, 1);
             args.unshift(queries[query]);
 
             return Ext.String.format.apply(this, args);
         },
-        getDataTypes      : function () {
+        getDataTypes      : function(){
 
             return data_types;
         },
-        getDataTypesToJSON: function () {
+        getDataTypesToJSON: function(){
 
             var json = [];
-            Ext.Array.each(data_types, function (type, idx) {
+
+            Ext.Array.each(data_types, function(type, idx){
 
                 json.push([type, type]);
-            })
+            });
 
             return json;
         },
-        getFunctions      : function () {
+        getFunctions      : function(){
 
             return functions;
         },
 
-        getReservedWords: function () {
+        getReservedWords: function(){
 
             return reserved_words;
         },
 
-        getJoins: function () {
+        getJoins: function(){
 
             return joins;
         },
 
-        getRegexpLimit: function () {
+        getRegexpLimit: function(){
 
             return regexpLimit;
         }
