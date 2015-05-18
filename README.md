@@ -39,6 +39,11 @@ Watch the video
 
 http://www.youtube.com/embed/WCnXJXDRlYs
 
+Official Website
+----
+
+http://plancheproject.github.io
+
 License
 ----
 
