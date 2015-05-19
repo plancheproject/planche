@@ -9,11 +9,11 @@ Ext.define('Planche.view.user.GrantPrivList', {
         });
 
         this.columns = [
-            {text: 'Privileges', dataIndex: 'priv', flex: 1, sortable: false, menuDisabled: true}
+            {text: 'Privileges', dataIndex: 'cmd', flex: 1, sortable: false, menuDisabled: true}
         ];
 
         this.store = Ext.create('Ext.data.Store', {
-            fields: ['selected', 'priv'],
+            fields: ['priv', 'cmd'],
             data  : []
         });
 

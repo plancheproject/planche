@@ -26,11 +26,11 @@ Ext.define('Planche.view.user.Grant', {
         }
     ],
     buttons      : [{
-        id  : 'grant-save-changes',
-        text: 'Save Changes'
+        id      : 'grant-save-changes',
+        text    : 'Save Changes'
     }, {
-        id  : 'grant-cancel-changes',
-        text: 'Cancel Changes'
+        id      : 'grant-cancel-changes',
+        text    : 'Cancel Changes'
     }, {
         id  : 'grant-close',
         text: 'Close'

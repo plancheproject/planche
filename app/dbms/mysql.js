@@ -1,4 +1,4 @@
-Ext.define('Planche.dbms.mysql', function(){
+Ext.define('Planche.dbms.mysql', function() {
 
     var queries = {
         SELECT_ALL_USER         : 'SELECT * FROM `mysql`.`user`',
@@ -6,6 +6,7 @@ Ext.define('Planche.dbms.mysql', function(){
         CREATE_USER             : 'CREATE USER `{0}`@`{1}` IDENTIFIED BY "{2}"',
         DELETE_USER             : 'DROP USER `{0}`@`{1}`',
         GRANT                   : 'GRANT {0} ON {3} TO `{1}`@`{2}` {4}',
+        REVOKE                  : 'REVOKE {0} ON {3} FROM `{1}`@`{2}`',
         RENAME_USER             : 'RENAME USER `{0}`@`{1}` TO `{2}`@`{3}`',
         USER_PRIV               : 'SELECT * FROM `mysql`.`user` WHERE USER = "{0}" AND HOST = "{1}"',
         USER_DATABASE_PRIV      : 'SELECT * FROM `mysql`.`db` WHERE USER = "{0}" AND HOST = "{1}"',
@@ -81,49 +82,49 @@ Ext.define('Planche.dbms.mysql', function(){
 
     return {
         singleton         : true,
-        constructor       : function(config){
+        constructor       : function(config) {
 
 
             this.callParent(arguments);
         },
-        getQuery          : function(query){
+        getQuery          : function(query) {
 
             var args = Ext.Array.slice(arguments, 1);
             args.unshift(queries[query]);
 
             return Ext.String.format.apply(this, args);
         },
-        getDataTypes      : function(){
+        getDataTypes      : function() {
 
             return data_types;
         },
-        getDataTypesToJSON: function(){
+        getDataTypesToJSON: function() {
 
             var json = [];
 
-            Ext.Array.each(data_types, function(type, idx){
+            Ext.Array.each(data_types, function(type, idx) {
 
                 json.push([type, type]);
             });
 
             return json;
         },
-        getFunctions      : function(){
+        getFunctions      : function() {
 
             return functions;
         },
 
-        getReservedWords: function(){
+        getReservedWords: function() {
 
             return reserved_words;
         },
 
-        getJoins: function(){
+        getJoins: function() {
 
             return joins;
         },
 
-        getRegexpLimit: function(){
+        getRegexpLimit: function() {
 
             return regexpLimit;
         }

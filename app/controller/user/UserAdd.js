@@ -3,24 +3,24 @@ Ext.define('Planche.controller.user.UserAdd', {
     views : [
         'user.UserAdd'
     ],
-    init  : function () {
+    init  : function() {
 
         var app = this.getApplication();
 
         this.control({
-            'user-add': {
+            'user-add'           : {
                 boxready: this.initUserForm
             },
-            '#user-add-save-user' : {
+            '#user-add-save-user': {
                 click: this.saveUser
             },
-            '#user-add-close' : {
+            '#user-add-close'    : {
                 click: this.close
             },
         });
     },
 
-    initWindow: function (user, host) {
+    initWindow: function(user, host) {
 
         Ext.create('Planche.view.user.UserAdd', {
             user: user,
@@ -28,13 +28,13 @@ Ext.define('Planche.controller.user.UserAdd', {
         });
     },
 
-    initUserForm: function (win) {
+    initUserForm: function(win) {
 
-        var app  = this.getApplication(),
+        var app = this.getApplication(),
             user = win.getUser(),
             host = win.getHost();
 
-        if(!(user || host)) {
+        if (!(user || host)) {
 
             return;
         }
@@ -42,7 +42,7 @@ Ext.define('Planche.controller.user.UserAdd', {
         app.tunneling({
             db     : '',
             query  : app.getAPIS().getQuery('SELECT_USER', user, host),
-            success: function (config, response) {
+            success: function(config, response) {
 
                 var list = app.getAssocArray(response.fields, response.records);
 
@@ -56,23 +56,23 @@ Ext.define('Planche.controller.user.UserAdd', {
         });
     },
 
-    saveUser : function(btn){
+    saveUser: function(btn) {
 
         var app = this.getApplication(),
             win = btn.up("window"),
             api = app.getAPIS(),
-            queries = [];
+            queries = [],
+            user = Ext.getCmp('user-add-user-name').getValue(),
+            host = Ext.getCmp('user-add-host').getValue(),
+            pass = Ext.getCmp('user-add-password').getValue(),
+            repass = Ext.getCmp('user-add-retype-password').getValue(),
+            isEdit = true,
+            operOption = [],
+            option = [];
 
+        if (!win.getUser() && !win.getHost()) {
 
-        var user    = Ext.getCmp('user-add-user-name').getValue(),
-            host    = Ext.getCmp('user-add-host').getValue(),
-            pass    = Ext.getCmp('user-add-password').getValue(),
-            repass  = Ext.getCmp('user-add-retype-password').getValue(),
-            isEdit  = true;
-
-        if(!win.getUser() && !win.getHost()){
-
-            if(this.checkPassword(pass, repass) == -1){
+            if (this.checkPassword(pass, repass) == -1) {
 
                 return;
             }
@@ -85,72 +85,78 @@ Ext.define('Planche.controller.user.UserAdd', {
 
             var result = this.checkPassword(pass, repass);
 
-            if(result == -1){
+            if (result == -1) {
 
                 return;
             }
 
-            if(result == 1){
+            if (result == 1) {
 
-                if(pass) {
+                if (pass) {
 
-                    withs.push('IDENTIFIED BY "' + pass + '"');
+                    option.push('IDENTIFIED BY "' + pass + '"');
                 }
             }
         }
 
-        if(isEdit && (user != win.getUser() || host != win.getHost())){
+        //If input name is different from the old user name. It will be changing
+        if (isEdit && (user != win.getUser() || host != win.getHost())) {
 
             queries.push(api.getQuery('RENAME_USER', win.getUser(), win.getHost(), user, host));
         }
 
+
+        //Add Grant "with options"
         var val = [
-                Ext.getCmp('user-add-max-questions').getValue(),
-                Ext.getCmp('user-add-max-updates').getValue(),
-                Ext.getCmp('user-add-max-connections').getValue(),
-                Ext.getCmp('user-add-max-user-connections').getValue()
-            ],
-            withs = [];
+            Ext.getCmp('user-add-max-questions').getValue(),
+            Ext.getCmp('user-add-max-updates').getValue(),
+            Ext.getCmp('user-add-max-connections').getValue(),
+            Ext.getCmp('user-add-max-user-connections').getValue()
+        ];
 
+        if (val[0]) {
 
-        if(val[0]){
-
-            withs.push('MAX_QUERIES_PER_HOUR ' + val[0]);
+            operOption.push('MAX_QUERIES_PER_HOUR ' + val[0]);
         }
 
-        if(val[1]){
+        if (val[1]) {
 
-            withs.push('MAX_UPDATES_PER_HOUR ' + val[1]);
+            operOption.push('MAX_UPDATES_PER_HOUR ' + val[1]);
         }
 
-        if(val[2]){
+        if (val[2]) {
 
-            withs.push('MAX_CONNECTIONS_PER_HOUR ' + val[2]);
+            operOption.push('MAX_CONNECTIONS_PER_HOUR ' + val[2]);
         }
 
-        if(val[3]){
+        if (val[3]) {
 
-            withs.push('MAX_USER_CONNECTIONS ' + val[3]);
+            operOption.push('MAX_USER_CONNECTIONS ' + val[3]);
         }
 
-        if(withs.length > 0){
+        if (operOption.length > 0) {
 
-            queries.push(api.getQuery('GRANT_USAGE', user, host, '*.*', withs.join(" ")));
+            option.push("WITH " + operOption.join(" "));
+        }
+
+        if (option.length > 0) {
+
+            queries.push(api.getQuery('GRANT', 'USAGE', user, host, "*.*", option.join(" ")));
         }
 
         win.setLoading(true);
 
         var messages = [];
         app.multipleTunneling(null, queries, {
-            failureQuery   : function (idx, query, config, response) {
+            failureQuery   : function(idx, query, config, response) {
 
                 messages.push(app.generateError(query, response.message));
             },
-            afterAllQueries: function (queries, results) {
+            afterAllQueries: function(queries, results) {
 
                 win.setLoading(false);
 
-                if(messages.length > 0) {
+                if (messages.length > 0) {
 
                     app.showMessage(messages);
                     return;
@@ -163,11 +169,11 @@ Ext.define('Planche.controller.user.UserAdd', {
         });
     },
 
-    checkPassword : function(pass, repass){
+    checkPassword: function(pass, repass) {
 
-        if(pass || repass) {
+        if (pass || repass) {
 
-            if(pass != repass){
+            if (pass != repass) {
 
                 Ext.Msg.alert('error', 'Password do not match');
                 return -1;
@@ -181,7 +187,7 @@ Ext.define('Planche.controller.user.UserAdd', {
         return 0;
     },
 
-    close : function(btn){
+    close: function(btn) {
 
         var win = btn.up("window");
         win.destroy();

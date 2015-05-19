@@ -5,91 +5,121 @@ Ext.define('Planche.controller.user.Grant', {
         'user.GrantSchemeTree',
         'user.GrantUserList'
     ],
-    init  : function () {
+    init  : function() {
 
         var app = this.getApplication(),
             me = this;
 
         this.control({
-            'grant': {
-                boxready: this.initUserList
+            'grant'                                  : {
+                boxready: this.initGrant
             },
-            '#grant-add-user' : {
+            '#grant-add-user'                        : {
                 click: this.addUser
             },
-            '#grant-save-changes' : {
-                click: this.saveChanages
+            '#grant-save-changes'                    : {
+                click: this.saveChanges
             },
-            '#grant-cancel-changes' : {
+            '#grant-cancel-changes'                  : {
                 click: this.cancelChanges
             },
-            '#grant-grant-close' : {
+            '#grant-close'                     : {
                 click: this.close
             },
-            'grant-user-list' : {
-                select : this.selectGrantUserList
+            'grant-priv-list'                        : {
+                selectionchange: this.selectPrivList
             },
-            'grant-user-list gridcolumn[text=Edit]' : {
+            'grant-user-list'                        : {
+                select: this.selectUserList
+            },
+            'grant-user-list gridcolumn[text=Edit]'  : {
                 click: this.editUser
             },
-            'grant-user-list gridcolumn[text=Delete]' : {
+            'grant-user-list gridcolumn[text=Delete]': {
                 click: this.deleteUser
             },
-            'grant-scheme-tree': {
+            'grant-scheme-tree'                      : {
                 beforeitemexpand: this.expandTree,
                 reloadTree      : this.reloadTree,
                 expandTree      : this.expandTree,
-                select          : this.selectGrantSchemeTree,
-                boxready        : this.initGrantSchemeTree
+                select          : this.selectSchemeTree
             }
         });
 
-        app.on('after_save_user', function(){
+        app.on('after_save_user', function() {
 
             me.initUserList();
         });
     },
 
-    initWindow: function (result) {
+    initWindow: function(result) {
 
         Ext.create('Planche.view.user.Grant', {
-            application : this.getApplication()
+            application: this.getApplication()
         });
     },
 
-    initUserList: function () {
+    initGrant: function() {
 
-        var app = this.getApplication();
+        this.initUserList();
+    },
+
+    initUserList: function() {
+
+        var app = this.getApplication(),
+            userList = this.getUserList();
+
+        userList.selModel.deselectAll();
 
         app.tunneling({
             db     : '',
             query  : app.getAPIS().getQuery('SELECT_ALL_USER'),
-            success: function (config, response) {
+            success: function(config, response) {
 
-                var list = app.getAssocArray(response.fields, response.records);
-                Ext.getCmp('grant-user-list').store.loadData(list);
+                var records = app.getAssocArray(response.fields, response.records);
+                userList.store.loadData(records);
             }
         });
     },
 
-    addUser : function(){
+    initSchemeTree: function() {
+
+        var tree = this.getSchemeTree(),
+            node = tree.getRootNode();
+
+        tree.setDisabled(true);
+        tree.selModel.deselectAll();
+
+        this.loadTree(node);
+    },
+
+    initPrivList: function() {
+
+        var privList = this.getPrivList();
+
+        privList.setDisabled(true);
+        privList.selModel.deselectAll();
+        privList.store.loadData([]);
+    },
+
+    addUser: function() {
 
         this.getApplication().openWindow('user.UserAdd');
     },
 
-    editUser : function (grid, rowIndex, colIndex, item, e, record) {
+    editUser: function(grid, rowIndex, colIndex, item, e, record) {
 
         this.getApplication().openWindow('user.UserAdd', record.data.User, record.data.Host);
     },
 
-    deleteUser : function (grid, rowIndex, colIndex, item, e, record) {
+    deleteUser: function(grid, rowIndex, colIndex, item, e, record) {
 
         var app = this.getApplication(),
             me = this;
 
-        Ext.Msg.confirm('confirm', 'Do you really want to delete the user?', function(res){
+        Ext.Msg.confirm('confirm', 'Do you really want to delete the user?', function(res) {
 
-            if(res == "no") {
+            if (res == "no") {
 
                 return;
             }
@@ -97,7 +127,7 @@ Ext.define('Planche.controller.user.Grant', {
             app.tunneling({
                 db     : '',
                 query  : app.getAPIS().getQuery('DELETE_USER', record.data.User, record.data.Host),
-                success: function (config, response) {
+                success: function(config, response) {
 
                     me.initUserList();
                 }
@@ -105,89 +135,375 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    saveChanages : function(btn) {
+    getSelectedUser: function() {
 
-        //GRANT {2} ON  *.* TO `{0}`@`{1}` WITH GRANT OPTION;
+        var selUser = this.getUserListSelection()[0];
+
+        if (!selUser) {
+
+            return false;
+        }
+
+        return {
+            name: selUser.data.User,
+            host: selUser.data.Host,
+            priv: selUser.data.priv
+        };
     },
 
-    cancelChanages : function(btn) {
-
-    },
-
-    close : function(btn) {
-
-    },
-
-    initGrantSchemeTree : function (tree) {
-
-        var task = new Ext.util.DelayedTask();
-        task.delay(100, function () {
-
-            var node = tree.getRootNode();
-
-            tree.getSelectionModel().select(node);
-
-            this.loadTree(node);
-
-        }, this);
-    },
-
-    selectGrantUserList : function(){
-
-        var tree = Ext.getCmp('grant-scheme-tree');
-        tree.setDisabled(false);
-    },
-
-
-    selectGrantSchemeTree: function (view) {
+    saveChanges: function(btn) {
 
         var app = this.getApplication(),
-            treeview = view.views[0],
-            tree = treeview.up("treepanel"),
-            treeSelection = tree.selModel.getSelection(),
-            grantPrivList = Ext.getCmp('grant-priv-list'),
-            grantUserList = Ext.getCmp('grant-user-list'),
-            grantUserSelection = grantUserList.selModel.getSelection();
+            api = app.getAPIS(),
+            me = this,
+            selUser = this.getUserListSelection()[0],
+            user = this.getSelectedUser(),
+            queries = [],
+            messages = [],
+            newPrivs = selUser.get('priv'),
+            oldPrivs = selUser.get('old_priv');
 
-        if (treeSelection.length == 0 || grantUserSelection.length == 0) {
+        Ext.Object.each(newPrivs, function(path, newPriv) {
 
+            var oldPriv = oldPrivs[path] || [];
+
+            if (Ext.Array.equals(oldPriv, newPriv)) {
+
+                return;
+            }
+
+            var privileges = [],
+                on = "",
+                option = "",
+                path = path.split("."),
+                type = path[0],
+                func = 'get' + type.charAt(0).toUpperCase() + type.slice(1) + 'PrivItems',
+                cmds = this[func](),
+                grantPriv = [],
+                revokePriv = [];
+
+            Ext.Array.each(newPriv, function(val, idx) {
+
+                if(oldPriv.indexOf(val) > -1){
+
+                    return;
+                }
+
+                if(val == 'GRANT'){
+
+                    option = "WITH " + cmds[val];
+                    return;
+                }
+
+                grantPriv.push(cmds[val]);
+            });
+
+            Ext.Array.each(oldPriv, function(val, idx) {
+
+                if(newPriv.indexOf(val) > -1){
+
+                    return;
+                }
+
+                revokePriv.push(cmds[val]);
+            });
+
+            switch (type.toLowerCase()) {
+
+                case "global" :
+
+                    on = "*.*";
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+                case "database" :
+
+                    on = path[1] + ".*";
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+                case "table" :
+
+                    on = path[1] + "." + path[2];
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+                case "column" :
+
+                    on = path[1] + "." + path[2];
+                    grantPriv  = grantPriv.length  > 0 ? (path[2] + "(" + grantPriv.join(")," + path[2] + "(") + ")") : "";
+                    revokePriv = revokePriv.length > 0 ? (path[2] + "(" + revokePriv.join(")," + path[2] + "(") + ")") : "";
+                    break;
+                case "procedure" :
+
+                    on = "PROCEDURE " + path[1] + "." + path[2];
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+                case "function" :
+
+                    on = "FUNCTION " + path[1] + "." + path[2];
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+            }
+
+            if(grantPriv) {
+
+                queries.push(api.getQuery('GRANT', grantPriv, user.name, user.host, on, option));
+            }
+
+            if(revokePriv) {
+
+                queries.push(api.getQuery('REVOKE', revokePriv, user.name, user.host, on, option));
+            }
+
+
+        }, this);
+
+        if(queries.length == 0){
+
+            Ext.Msg.alert('info', 'no changes');
             return;
         }
 
-        var selModel = treeSelection[0],
-            type = selModel.raw.type,
+        var win = btn.up('window');
+
+        app.multipleTunneling('', queries, {
+            prevAllQueries : function(queries) {
+
+                win.setDisabled(false);
+            },
+            failureQuery   : function(idx, query, config, response) {
+
+                messages.push(app.generateError(query, response.message));
+            },
+            afterAllQueries: function(queries, results) {
+
+                me.initPrivList();
+                me.initSchemeTree();
+                me.initUserList();
+
+                win.setDisabled(false);
+
+                if (messages.length > 0) {
+
+                    app.openMessage(messages);
+                }
+            }
+        });
+    },
+
+    cancelChanges: function(btn) {
+
+        this.initPrivList();
+        this.initSchemeTree();
+        this.initUserList();
+    },
+
+    close: function(btn) {
+
+        btn.up("window").destroy();
+    },
+
+    selectUserList: function(grid, selModel, rowIndex) {
+
+        var me = this,
+            app = me.getApplication(),
+            api = app.getAPIS(),
+            tree = this.getSchemeTree(),
+            user = this.getSelectedUser(),
+            selUser = this.getUserListSelection(),
+            messages = [],
+            queries = [];
+
+        this.initSchemeTree();
+        this.initPrivList();
+
+        queries.push(api.getQuery('USER_PRIV', user.name, user.host));
+        queries.push(api.getQuery('USER_DATABASE_PRIV', user.name, user.host));
+        queries.push(api.getQuery('USER_TABLE_PRIV', user.name, user.host));
+        queries.push(api.getQuery('USER_COLUMN_PRIV', user.name, user.host));
+        queries.push(api.getQuery('USER_PROC_PRIV', user.name, user.host));
+
+        var settings = {},
+            records = [],
+            privKey = "";
+
+        app.multipleTunneling('', queries, {
+            prevAllQueries : function(queries) {
+
+                tree.setDisabled(false);
+            },
+            failureQuery   : function(idx, query, config, response) {
+
+                messages.push(app.generateError(query, response.message));
+            },
+            afterAllQueries: function(queries, results) {
+
+                records = app.getAssocArray(results[0].response.fields, results[0].response.records, true)[0];
+                privKey = 'global';
+                settings[privKey] = settings[privKey] || [];
+                Ext.Object.each(records, function(key, val) {
+
+                    var idx = key.indexOf('_PRIV');
+                    if (idx > -1) {
+
+                        if (val == 'Y') {
+
+                            settings[privKey].push(key.substring(0, idx));
+                        }
+                    }
+                });
+
+                records = app.getAssocArray(results[1].response.fields, results[1].response.records, true);
+                Ext.Array.each(records, function(row, idx) {
+
+                    privKey = ['database', row.DB].join(".");
+                    settings[privKey] = settings[privKey] || [];
+
+                    Ext.Object.each(row, function(key, val) {
+
+                        var idx = key.indexOf('_PRIV');
+                        if (idx > -1) {
+
+                            if (val == 'Y') {
+
+                                settings[privKey].push(key.substring(0, idx));
+                            }
+                        }
+                    });
+                });
+
+                records = app.getAssocArray(results[2].response.fields, results[2].response.records, true);
+                Ext.Array.each(records, function(row, idx) {
+
+                    if (!row.TABLE_PRIV) {
+
+                        return;
+                    }
+
+                    privKey = ['table', row.DB, row.TABLE_NAME].join(".");
+                    settings[privKey] = settings[privKey] || [];
+                    settings[privKey] = row.TABLE_PRIV.toUpperCase().split(",");
+                });
+
+                records = app.getAssocArray(results[3].response.fields, results[3].response.records, true);
+                Ext.Array.each(records, function(row, idx) {
+
+                    if (!row.COLUMN_PRIV) {
+
+                        return;
+                    }
+
+                    privKey = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join(".");
+                    settings[privKey] = settings[privKey] || [];
+                    settings[privKey] = row.COLUMN_PRIV.toUpperCase().split(",");
+                });
+
+                records = app.getAssocArray(results[4].response.fields, results[4].response.records, true);
+                Ext.Array.each(records, function(row, idx) {
+
+                    if (!row.PROC_PRIV) {
+
+                        return;
+                    }
+
+                    privKey = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join(".");
+                    settings[privKey] = settings[privKey] || [];
+                    settings[privKey] = row.PROC_PRIV.toUpperCase().split(",");
+                });
+
+                selUser[0].set('old_priv', Ext.clone(settings));
+                selUser[0].set('priv', Ext.clone(settings));
+
+                tree.setDisabled(false);
+
+                if (messages.length > 0) {
+
+                    app.openMessage(messages);
+                }
+            }
+        });
+    },
+
+    selectPrivList: function(grid, selModel) {
+
+        var selUser = this.getUserListSelection(),
+            selTree = this.getSchemeTreeSelection(),
+            selectedPrivs = selModel.map(function(model) {
+
+                return model.get('priv');
+            }),
+            settings = selUser[0].get('priv');
+
+        settings[selTree[0].raw.path] = selectedPrivs;
+        selUser[0].set('priv', settings);
+
+        this.getSaveChangeBtn().setDisabled(false);
+    },
+
+    selectSchemeTree: function(tree, record, index) {
+
+        var me = this,
+            privList = this.getPrivList(),
+            user = this.getSelectedUser(),
+            type = record.raw.type,
+            path = record.raw.path,
             records = [];
+
+        if (!type) {
+
+            privList.store.loadData(records);
+            privList.setDisabled(true);
+            return;
+        }
+
+        var func = 'get' + type.charAt(0).toUpperCase() + type.slice(1) + 'PrivItems';
+        Ext.Object.each(me[func](), function(priv, cmd) {
+
+            records.push({
+                priv: priv,
+                cmd : cmd
+            });
+        });
 
         try {
 
-            type = type.charAt(0).toUpperCase() + type.slice(1);
-
-            Ext.Object.each(this['get'+type+'PrivItems'](), function(idx, val){
-
-                records.push({
-                    selected : false,
-                    priv : val
-                });
-            });
+            priv = user.priv[path] || [];
         }
-        catch(e){
+        catch (e) {
 
-
+            priv = [];
         }
 
-        grantPrivList.store.loadData(records);
+        privList.store.loadData(records);
 
-        var priv = Ext.getCmp('grant-priv-list');
-        priv.setDisabled(false);
+        var selModel = privList.selModel;
+
+        Ext.Array.each(records, function(row, idx) {
+
+            if (priv.indexOf(row.priv) > -1) {
+
+                selModel.select(idx, true);
+            }
+        });
+
+        privList.store.sync();
+
+        if (user) {
+
+            privList.setDisabled(false);
+        }
     },
 
-    expandTree: function (node) {
+    expandTree: function(node) {
 
         if (node.childNodes.length > 0) { return; }
         this.loadTree(node);
     },
 
-    loadTree: function (node) {
+    loadTree: function(node) {
 
 
         var loadFunc = this['load' + (node.isRoot() ? 'Databases' : node.data.text.replace(/\s/gi, ''))];
@@ -199,12 +515,12 @@ Ext.define('Planche.controller.user.Grant', {
         }
     },
 
-    reloadTree: function (node) {
+    reloadTree: function(node) {
 
         this.loadTree(node);
     },
 
-    loadDatabases: function (node) {
+    loadDatabases: function(node) {
 
         var app = this.application,
             tree = app.getSelectedTree();
@@ -214,15 +530,16 @@ Ext.define('Planche.controller.user.Grant', {
         app.tunneling({
             query  : app.getAPIS().getQuery('SHOW_DATABASE'),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     children.push({
                         type    : 'database',
+                        path    : ['database', row[0]].join("."),
                         text    : row[0],
                         icon    : 'resources/images/icon_database.png',
                         leaf    : false,
@@ -246,7 +563,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -254,7 +571,7 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    loadTables: function (node) {
+    loadTables: function(node) {
 
         var app = this.application,
             db = node.parentNode.data.text,
@@ -266,18 +583,19 @@ Ext.define('Planche.controller.user.Grant', {
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     if (row[1] == 'NULL') { return; }
 
                     children.push({
                         type    : 'table',
+                        path    : ['table', db, row[0]].join("."),
                         text    : row[0],
                         icon    : 'resources/images/icon_table.png',
                         leaf    : false,
@@ -291,7 +609,7 @@ Ext.define('Planche.controller.user.Grant', {
                 if (children.length == 0) { return; }
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -299,7 +617,7 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    loadViews: function (node) {
+    loadViews: function(node) {
 
         var app = this.application,
             db = app.getParentNode(node),
@@ -311,16 +629,17 @@ Ext.define('Planche.controller.user.Grant', {
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_VIEWS', db),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     children.push({
                         type: 'view',
+                        path: ['view', db, row[0]].join("."),
                         text: row[0],
                         leaf: true
                     });
@@ -329,7 +648,7 @@ Ext.define('Planche.controller.user.Grant', {
                 if (children.length == 0) { return; }
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -337,7 +656,7 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    loadProcedures: function (node) {
+    loadProcedures: function(node) {
 
         var app = this.application,
             db = app.getParentNode(node),
@@ -349,16 +668,17 @@ Ext.define('Planche.controller.user.Grant', {
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_PROCEDURES', db),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     children.push({
                         type: 'procedure',
+                        path: ['procedure', db, row[1]].join("."),
                         text: row[1],
                         leaf: true
                     });
@@ -367,7 +687,7 @@ Ext.define('Planche.controller.user.Grant', {
                 if (children.length == 0) { return; }
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -375,7 +695,7 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    loadFunctions: function (node) {
+    loadFunctions: function(node) {
 
         var app = this.application,
             db = app.getParentNode(node),
@@ -387,16 +707,17 @@ Ext.define('Planche.controller.user.Grant', {
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FUNCTIONS', db),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     children.push({
                         type: 'function',
+                        path: ['function', db, row[1]].join("."),
                         text: row[1],
                         leaf: true
                     });
@@ -405,7 +726,7 @@ Ext.define('Planche.controller.user.Grant', {
                 if (children.length == 0) { return; }
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -414,7 +735,7 @@ Ext.define('Planche.controller.user.Grant', {
     },
 
 
-    loadColumns: function (node) {
+    loadColumns: function(node) {
 
         var app = this.application,
             db = app.getParentNode(node),
@@ -427,16 +748,17 @@ Ext.define('Planche.controller.user.Grant', {
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb),
             node   : node,
-            success: function (config, response) {
+            success: function(config, response) {
 
                 tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
-                Ext.Array.each(response.records, function (row, idx) {
+                Ext.Array.each(response.records, function(row, idx) {
 
                     children.push({
                         type: 'column',
+                        path: ['column', db, tb, row[0]].join("."),
                         text: row[0] + ' ' + row[1],
                         icon: 'resources/images/icon_' + (row[4] == 'PRI' ? 'primary' : 'column') + '.png',
                         leaf: true,
@@ -447,7 +769,7 @@ Ext.define('Planche.controller.user.Grant', {
                 if (children.length == 0) { return; }
                 node.appendChild(children);
             },
-            failure: function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -455,131 +777,169 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    getGlobalPrivItems: function () {
+    getUserList: function() {
 
-        return [
-            'ALTER',
-            'ALTER_ROUTINE',
-            'CREATE',
-            'CREATE_ROUTINE',
-            'CREATE_TABLESPACE',
-            'CREATE_TMP_TABLE',
-            'CREATE_USER',
-            'CREATE_VIEW',
-            'DELETE',
-            'DROP',
-            'EVENT',
-            'EXECUTE',
-            'FILE',
-            'GRANT',
-            'INDEX',
-            'INSERT',
-            'LOCK_TABLES',
-            'PROCESS',
-            'REFERENCES',
-            'RELOAD',
-            'REPL_CLIENT',
-            'REPL_SLAVE',
-            'SELECT',
-            'SHOW_DB',
-            'SHOW_VIEW',
-            'SHUTDOWN',
-            'SUPER',
-            'TRIGGER',
-            'UPDATE'
-        ];
+        return Ext.getCmp('grant-user-list');
     },
 
-    getDatabasePrivItems: function () {
+    getUserListSelection: function() {
 
-        return [
-            'ALTER',
-            'ALTER_ROUTINE',
-            'CREATE',
-            'CREATE_ROUTINE',
-            'CREATE_TABLESPACE',
-            'CREATE_TMP_TABLE',
-            'CREATE_USER',
-            'CREATE_VIEW',
-            'DELETE',
-            'DROP',
-            'EVENT',
-            'EXECUTE',
-            'GRANT',
-            'INDEX',
-            'INSERT',
-            'LOCK_TABLES',
-            'REFERENCES',
-            'SELECT',
-            'SHOW_VIEW',
-            'TRIGGER',
-            'UPDATE'
-        ];
+        return this.getUserList().selModel.getSelection();
     },
 
-    getTablePrivItems: function () {
+    getSchemeTree: function() {
 
-        return [
-            'ALTER',
-            'CREATE',
-            'CREATE_VIEW',
-            'DELETE',
-            'DROP', ,
-            'GRANT',
-            'INDEX',
-            'INSERT',
-            'REFERENCES',
-            'SELECT',
-            'SHOW_VIEW',
-            'TRIGGER',
-            'UPDATE'
-        ];
+        return Ext.getCmp('grant-scheme-tree');
     },
 
-    getColumnPrivItems: function () {
+    getSchemeTreeSelection: function() {
 
-        return [
-            'INSERT',
-            'REFERENCES',
-            'SELECT',
-            'UPDATE'
-        ];
+        return this.getSchemeTree().selModel.getSelection();
     },
 
-    getViewPrivItems: function () {
+    getPrivList: function() {
 
-        return [
-            'ALTER',
-            'CREATE',
-            'CREATE_VIEW',
-            'DELETE',
-            'DROP', ,
-            'GRANT',
-            'INDEX',
-            'INSERT',
-            'REFERENCES',
-            'SELECT',
-            'SHOW_VIEW',
-            'TRIGGER',
-            'UPDATE'
-        ];
+        return Ext.getCmp('grant-priv-list');
     },
 
-    getProcedurePrivItems: function () {
+    getPrivListSelection: function() {
 
-        return [
-            'ALTER_ROUTINE',
-            'EXECUTE',
-            'GRANT'
-        ];
+        return this.getPrivList().selModel.getSelection();
     },
 
-    getFunctionPrivItems: function () {
+    getSaveChangeBtn: function() {
 
-        return [
-            'ALTER_ROUTINE',
-            'EXECUTE',
-            'GRANT'
-        ];
+        return Ext.getCmp('grant-save-changes');
+    },
+
+    getCancelChangeBtn: function() {
+
+        return Ext.getCmp('grant-cancel-changes');
+    },
+
+    getGlobalPrivItems: function() {
+
+        return {
+            'ALTER'            : 'ALTER',
+            'ALTER_ROUTINE'    : 'ALTER ROUTINE',
+            'CREATE'           : 'CREATE',
+            'CREATE_ROUTINE'   : 'CREATE ROUTINE',
+            'CREATE_TABLESPACE': 'CREATE TABLESPACE',
+            'CREATE_TMP_TABLES': 'CREATE TEMPORARY TABLES',
+            'CREATE_USER'      : 'CREATE USER',
+            'CREATE_VIEW'      : 'CREATE VIEW',
+            'DELETE'           : 'DELETE',
+            'DROP'             : 'DROP',
+            'EVENT'            : 'EVENT',
+            'EXECUTE'          : 'EXECUTE',
+            'FILE'             : 'FILE',
+            'INDEX'            : 'INDEX',
+            'INSERT'           : 'INSERT',
+            'LOCK_TABLES'      : 'LOCK TABLES',
+            'PROCESS'          : 'PROCESS',
+            'REFERENCES'       : 'REFERENCES',
+            'RELOAD'           : 'RELOAD',
+            'REPL_CLIENT'      : 'REPL CLIENT',
+            'REPL_SLAVE'       : 'REPL SLAVE',
+            'SELECT'           : 'SELECT',
+            'SHOW_DB'          : 'SHOW DB',
+            'SHOW_VIEW'        : 'SHOW VIEW',
+            'SHUTDOWN'         : 'SHUTDOWN',
+            'SUPER'            : 'SUPER',
+            'TRIGGER'          : 'TRIGGER',
+            'UPDATE'           : 'UPDATE',
+            'GRANT'            : 'GRANT OPTION'
+        };
+    },
+
+    getDatabasePrivItems: function() {
+
+        return {
+            'ALTER'           : 'ALTER',
+            'ALTER_ROUTINE'   : 'ALTER ROUTINE',
+            'CREATE'          : 'CREATE',
+            'CREATE_ROUTINE'  : 'CREATE ROUTINE',
+            'CREATE_TMP_TABLE': 'CREATE TEMPORARY TABLES',
+            'CREATE_VIEW'     : 'CREATE VIEW',
+            'DELETE'          : 'DELETE',
+            'DROP'            : 'DROP',
+            'EVENT'           : 'EVENT',
+            'EXECUTE'         : 'EXECUTE',
+            'INDEX'           : 'INDEX',
+            'INSERT'          : 'INSERT',
+            'LOCK_TABLES'     : 'LOCK TABLES',
+            'REFERENCES'      : 'REFERENCES',
+            'SELECT'          : 'SELECT',
+            'SHOW_VIEW'       : 'SHOW VIEW',
+            'TRIGGER'         : 'TRIGGER',
+            'UPDATE'          : 'UPDATE',
+            'GRANT'           : 'GRANT OPTION'
+        };
+    },
+
+    getTablePrivItems: function() {
+
+        return {
+            'ALTER'      : 'ALTER',
+            'CREATE'     : 'CREATE',
+            'CREATE_VIEW': 'CREATE VIEW',
+            'DELETE'     : 'DELETE',
+            'DROP'       : 'DROP',
+            'GRANT'      : 'GRANT OPTION',
+            'INDEX'      : 'INDEX',
+            'INSERT'     : 'INSERT',
+            'REFERENCES' : 'REFERENCES',
+            'SELECT'     : 'SELECT',
+            'SHOW_VIEW'  : 'SHOW VIEW',
+            'TRIGGER'    : 'TRIGGER',
+            'UPDATE'     : 'UPDATE'
+        };
+    },
+
+    getColumnPrivItems: function() {
+
+        return {
+            'INSERT'    : 'INSERT',
+            'REFERENCES': 'REFERENCES',
+            'SELECT'    : 'SELECT',
+            'UPDATE'    : 'UPDATE'
+        };
+    },
+
+    getViewPrivItems: function() {
+
+        return {
+            'ALTER'      : 'ALTER',
+            'CREATE'     : 'CREATE',
+            'CREATE_VIEW': 'CREATE VIEW',
+            'DELETE'     : 'DELETE',
+            'DROP'       : 'DROP',
+            'GRANT'      : 'GRANT OPTION',
+            'INDEX'      : 'INDEX',
+            'INSERT'     : 'INSERT',
+            'REFERENCES' : 'REFERENCES',
+            'SELECT'     : 'SELECT',
+            'SHOW_VIEW'  : 'SHOW VIEW',
+            'TRIGGER'    : 'TRIGGER',
+            'UPDATE'     : 'UPDATE'
+        };
+    },
+
+    getProcedurePrivItems: function() {
+
+        return {
+            'ALTER_ROUTINE': 'ALTER ROUTINE',
+            'EXECUTE'      : 'EXECUTE',
+            'GRANT'        : 'GRANT OPTION'
+        };
+    },
+
+    getFunctionPrivItems: function() {
+
+        return {
+            'ALTER_ROUTINE': 'ALTER ROUTINE',
+            'EXECUTE'      : 'EXECUTE',
+            'GRANT'        : 'GRANT OPTION'
+        };
     }
 });
