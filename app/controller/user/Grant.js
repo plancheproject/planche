@@ -328,7 +328,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         var settings = {},
             records = [],
-            privKey = "";
+            path = "";
 
         app.multipleTunneling('', queries, {
             prevAllQueries : function(queries) {
@@ -342,8 +342,8 @@ Ext.define('Planche.controller.user.Grant', {
             afterAllQueries: function(queries, results) {
 
                 records = app.getAssocArray(results[0].response.fields, results[0].response.records, true)[0];
-                privKey = 'global';
-                settings[privKey] = settings[privKey] || [];
+                path = 'global';
+                settings[path] = settings[path] || [];
                 Ext.Object.each(records, function(key, val) {
 
                     var idx = key.indexOf('_PRIV');
@@ -351,7 +351,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                         if (val == 'Y') {
 
-                            settings[privKey].push(key.substring(0, idx));
+                            settings[path].push(key.substring(0, idx));
                         }
                     }
                 });
@@ -359,8 +359,8 @@ Ext.define('Planche.controller.user.Grant', {
                 records = app.getAssocArray(results[1].response.fields, results[1].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
-                    privKey = ['database', row.DB].join(".");
-                    settings[privKey] = settings[privKey] || [];
+                    path = ['database', row.DB].join(".");
+                    settings[path] = settings[path] || [];
 
                     Ext.Object.each(row, function(key, val) {
 
@@ -369,7 +369,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                             if (val == 'Y') {
 
-                                settings[privKey].push(key.substring(0, idx));
+                                settings[path].push(key.substring(0, idx));
                             }
                         }
                     });
@@ -383,9 +383,9 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    privKey = ['table', row.DB, row.TABLE_NAME].join(".");
-                    settings[privKey] = settings[privKey] || [];
-                    settings[privKey] = row.TABLE_PRIV.toUpperCase().split(",");
+                    path = ['table', row.DB, row.TABLE_NAME].join(".");
+                    settings[path] = settings[path] || [];
+                    settings[path] = row.TABLE_PRIV.toUpperCase().split(",");
                 });
 
                 records = app.getAssocArray(results[3].response.fields, results[3].response.records, true);
@@ -396,9 +396,9 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    privKey = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join(".");
-                    settings[privKey] = settings[privKey] || [];
-                    settings[privKey] = row.COLUMN_PRIV.toUpperCase().split(",");
+                    path = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join(".");
+                    settings[path] = settings[path] || [];
+                    settings[path] = row.COLUMN_PRIV.toUpperCase().split(",");
                 });
 
                 records = app.getAssocArray(results[4].response.fields, results[4].response.records, true);
@@ -409,9 +409,9 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    privKey = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join(".");
-                    settings[privKey] = settings[privKey] || [];
-                    settings[privKey] = row.PROC_PRIV.toUpperCase().split(",");
+                    path = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join(".");
+                    settings[path] = settings[path] || [];
+                    settings[path] = row.PROC_PRIV.toUpperCase().split(",");
                 });
 
                 selUser[0].set('old_priv', Ext.clone(settings));
