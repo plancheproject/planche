@@ -415,13 +415,33 @@ Ext.application({
         var tab = this.getActiveConnectTab(),
             app = this;
 
+        if (tab) {
+
+            Ext.applyIf(config, {
+                host        : tab.getHost(),
+                user        : tab.getUser(),
+                pass        : tab.getPass(),
+                charset     : tab.getCharset(),
+                port        : tab.getPort(),
+                tunnelingURL: tab.getTunnelingURL(),
+                requestType : tab.getRequestType()
+            });
+        }
+
         Ext.applyIf(config, {
-            db     : '',
-            query  : '',
-            type   : 'query',
-            async  : true,
-            timeout: 1000 * 60 * 5,
-            success: function(config, response) {
+            db          : '',
+            query       : '',
+            type        : 'query',
+            async       : true,
+            timeout     : 1000 * 60 * 5,
+            host        : '',
+            user        : '',
+            pass        : '',
+            charset     : 'utf8',
+            port        : 3306,
+            tunnelingURL: '',
+            requestType : 'jsonp',
+            success     : function(config, response) {
 
                 var msg = response.affected_rows + ' row(s) affected<br>';
                 msg += 'Execution Time : 00:00:00:000<br>';
@@ -429,22 +449,22 @@ Ext.application({
                 msg += 'Total Time     : 00:00:00:000';
                 this.openMessage(msg);
             },
-            failure: function(config, response) {
+            failure     : function(config, response) {
 
                 this.openMessage(this.generateError(config.query, response.message));
             }
         });
 
         var reqConfig = {
-            url    : tab.getTunnelingURL(),
+            url    : config.tunnelingURL,
             async  : config.async,
             params : {
                 db     : config.db,
-                host   : tab.getHost(),
-                user   : tab.getUser(),
-                pass   : tab.getPass(),
-                charset: tab.getCharset(),
-                port   : tab.getPort(),
+                host   : config.host,
+                user   : config.user,
+                pass   : config.pass,
+                charset: config.charset,
+                port   : config.port,
                 query  : config.query,
                 type   : config.type
             },
@@ -486,7 +506,27 @@ Ext.application({
             }
         };
 
-        var reqType = window.location.protocol == 'file:' ? 'jsonp' : tab.getRequestType();
+        var reqType = window.location.protocol == 'file:' ? 'jsonp' : config.requestType;
+
+        if(!config.host || !config.user || !config.pass) {
+
+            reqConfig.failure({
+                success: false,
+                message: 'User connection information is incorrect'
+            });
+
+            return;
+        }
+
+        if(!config.tunnelingURL) {
+
+            reqConfig.failure({
+                success: false,
+                message: 'Tunneling URL is incorrect'
+            });
+
+            return;
+        }
 
         if (reqType == 'jsonp') {
 
