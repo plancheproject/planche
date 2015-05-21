@@ -321,7 +321,7 @@ Ext.define('Planche.lib.QueryParser', {
 
             if(token.type == this.type.DELIMITER){
 
-                if(tmpTokens.length > 0){
+                if(tmpTokens.length > 0 && Ext.String.trim(raw)){
 
                     queries.push({raw : raw, sline : sline, eline : eline, tokens : tmpTokens, delimiter : false});
                 }
