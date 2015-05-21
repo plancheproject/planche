@@ -34,6 +34,7 @@ Ext.application({
     },
 
     /**
+    /**
      * Return context menu component of scheme tree in left side bar
      *
      * @access public
@@ -508,7 +509,7 @@ Ext.application({
 
         var reqType = window.location.protocol == 'file:' ? 'jsonp' : config.requestType;
 
-        if(!config.host || !config.user || !config.pass) {
+        if (!config.host || !config.user || !config.pass) {
 
             reqConfig.failure({
                 success: false,
@@ -518,7 +519,7 @@ Ext.application({
             return;
         }
 
-        if(!config.tunnelingURL) {
+        if (!config.tunnelingURL) {
 
             reqConfig.failure({
                 success: false,
@@ -1325,6 +1326,11 @@ Ext.application({
 
                 if (query.isDelimiter() == true) {
 
+                    messages.push(this.generateSuccessMsg(
+                        query.raw,
+                        'Change Delimiter'
+                    ));
+
                     tunneling();
                     return;
                 }
@@ -1428,7 +1434,11 @@ Ext.application({
 
                 if (tmp.length > 0) return;
 
-                if (cursor.line <= query.eline[0] && cursor.ch <= query.eline[1]) {
+                if (cursor.line == query.eline[0] && cursor.ch <= query.eline[1]) {
+
+                    tmp.push(query);
+                }
+                else if(cursor.line < query.eline[0]){
 
                     tmp.push(query);
                 }
