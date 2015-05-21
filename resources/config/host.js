@@ -2,10 +2,11 @@ var Planche = Planche || {};
 Planche.config = {
     hosts : [
         {
-            hostName    : 'Local Example', 
-            tunnelingURL: 'http://localhost/planche_tnl.php',
+            hostName    : 'My Host',
+            tunnelingURL: 'http://localhost:8888',
+            requestType : 'jsonp',
             host        : 'localhost',
-            user        : 'root',
+            user        : 'user',
             pass        : 'password',
             charset     : 'utf8',
             port        : 3306,
