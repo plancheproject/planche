@@ -81,10 +81,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 listeners : {
                     dblclick :function (view, el, ridx, cidx, event, data) {
 
-                        if(['blob', 'var_string'].indexOf(col.type) > -1) {
-
-                            app.openWindow('table.EditTextColumn', data.get(col.name));
-                        }
+                        app.openWindow('table.EditTextColumn', col.name, data.get(col.name));
                     }
                 },
                 hideable : false,

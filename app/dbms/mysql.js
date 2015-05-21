@@ -62,15 +62,16 @@ Ext.define('Planche.dbms.mysql', function() {
         SHOW_STATUS             : 'SHOW STATUS',
         SHOW_GLOBAL_STATUS      : 'SHOW GLOBAL STATUS',
         SHOW_SESSION_STATUS     : 'SHOW SESSION STATUS',
-        CREATE_DATABASE         : 'CREATE DATABASE {0} CHARACTER SET {1} COLLATE {2}',
-        ALTER_DATABASE          : 'ALTER DATABASE {0} CHARACTER SET {1} COLLATE {2}',
+        CREATE_DATABASE         : 'CREATE DATABASE `{0}` CHARACTER SET {1} COLLATE {2}',
+        ALTER_DATABASE          : 'ALTER DATABASE `{0}` CHARACTER SET {1} COLLATE {2}',
         DROP_DATABASE           : 'DROP DATABASE `{0}`',
         SHOW_CHARSET            : 'SHOW CHARSET',
         SHOW_COLLATION          : 'SHOW COLLATION',
         CHARSET_DATABASE        : 'SHOW VARIABLES LIKE \'character_set_database\'',
         COLLATION_DATABASE      : 'SHOW VARIABLES LIKE \'collation_database\'',
         SHOW_DATABASE_TABLES    : 'SHOW FULL TABLES FROM `{0}` WHERE table_type = \'BASE TABLE\'',
-        KILL_QUERY              : 'KILL {0}'
+        KILL_QUERY              : 'KILL {0}',
+        SHOW_DATABASES          : 'SHOW DATABASES'
     };
 
     var joins = ['NATURAL JOIN', 'INNER JOIN', 'LFET INNER JOIN', 'RIGHT INNER JOIN', 'LEFT OUTER JOIN', 'LEFT JOIN', 'RIGHT OUTER JOIN', 'RIGHT JOIN', 'CROSS JOIN', 'JOIN'];
