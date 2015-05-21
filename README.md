@@ -1,49 +1,89 @@
 Planche
 =========
 
-"ExtJS" based MySQL GUI Client Tool
+Javascript MySQL GUI Client Tool
 
-플란체는 ExtJS 기반의 MySQL Client 툴입니다. 현재는 개발중인 버전으로 실제 제대로 동작하지 않습니다.
+The Planche is MySQL GUI client tool. This tool has a flexible structure to use. Basically, the operation through the tunneling.
+The current version is under development. So it may not work properly. The project has been developed, including the following JavaScript frameworks.
 
-또한 오픈 소스 운영은 처음 해보는 것이기 때문에 여러모로 표기해야 할 부분이나 그런것들이 미숙합니다. 부족한 내용은 지속적으로 채워 나갈 예정입니다.
+- CodeMirror 5.1.0
+- Sencha ExtJS 4.2
 
-현재 플란체를 가지고 "단순히" 할 수 있는 것들..
- 
+Demo
+----
+Planche Demo
 
-- 테이블 조회
-- 컬럼 조회
-- 쿼리 수행
-- 프로시져 생성 
-- 페이징
-- 프로세스 리스트 확인
-- 쿼리 Alignment
-
-해당 프로젝트는 다음의 자바스크립트 프레임워크를 포함하여 개발 되었습니다.
-
-- [CodeMirror] - Javascript 기반의 Editor
-- [Sencha ExtJS 4.2] - 컴포넌트기반의 자바스크립 웹앱 프레임워크
+Required environment
+----
+1. Need php or nodejs environment for execute tunneling file.
+2. Apache Web Server(optional) -> Tunneling file has its own web server.
 
 
-Quick Start
+Current features
+----
+Execute Query : like a desktop application
+Query Editor : like a desktop application
+Query Alignment : Yet it acts like a fool.
+Support delimiter
+Table schema view
+Auto query result paging(by limit)
+Create Procedure
+Create View
+Create Function
+Create Event
+Create Trigger
+Create, Alter, Drop Database
+Create, Alter, Drop, Truncate Table
+Query tokenize.
+Process Manager
+Scheme Edit Window
+Show Variables Window
+Show Status Window
+
+
+How to install
 ----
 
+1. Download planche-master.zip on your PC
+2. Extract the zip file
+2. Run the "tunneling file" at CLI mode
+
+#PHP Environment
 ```
-1. Download planche-master.zip
-2. Upload "app/planche_tnl.php" file on your web server
-3. Open app/config-host.js
-4. Add your host tunnling file was uploaded
-
-php tunnling file
-"resources/tunneling/php/planche_tnl.php" 
-
-You must upload the file.
-
-nodejs tunnling file
-"resources/tunneling/nodejs/planche_tnl.js" 
-
-You must upload the file.
-Run 
+[user@localhost ~]$ php resources/tunneling/php/planche_tnl.php
 ```
+
+#nodeJS Environment
+```
+[user@localhost ~]$ node resources/tunneling/nodejs/planche_tnl.js
+```
+
+3. Add host's information on the "resources/config/host.js" file
+
+```
+Planche.config = {
+    hosts : [
+        {
+            hostName    : 'My Host',
+            tunnelingURL: 'http://localhost:8888',
+            requestType : 'jsonp',
+            host        : 'localhost',
+            user        : 'user',
+            pass        : 'password',
+            charset     : 'utf8',
+            port        : 3306,
+            dbms        : 'mysql'
+        }
+    ]
+}
+```
+
+4. Run the index.html file on your browser.
+   (Yet recommend Chrome. I did not test other browsers. You can break your head.)
+
+Warning
+----
+(Attention) when exposed tunneling uploaded files. Security issues may arise. I hope you remember this problem for the database server.
 
 Watch the video
 ----
@@ -58,7 +98,8 @@ http://plancheproject.github.io
 License
 ----
 
-GPL v3
+This content is released under the GPL v3
 
+[Planche Demo]:http://www.makewebapp.net/planche
 [CodeMirror]:http://codemirror.net/
 [Sencha ExtJS 4.2]:http://www.sencha.com/products/extjs/
