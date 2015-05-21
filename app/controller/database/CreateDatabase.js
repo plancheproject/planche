@@ -209,10 +209,12 @@ Ext.define('Planche.controller.database.CreateDatabase', {
             query : app.getAPIS().getQuery('CREATE_DATABASE', db, charset, collation),
             success : function (config, response) {
 
-                var rootNode = app.getParentNode(node, 0, true);
+                var tree = app.getSelectedTree(),
+                    rootNode = tree.getRootNode();
+
                 rootNode.appendChild({
                     text : db,
-                    icon : 'images/icon_database.png',
+                    icon : 'resources/images/icon_database.png',
                     leaf : false,
                     children : [{
                         text : 'Tables',
