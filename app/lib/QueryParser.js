@@ -2,22 +2,22 @@ Ext.define('Planche.lib.QueryParser', {
 	constructor : function (engine) {
 
 		this.engine = engine;
-		
+
 		this.type = Planche.lib.QueryTokenType.get();
 
 		this.isNotSelectQueryKeyword = ["UPDATE", "CREATE", "DELETE", "INSERT", "ALTER", "DROP"];
 
 		this.defaultLimit	= 100;
-		this.openComments	= ['#', '-- ', '/*']; 
+		this.openComments	= ['#', '-- ', '/*'];
 		this.closeComments	= ['\n', '\n', '*/'];
 		this.boundaries		= [
 								'`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '()', '(', ')', '+', '-',
 								'=', '\\', '[', ']', '{', '}', ';', ':', '<', '>', ',', '.', '/', '?'
 							  ];
 		this.comparison		= ['=', '<=', '>=', '!=', '<', '>'];
-		
+
 		var boundaries		= this.addSlashes(this.boundaries).join("|");
-        
+
 		this.regexpWhiteSpace		= /^\s+/g;
 		this.regexpTrim				= /(^\s*)|(\s*$)/gi;
 		this.regexpIsNotSelectQuery	= new RegExp('^('+this.isNotSelectQueryKeyword.join("|")+')', "gi");
@@ -25,12 +25,12 @@ Ext.define('Planche.lib.QueryParser', {
 		this.regexpSplit			= new RegExp('('+boundaries+'|$|\\s)', "g");
 		this.regexpJoin				= new RegExp('^('+this.engine.getJoins().join("|")+')', "gi");
 		this.regexpLimit			= new RegExp('^'+this.engine.getRegexpLimit(), "gi");
-		
+
 		this.regexpDelimiter		= /^;/g;
 		this.regexpFunctions		= new RegExp('^('+this.engine.getFunctions().join("|")+')\\((.*?[\\\']) {0,}.*?\\)', "gi");
 		this.regexpReservedWords	= new RegExp('^('+this.engine.getReservedWords().join("|")+')($|\\s|'+boundaries+')', "i");
 		this.regexpComparison		= new RegExp('^('+this.addSlashes(this.comparison).join("|")+')', "g");
-		
+
 		this.regexpQuotedString		= /^(\'(?:[^\'\\]|\\.)*\'|\"(?:[^\"\\]|\\.)*\")/;
 		this.regexpTable			= /^([`]?([a-zA-Z0-9_$#]+)[`]?[.@])?[`]?([a-zA-Z0-9_$#]+)[`]?/;
 		this.regexpNumber			= /^[0-9]+/;
@@ -51,11 +51,11 @@ Ext.define('Planche.lib.QueryParser', {
 		}
 
 		var tokens, queries, i;
-		
+
 		tokens = this.tokenize(string);
-		queries	= this.splitQuery(tokens);		
+		queries	= this.splitQuery(tokens);
 		queries	= this.parseQuery(queries);
-		
+
 		for(i in queries) {
 
 			queries[i] = Ext.create('Planche.lib.Query', queries[i]);
@@ -69,11 +69,11 @@ Ext.define('Planche.lib.QueryParser', {
 		var len = string.length;
 		var tokens = [], token;
 		this.pass_by_from = false;
-		
+
 		while(len) {
 
 			token = this.getNextToken(string);
-			string = string.substring(token.value.length);			
+			string = string.substring(token.value.length);
 
 			//break infinity loop
 			if(len == string.length) {
@@ -100,7 +100,7 @@ Ext.define('Planche.lib.QueryParser', {
 			token.type = this.type.SPACE;
 			token.value = matches[0];
 			return token;
-		}		
+		}
 
 		var cmts = this.openComments, cmt, i, inCmt = -1, pos, last;
 		for(i in cmts) {
@@ -203,7 +203,7 @@ Ext.define('Planche.lib.QueryParser', {
 			token.value = matches[1];
 			return token;
 		}
-		
+
         if(this.pass_by_from == true) {
 
             if(matches = string.match(this.regexpTable)) {
@@ -215,7 +215,7 @@ Ext.define('Planche.lib.QueryParser', {
 				return token;
             }
         }
-        
+
 		if(matches = string.match(this.regexpQuotedString)) {
 
 			token.type = this.type.QUOTED_STRING;
@@ -259,7 +259,7 @@ Ext.define('Planche.lib.QueryParser', {
         return token;
 	},
 	addSlashes : function (arr) {
-						
+
 		if(typeof arr == 'string') {
 
 			return Ext.Array.map(arr.split(''), function (item, idx) { return item.replace(/./g, '\\$&'); }).join('');
@@ -279,8 +279,10 @@ Ext.define('Planche.lib.QueryParser', {
 			type = token.type;
 			word = token.value;
 
+            token.sline = [ line, cursor ];
+
 			if(type == this.type.SPACE || type == this.type.LIMIT) {
-				
+
 				for(j = 0 ; j < word.length ; j++) {
 
 					chr = word[j];
@@ -297,10 +299,10 @@ Ext.define('Planche.lib.QueryParser', {
 			}
 			else {
 
-				cursor += word.length;	
+				cursor += word.length;
 			}
 
-			token.line = [ line, cursor ];	
+			token.eline = [ line, cursor ];
 		}
 
 		return tokens;
@@ -308,41 +310,45 @@ Ext.define('Planche.lib.QueryParser', {
 
 	splitQuery : function (tokens) {
 
-		var queries = [], tmpTokens = [], raw = '', token, sline = [ 0, 0 ], eline = [ 0, 0 ];
-		
+		var queries = [], tmpTokens = [], raw = '', token, delimiter = false, sline = [ 0, 0 ], eline = [ 0, 0 ];
+
 		tokens = this.setLineCursor(tokens);
 		level = 1;
-		
+
 		while(tokens.length) {
 
 			token = tokens.shift();
-			eline = token.line;
 
-			// if(token.type == this.type.DELIMITER) {
+            if(token.type == this.type.DELIMITER){
 
-			// 	continue;
-			// }
+                if(tmpTokens.length > 0){
 
-			tmpTokens.push(token);
+                    queries.push({raw : raw, sline : sline, eline : eline, tokens : tmpTokens, delimiter : false});
+                }
 
-			if(token.type != this.type.QUERY_END) {
+                queries.push({raw : token.value, sline : token.sline, eline : token.eline, tokens : [ token ], delimiter : true});
 
-				raw += token.value;
-			}
+                sline = token.eline;
+                tmpTokens = [];
+                raw = '';
+                continue;
+            }
 
-			if(token.type == this.type.QUERY_END || token.type == this.type.DELIMITER) {
+            if(token.type == this.type.QUERY_END){
 
-				var delimiter = false;
-				if(token.type == this.type.DELIMITER) {
+                tmpTokens.push(token);
+                raw += token.value;
+                queries.push({raw : raw, sline : sline, eline : token.eline, tokens : tmpTokens, delimiter : false});
 
-					delimiter = true;
-				}
+                sline = token.eline;
+                tmpTokens = [];
+                raw = '';
+                continue;
+            }
 
-				queries.push({raw : raw, sline : sline, eline : eline, tokens : tmpTokens, delimiter : delimiter});
-				sline = token.line;
-				tmpTokens = [];
-				raw = '';
-			}
+            tmpTokens.push(token);
+            raw += token.value;
+            eline = token.eline;
 		}
 
 		if(raw.replace(/\s/g,"")) {
@@ -355,9 +361,9 @@ Ext.define('Planche.lib.QueryParser', {
 
 	parseQuery : function (queries) {
 
-		var i, j, tokens, token, query, level, hasLimit, 
+		var i, j, tokens, token, query, level, hasLimit,
 			value, type, matches, isSelectQuery, sql = '';
-		
+
 		for(i in queries) {
 
 			level = 1;
@@ -374,8 +380,8 @@ Ext.define('Planche.lib.QueryParser', {
 
 			for(j = 0 ; j < query.tokens.length ; j++) {
 
-				token = query.tokens[j];				
-				value = token.value;			
+				token = query.tokens[j];
+				value = token.value;
 				type = token.type;
 
 				if(type == this.type.DELIMITER) {
@@ -391,7 +397,7 @@ Ext.define('Planche.lib.QueryParser', {
 
 						level++;
 					}
-					
+
 					if(value == ")") {
 
 						level--;
