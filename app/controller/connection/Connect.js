@@ -102,7 +102,7 @@ Ext.define('Planche.controller.connection.Connect', {
         this.ping(function() {
 
             var win = me.getConnectWindow();
-            win.setDisabled(false);
+            win.setLoading(false);
 
             Ext.Msg.alert('Info', 'Connection is successful');
         });
@@ -114,7 +114,7 @@ Ext.define('Planche.controller.connection.Connect', {
             app = this.getApplication(),
             conn = this.getSelectedConnection();
 
-        win.setDisabled(true);
+        win.setLoading(true);
 
         app.tunneling(Ext.apply({
             query  : 'SELECT 1',
@@ -125,7 +125,7 @@ Ext.define('Planche.controller.connection.Connect', {
             },
             failure: function(config, response) {
 
-                win.setDisabled(false);
+                win.setLoading(false);
                 Ext.Msg.alert('Error', response.message);
             }
         }, conn.raw));
