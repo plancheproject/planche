@@ -376,7 +376,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                 Ext.Array.each(response.records, function (row, idx) {
 
                     children.push({
-                        text: row[0] + ' ' + row[1],
+                        text: row[0] + ' ' + row[1]+ (row[8] ? ' [ ' + row[8] + ' ] ' : ''),
                         icon: 'resources/images/icon_' + (row[4] == 'PRI' ? 'primary' : 'column') + '.png',
                         leaf: true,
                         qtip: row[8]
