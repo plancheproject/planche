@@ -23,7 +23,7 @@ Ext.define('Planche.controller.user.Grant', {
             '#grant-cancel-changes'                  : {
                 click: this.cancelChanges
             },
-            '#grant-close'                     : {
+            '#grant-close'                           : {
                 click: this.close
             },
             'grant-priv-list'                        : {
@@ -175,7 +175,7 @@ Ext.define('Planche.controller.user.Grant', {
             var privileges = [],
                 on = "",
                 option = "",
-                path = path.split("."),
+                path = path.split("`"),
                 type = path[0],
                 func = 'get' + type.charAt(0).toUpperCase() + type.slice(1) + 'PrivItems',
                 cmds = this[func](),
@@ -184,12 +184,12 @@ Ext.define('Planche.controller.user.Grant', {
 
             Ext.Array.each(newPriv, function(val, idx) {
 
-                if(oldPriv.indexOf(val) > -1){
+                if (oldPriv.indexOf(val) > -1) {
 
                     return;
                 }
 
-                if(val == 'GRANT'){
+                if (val == 'GRANT') {
 
                     option = "WITH " + cmds[val];
                     return;
@@ -200,7 +200,7 @@ Ext.define('Planche.controller.user.Grant', {
 
             Ext.Array.each(oldPriv, function(val, idx) {
 
-                if(newPriv.indexOf(val) > -1){
+                if (newPriv.indexOf(val) > -1) {
 
                     return;
                 }
@@ -218,42 +218,42 @@ Ext.define('Planche.controller.user.Grant', {
                     break;
                 case "database" :
 
-                    on = path[1] + ".*";
+                    on = "`" + path[1] + "`.*";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
                 case "table" :
 
-                    on = path[1] + "." + path[2];
+                    on = "`" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
                 case "column" :
 
-                    on = path[1] + "." + path[2];
-                    grantPriv  = grantPriv.length  > 0 ? (path[2] + "(" + grantPriv.join(")," + path[2] + "(") + ")") : "";
+                    on = "`" + path[1] + "`.`" + path[2] + "`";
+                    grantPriv = grantPriv.length > 0 ? (path[2] + "(" + grantPriv.join(")," + path[2] + "(") + ")") : "";
                     revokePriv = revokePriv.length > 0 ? (path[2] + "(" + revokePriv.join(")," + path[2] + "(") + ")") : "";
                     break;
                 case "procedure" :
 
-                    on = "PROCEDURE " + path[1] + "." + path[2];
+                    on = "PROCEDURE `" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
                 case "function" :
 
-                    on = "FUNCTION " + path[1] + "." + path[2];
+                    on = "FUNCTION `" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
             }
 
-            if(grantPriv) {
+            if (grantPriv) {
 
                 queries.push(api.getQuery('GRANT', grantPriv, user.name, user.host, on, option));
             }
 
-            if(revokePriv) {
+            if (revokePriv) {
 
                 queries.push(api.getQuery('REVOKE', revokePriv, user.name, user.host, on, option));
             }
@@ -261,7 +261,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         }, this);
 
-        if(queries.length == 0){
+        if (queries.length == 0) {
 
             Ext.Msg.alert('info', 'no changes');
             return;
@@ -359,7 +359,7 @@ Ext.define('Planche.controller.user.Grant', {
                 records = app.getAssocArray(results[1].response.fields, results[1].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
-                    path = ['database', row.DB].join(".");
+                    path = ['database', row.DB].join("`");
                     settings[path] = settings[path] || [];
 
                     Ext.Object.each(row, function(key, val) {
@@ -383,7 +383,7 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    path = ['table', row.DB, row.TABLE_NAME].join(".");
+                    path = ['table', row.DB, row.TABLE_NAME].join("`");
                     settings[path] = settings[path] || [];
                     settings[path] = row.TABLE_PRIV.toUpperCase().split(",");
                 });
@@ -396,7 +396,7 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    path = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join(".");
+                    path = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join("`");
                     settings[path] = settings[path] || [];
                     settings[path] = row.COLUMN_PRIV.toUpperCase().split(",");
                 });
@@ -409,7 +409,7 @@ Ext.define('Planche.controller.user.Grant', {
                         return;
                     }
 
-                    path = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join(".");
+                    path = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join("`");
                     settings[path] = settings[path] || [];
                     settings[path] = row.PROC_PRIV.toUpperCase().split(",");
                 });
@@ -539,7 +539,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type    : 'database',
-                        path    : ['database', row[0]].join("."),
+                        path    : ['database', row[0]].join("`"),
                         text    : row[0],
                         icon    : 'resources/images/icon_database.png',
                         leaf    : false,
@@ -595,7 +595,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type    : 'table',
-                        path    : ['table', db, row[0]].join("."),
+                        path    : ['table', db, row[0]].join("`"),
                         text    : row[0],
                         icon    : 'resources/images/icon_table.png',
                         leaf    : false,
@@ -639,7 +639,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type: 'view',
-                        path: ['view', db, row[0]].join("."),
+                        path: ['view', db, row[0]].join("`"),
                         text: row[0],
                         leaf: true
                     });
@@ -678,7 +678,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type: 'procedure',
-                        path: ['procedure', db, row[1]].join("."),
+                        path: ['procedure', db, row[1]].join("`"),
                         text: row[1],
                         leaf: true
                     });
@@ -717,7 +717,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type: 'function',
-                        path: ['function', db, row[1]].join("."),
+                        path: ['function', db, row[1]].join("`"),
                         text: row[1],
                         leaf: true
                     });
@@ -758,7 +758,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                     children.push({
                         type: 'column',
-                        path: ['column', db, tb, row[0]].join("."),
+                        path: ['column', db, tb, row[0]].join("`"),
                         text: row[0] + ' ' + row[1],
                         icon: 'resources/images/icon_' + (row[4] == 'PRI' ? 'primary' : 'column') + '.png',
                         leaf: true,
@@ -825,7 +825,7 @@ Ext.define('Planche.controller.user.Grant', {
             'CREATE'           : 'CREATE',
             'CREATE_ROUTINE'   : 'CREATE ROUTINE',
             'CREATE_TABLESPACE': 'CREATE TABLESPACE',
-            'CREATE_TMP_TABLES': 'CREATE TEMPORARY TABLES',
+            'CREATE_TMP_TABLE' : 'CREATE TEMPORARY TABLES',
             'CREATE_USER'      : 'CREATE USER',
             'CREATE_VIEW'      : 'CREATE VIEW',
             'DELETE'           : 'DELETE',
