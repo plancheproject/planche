@@ -34,7 +34,7 @@ Ext.application({
     },
 
     /**
-    /**
+     /**
      * Return context menu component of scheme tree in left side bar
      *
      * @access public
@@ -227,7 +227,11 @@ Ext.application({
     setSelectedTree: function(tree) {
 
         Planche.selectedTree = tree;
-        var node = Planche.selectedNode = tree.getSelectionModel().getSelection()[0];
+    },
+
+    setSelectedNode: function(node) {
+
+        Planche.selectedNode = node;
     },
 
     getSelectedNode: function() {
@@ -452,7 +456,7 @@ Ext.application({
             },
             failure     : function(config, response) {
 
-                this.openMessage(this.generateError(config.query, response.message));
+                this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
             }
         });
 
@@ -499,7 +503,7 @@ Ext.application({
 
                     response = {
                         success: false,
-                        message: 'Ajax request timeout : ' + (config.timeout / 1000) + ' Sec'
+                        message: 'Can\'t connect to MySQL Server'
                     }
                 }
 
@@ -1076,7 +1080,7 @@ Ext.application({
                             },
                             failureQuery   : function(idx, query, config, response) {
 
-                                messages.push(app.generateError(query, response.message));
+                                messages.push(app.generateQueryErrorMsg(query, response.message));
                             },
                             afterAllQueries: function(queries, results) {
 
@@ -1310,12 +1314,6 @@ Ext.application({
 
         dom.setHTML('');
 
-        if (!db) {
-
-            this.openMessage('No database selected.');
-            return;
-        }
-
         var tunneling;
         var messages = [];
         (tunneling = Ext.Function.bind(function() {
@@ -1326,7 +1324,7 @@ Ext.application({
 
                 if (query.isDelimiter() == true) {
 
-                    messages.push(this.generateSuccessMsg(
+                    messages.push(this.generateQuerySuccessMsg(
                         query.raw,
                         'Change Delimiter'
                     ));
@@ -1400,14 +1398,26 @@ Ext.application({
         this.getActiveMessageTab().fireEvent('openMessage', messages);
     },
 
-    generateSuccessMsg: function(query, message) {
+    generateQueryErrorMsg: function(query, message) {
 
-        return '<div class="query_success">The Query : ' + query + '<span class="message"> ' + message + '</span></div>';
+        return this.generateError('The Query : ' + query, message);
     },
 
-    generateError: function(query, message) {
+    generateQuerySuccessMsg: function(query, message) {
 
-        return '<div class="query_err">The Query : ' + query + '<span class="message"> ' + message + '</span></div>';
+        return this.generateSuccessMsg('The Query : ' + query, message);
+    },
+
+    generateSuccessMsg: function(title, message) {
+
+        message = message || "";
+        return '<div class="query_success">' + title + '<span class="message"> ' + message + '</span></div>';
+    },
+
+    generateError: function(title, message) {
+
+        message = message || "";
+        return '<div class="query_err">' + title + '<span class="message"> ' + message + '</span></div>';
     },
 
     getParsedQuery: function() {
@@ -1438,7 +1448,7 @@ Ext.application({
 
                     tmp.push(query);
                 }
-                else if(cursor.line < query.eline[0]){
+                else if (cursor.line < query.eline[0]) {
 
                     tmp.push(query);
                 }
