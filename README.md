@@ -1,7 +1,7 @@
 Planche
 =========
 
-![planche logo](http://www.makewebapp.net/planche-logo/logo.jpg)
+![planche logo](http://www.makewebapp.net/planche-master/resources/images/logo.jpg)
 
 Javascript MySQL GUI Client Tool
 
@@ -13,7 +13,7 @@ The current version is under development. So it may not work properly. The proje
 
 Demo
 ----
-- [Planche Demo](http://www.makewebapp.net/planche)
+- [Planche Demo](http://www.makewebapp.net/planche-master)
 
 
 Required environment
