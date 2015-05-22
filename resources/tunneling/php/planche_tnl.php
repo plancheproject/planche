@@ -411,7 +411,7 @@ if ($isCLI) {
             }
             else {
 
-                echo "ERROR : CONNECTION FAILED $host, $user, $pass, $db\n";
+                echo "ERROR : CONNECTION FAILED $host, $user, , **************, $db\n";
                 echo "-----------------------------------------------------------------------\n";
             }
 
