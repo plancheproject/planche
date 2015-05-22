@@ -11,6 +11,8 @@ The current version is under development. So it may not work properly. The proje
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
+![Planche Preview](http://extjs.makewebapp.net/wp-content/uploads/2015/01/01.png)
+
 Demo
 ----
 - [Planche Demo](http://www.makewebapp.net/planche-master)
