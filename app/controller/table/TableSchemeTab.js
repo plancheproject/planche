@@ -150,7 +150,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             query : query,
             success : function (config, response) {
 
-                app.openMessage(app.generateSuccessMsg(config.query, 'Create table success'));
+                app.openMessage(app.generateSuccessMsg(config.query, 'This table has been created successfully.'));
 
                 var tablesNode = app.getParentNode(node , 2, true);
                 tablesNode.appendChild({
@@ -289,7 +289,7 @@ Ext.define('Planche.controller.table.TableSchemeTab', {
             query : query,
             success : function (config, response) {
 
-                app.openMessage(app.generateSuccessMsg(config.query, 'Modify table success'));
+                app.openMessage(app.generateSuccessMsg(config.query, 'This table has been modified successfully.'));
 
                 Ext.Object.each(node.childNodes, Ext.Function.bind(function (idx, child) {
 
