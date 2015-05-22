@@ -1,5 +1,4 @@
-Planche
-=========
+# Planche
 
 ![planche logo](http://www.makewebapp.net/planche-master/resources/images/logo.jpg)
 
@@ -13,19 +12,19 @@ The current version is under development. So it may not work properly. The proje
 
 ![Planche Preview](http://extjs.makewebapp.net/wp-content/uploads/2015/01/01.png)
 
-Demo
-----
+## Demo
+
 - [Planche Demo](http://www.makewebapp.net/planche-master)
 
 
-Required environment
-----
+## Required environment
+
 1. Need php or nodejs environment for execute tunneling file.
 2. Apache Web Server(optional) -> Tunneling file has its own web server.
 
 
-Current features
-----
+## Current features
+
 - Execute Query : like a desktop application
 - Query Editor : like a desktop application
 - Query Alignment : Yet it acts like a fool.
@@ -46,26 +45,13 @@ Current features
 - Show Status Window
 
 
-How to install
-----
+## Install
 
 1. Download planche-master.zip on your PC
 2. Extract the zip file
-2. Run the "tunneling file" at CLI mode
-
-#PHP Environment
-```
-[user@localhost ~]$ php resources/tunneling/php/planche_tnl.php
-```
-
-#nodeJS Environment
-```
-[user@localhost ~]$ node resources/tunneling/nodejs/planche_tnl.js
-```
-
 3. Add host's information on the "resources/config/host.js" file
 
-```js
+```javascript
 Planche.config = {
     hosts : [
         {
@@ -81,27 +67,34 @@ Planche.config = {
         }
     ]
 }
-```
 
+```
 4. Run the index.html file on your browser.
    (Yet recommend Chrome. I did not test other browsers. You can break your head.)
 
-Warning
-----
-(Attention) when exposed tunneling uploaded files. Security issues may arise. I hope you remember this problem for the database server.
+## Install - Run Tunneling
 
-Watch the video
-----
+Run the "tunneling file" at CLI mode.
+(Attention) When exposed tunneling uploaded files. Security issues may arise. I hope you remember this problem for the database server.
+
+- PHP Environment
+```
+[user@localhost ~]$ php resources/tunneling/php/planche_tnl.php
+```
+
+- nodeJS Environment
+```
+[user@localhost ~]$ node resources/tunneling/nodejs/planche_tnl.js
+```
+
+## Watch the video
 
 http://www.youtube.com/embed/WCnXJXDRlYs
 
-Official Website
-----
+## Official Website
 
 http://plancheproject.github.io
 
-License
-----
+## License
 
 This content is released under the GPL v3
-
