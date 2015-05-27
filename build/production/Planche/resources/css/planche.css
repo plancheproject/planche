@@ -11,28 +11,30 @@
 }*/
 div.query_err{
 
-    padding-bottom:5px;
-    border-bottom: dotted 2px #009AD7;
+    padding:5px;
+    background-color : #FBEEEE;
+    border: dotted 2px #ff0000;
 }
 
 div.query_err span.message {
 
-    margin-top:20px;
+    margin-top:10px;
     display : block;
     color : red;
 }
 
 div.query_success{
 
-    padding-bottom:5px;
-    border-bottom: dotted 2px #009AD7;
+    padding:5px;
+    background-color : #D1E9F8;
+    border: dotted 2px #779ECB;
 }
 
 div.query_success span.message {
 
-    margin-top:20px;
+    margin-top:10px;
     display : block;
-    color : skyblue;
+    color : blue;
 }
 
 div.info {
@@ -53,6 +55,7 @@ table.info {
 table.info th{
 
     color : #009AD7;
+    border-top: dotted 1px #009AD7;
 }
 
 table.info td,
