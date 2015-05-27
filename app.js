@@ -1354,7 +1354,7 @@ Ext.application({
                             msg += 'Execution Time : ' + response.exec_time + '<br/>';
                             msg += 'Transfer Time  : ' + response.transfer_time + '<br/>';
                             msg += 'Total Time     : ' + response.total_time;
-                            messages.push(query.getSQL() + '<br/><br/>' + msg);
+                            messages.push(this.generateQuerySuccessMsg(query.getSQL(), msg));
                         }
 
                         this.getActiveConnectTab().setLoading(false);
