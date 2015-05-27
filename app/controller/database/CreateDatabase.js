@@ -213,25 +213,32 @@ Ext.define('Planche.controller.database.CreateDatabase', {
                     rootNode = tree.getRootNode();
 
                 rootNode.appendChild({
+                    type : 'database',
                     text : db,
                     icon : 'resources/images/icon_database.png',
                     leaf : false,
                     children : [{
+                        type : 'tables',
                         text : 'Tables',
                         leaf : false
                     }, {
+                        type : 'views',
                         text : 'Views',
                         leaf : false
                     }, {
+                        type : 'procedures',
                         text : 'Procedures',
                         leaf : false
                     }, {
+                        type : 'functions',
                         text : 'Functions',
                         leaf : false
                     }, {
+                        type : 'triggers',
                         text : 'Triggers',
                         leaf : false
                     }, {
+                        type : 'events',
                         text : 'Events',
                         leaf : false
                     }]
