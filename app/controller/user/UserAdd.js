@@ -16,7 +16,7 @@ Ext.define('Planche.controller.user.UserAdd', {
             },
             '#user-add-close'    : {
                 click: this.close
-            },
+            }
         });
     },
 

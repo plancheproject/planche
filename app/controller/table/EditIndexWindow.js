@@ -14,7 +14,7 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
             },
             '#edit-index-grid' : {
                 'boxready' : this.initGrid,
-                'cellclick' : this.selectField,
+                'cellclick' : this.selectField
             }
         });
     },
