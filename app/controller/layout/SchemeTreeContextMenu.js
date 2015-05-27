@@ -4,7 +4,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
 
         this.control({
             'scheme-tree' : {
-                itemcontextmenu : this.initContextMenu
+                'itemcontextmenu' : this.initContextMenu
             }
         });
     },
@@ -18,31 +18,16 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         var app = this.getApplication(),
             menu = app.getSchemeContextMenu(),
             node = app.getSelectedNode(),
-            data = node.getData(),
-            cmd;
+            type = node.raw.type,
+            func = 'load' + type.charAt(0).toUpperCase() + type.slice(1) + 'ContextMenu';
 
-        if(data.depth == 0) {
+        if(!this[func]) {
 
-            cmd = 'Root';
-        }               
-        else if(data.depth == 1) {
-
-            cmd = 'Database';
+            return;
         }
-        else if(data.depth == 3 || data.depth == 5) {
-
-            cmd = node.parentNode.getData().text;
-            cmd = cmd.substring(0, cmd.length - 1).replace(/\s/gi, '');
-        }
-        else {
-
-            cmd = data.text.replace(/\s/gi, '');
-        }
-        
-        if(!this['load'+cmd+'ContextMenu']) { return; }
 
         menu.removeAll();
-        menu.add(this['load'+cmd+'ContextMenu']());
+        menu.add(this[func]());
         menu.showAt(e.getXY());
     },
 
