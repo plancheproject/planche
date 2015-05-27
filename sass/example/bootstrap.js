@@ -887,6 +887,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.Window": [],
+  "Planche.overrides.FixMenuBug": [],
   "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [],
@@ -1953,6 +1954,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.Window": [],
+  "Planche.overrides.FixMenuBug": [],
   "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [
