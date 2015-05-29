@@ -4,8 +4,30 @@ Ext.define('Planche.view.user.GrantPrivList', {
     emptyText    : 'There\'s no data to display',
     initComponent: function() {
 
+        var list = this;
+
         this.selModel = Ext.create('Ext.selection.CheckboxModel', {
-            mode: 'multi'
+            mode         : 'multi',
+            onHeaderClick: function(headerCt, header, e) {
+
+                if (header.isCheckerHd) {
+
+                    e.stopEvent();
+                    var isChecked = header.el.hasCls(Ext.baseCSSPrefix + 'grid-hd-checker-on');
+                    if (isChecked) {
+
+                        this.deselectAll(true);
+                        //YOUR CODE ON UNCHECK
+                        list.fireEvent('checkall');
+
+                    } else {
+
+                        this.selectAll(true);
+                        //YOUR CODE ON CHECK
+                        list.fireEvent('checkall');
+                    }
+                }
+            }
         });
 
         this.columns = [

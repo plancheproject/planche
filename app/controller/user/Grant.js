@@ -27,7 +27,7 @@ Ext.define('Planche.controller.user.Grant', {
                 click: this.close
             },
             'grant-priv-list'                        : {
-                selectionchange: this.selectPrivList
+                selectionchange : this.selectPrivList
             },
             'grant-user-list'                        : {
                 select: this.selectUserList
@@ -61,13 +61,19 @@ Ext.define('Planche.controller.user.Grant', {
 
     initGrant: function() {
 
+        var tree = this.getSchemeTree(),
+            node = tree.getRootNode();
+
         this.initUserList();
+        this.loadTree(node);
     },
 
     initUserList: function() {
 
         var app = this.getApplication(),
             userList = this.getUserList();
+
+        userList.setLoading(true);
 
         userList.selModel.deselectAll();
 
@@ -78,28 +84,24 @@ Ext.define('Planche.controller.user.Grant', {
 
                 var records = app.getAssocArray(response.fields, response.records);
                 userList.store.loadData(records);
+
+                userList.setLoading(false);
             }
         });
     },
 
     initSchemeTree: function() {
 
-        var tree = this.getSchemeTree(),
-            node = tree.getRootNode();
+        var tree = this.getSchemeTree();
 
-        tree.setDisabled(true);
         tree.selModel.deselectAll();
-
-        this.loadTree(node);
+        tree.selModel.select(0, true);
     },
 
     initPrivList: function() {
 
         var privList = this.getPrivList();
-
-        privList.setDisabled(true);
-        privList.selModel.deselectAll();
-        privList.store.loadData([]);
+        privList.store.removeAll();
     },
 
     addUser: function() {
@@ -144,24 +146,26 @@ Ext.define('Planche.controller.user.Grant', {
             return false;
         }
 
-        return {
-            name: selUser.data.User,
-            host: selUser.data.Host,
-            priv: selUser.data.priv
-        };
+        return selUser;
     },
 
     saveChanges: function(btn) {
 
-        var app = this.getApplication(),
+        var win = btn.up('window'),
+            app = this.getApplication(),
             api = app.getAPIS(),
             me = this,
-            selUser = this.getUserListSelection()[0],
             user = this.getSelectedUser(),
             queries = [],
             messages = [],
-            newPrivs = selUser.get('priv'),
-            oldPrivs = selUser.get('old_priv');
+            newPrivs = user.get('priv'),
+            oldPrivs = user.get('old_priv');
+
+        if (!user) {
+
+            Ext.Msg.Alert('No selected user');
+            return;
+        }
 
         Ext.Object.each(newPrivs, function(path, newPriv) {
 
@@ -189,14 +193,16 @@ Ext.define('Planche.controller.user.Grant', {
                     return;
                 }
 
+                grantPriv.push(cmds[val]);
+
                 if (val == 'GRANT') {
 
                     option = "WITH " + cmds[val];
                     return;
                 }
-
-                grantPriv.push(cmds[val]);
             });
+
+            debugger;
 
             Ext.Array.each(oldPriv, function(val, idx) {
 
@@ -250,12 +256,12 @@ Ext.define('Planche.controller.user.Grant', {
 
             if (grantPriv) {
 
-                queries.push(api.getQuery('GRANT', grantPriv, user.name, user.host, on, option));
+                queries.push(api.getQuery('GRANT', grantPriv, user.get('User'), user.get('Host'), on, option));
             }
 
             if (revokePriv) {
 
-                queries.push(api.getQuery('REVOKE', revokePriv, user.name, user.host, on, option));
+                queries.push(api.getQuery('REVOKE', revokePriv, user.get('User'), user.get('Host'), on, option));
             }
 
 
@@ -263,16 +269,15 @@ Ext.define('Planche.controller.user.Grant', {
 
         if (queries.length == 0) {
 
-            Ext.Msg.alert('info', 'no changes');
+            win.setDisabled(false);
+            Ext.Msg.alert('info', 'Grants has no changes');
             return;
         }
-
-        var win = btn.up('window');
 
         app.multipleTunneling('', queries, {
             prevAllQueries : function(queries) {
 
-                win.setDisabled(false);
+                win.setDisabled(true);
             },
             failureQuery   : function(idx, query, config, response) {
 
@@ -280,11 +285,12 @@ Ext.define('Planche.controller.user.Grant', {
             },
             afterAllQueries: function(queries, results) {
 
+                win.setDisabled(false);
+
                 me.initPrivList();
                 me.initSchemeTree();
-                me.initUserList();
 
-                win.setDisabled(false);
+                Ext.Msg.alert('info', 'Successfully apply the permissions.');
 
                 if (messages.length > 0) {
 
@@ -313,18 +319,27 @@ Ext.define('Planche.controller.user.Grant', {
             api = app.getAPIS(),
             tree = this.getSchemeTree(),
             user = this.getSelectedUser(),
-            selUser = this.getUserListSelection(),
+            userList = this.getUserList(),
+            privList = this.getPrivList(),
             messages = [],
             queries = [];
 
-        this.initSchemeTree();
-        this.initPrivList();
+        if (user.get('old_priv') && user.get('priv')) {
 
-        queries.push(api.getQuery('USER_PRIV', user.name, user.host));
-        queries.push(api.getQuery('USER_DATABASE_PRIV', user.name, user.host));
-        queries.push(api.getQuery('USER_TABLE_PRIV', user.name, user.host));
-        queries.push(api.getQuery('USER_COLUMN_PRIV', user.name, user.host));
-        queries.push(api.getQuery('USER_PROC_PRIV', user.name, user.host));
+            me.initPrivList();
+            me.initSchemeTree();
+            return;
+        }
+
+        tree.setLoading(true);
+        userList.setLoading(true);
+        privList.setDisabled(true);
+
+        queries.push(api.getQuery('USER_PRIV', user.get('User'), user.get('Host')));
+        queries.push(api.getQuery('USER_DATABASE_PRIV', user.get('User'), user.get('Host')));
+        queries.push(api.getQuery('USER_TABLE_PRIV', user.get('User'), user.get('Host')));
+        queries.push(api.getQuery('USER_COLUMN_PRIV', user.get('User'), user.get('Host')));
+        queries.push(api.getQuery('USER_PROC_PRIV', user.get('User'), user.get('Host')));
 
         var settings = {},
             records = [],
@@ -414,10 +429,14 @@ Ext.define('Planche.controller.user.Grant', {
                     settings[path] = row.PROC_PRIV.toUpperCase().split(",");
                 });
 
-                selUser[0].set('old_priv', Ext.clone(settings));
-                selUser[0].set('priv', Ext.clone(settings));
+                user.set('old_priv', Ext.clone(settings));
+                user.set('priv', Ext.clone(settings));
 
-                tree.setDisabled(false);
+                me.initPrivList();
+                me.initSchemeTree();
+
+                userList.setLoading(false);
+                tree.setLoading(false);
 
                 if (messages.length > 0) {
 
@@ -427,18 +446,20 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    selectPrivList: function(grid, selModel) {
+    selectPrivList: function() {
 
-        var selUser = this.getUserListSelection(),
+        var user = this.getSelectedUser(),
             selTree = this.getSchemeTreeSelection(),
-            selectedPrivs = selModel.map(function(model) {
+            privList = this.getPrivList(),
+            selectedPrivs = privList.selModel.getSelection().map(function(model) {
 
                 return model.get('priv');
             }),
-            settings = selUser[0].get('priv');
+            settings = user.get('priv');
 
         settings[selTree[0].raw.path] = selectedPrivs;
-        selUser[0].set('priv', settings);
+
+        user.set('priv', settings);
 
         this.getSaveChangeBtn().setDisabled(false);
     },
@@ -452,10 +473,12 @@ Ext.define('Planche.controller.user.Grant', {
             path = record.raw.path,
             records = [];
 
+        privList.setDisabled(true);
+
         if (!type) {
 
             privList.store.loadData(records);
-            privList.setDisabled(true);
+            privList.setDisabled(false);
             return;
         }
 
@@ -470,7 +493,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         try {
 
-            priv = user.priv[path] || [];
+            priv = user.get('priv')[path] || [];
         }
         catch (e) {
 
@@ -523,7 +546,7 @@ Ext.define('Planche.controller.user.Grant', {
     loadDatabases: function(node) {
 
         var app = this.application,
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
@@ -575,7 +598,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         var app = this.application,
             db = node.parentNode.data.text,
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
@@ -621,7 +644,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         var app = this.application,
             db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
@@ -660,7 +683,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         var app = this.application,
             db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
@@ -699,7 +722,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         var app = this.application,
             db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
@@ -740,7 +763,7 @@ Ext.define('Planche.controller.user.Grant', {
         var app = this.application,
             db = app.getParentNode(node),
             tb = node.parentNode.data.text,
-            tree = app.getSelectedTree();
+            tree = this.getSchemeTree();
 
         tree.setLoading(true);
 
