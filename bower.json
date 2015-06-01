@@ -3,7 +3,8 @@
         "Jeong Ju Won <jjwcom@nate.com>"
     ],
     "dependencies": {
-        "codemirror": "5.1.0"
+        "codemirror": "latest",
+        "jsencrypt" : "latest"
     },
     "description": "MySQL GUI Client Tool",
     "homepage": "https://github.com/jeongjuwon/planche",
