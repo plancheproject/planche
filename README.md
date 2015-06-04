@@ -31,18 +31,19 @@ The current version is under development. So it may not work properly. The proje
 - Support delimiter
 - Table schema view
 - Auto query result paging(by limit)
-- Create Procedure
-- Create View
-- Create Function
-- Create Event
-- Create Trigger
-- Create, Alter, Drop Database
-- Create, Alter, Drop, Truncate Table
+- Create, Alter, Drop, Refresh Procedure
+- Create, Alter, Drop, Refresh View
+- Create, Alter, Drop, Refresh Function
+- Create, Alter, Drop, Rename, Refresh Event
+- Create, Alter, Drop, Rename, Refresh Trigger
+- Create, Alter, Drop, Empty, Truncate, Refresh Database
+- Create, Alter, Drop, Truncate, Refresh Table
 - Query tokenize.
-- Process Manager
-- Scheme Edit Window
+- Process Manager, Kill Process
+- Schema Edit Window
 - Show Variables Window
 - Show Status Window
+- Paste SQL Statement(Insert, Update, Delete, Select)
 
 
 ## Install
@@ -75,7 +76,7 @@ Planche.config = {
 ## Install - Run Tunneling
 
 Run the "tunneling file" at CLI mode.
-(Attention) When exposed tunneling uploaded files. Security issues may arise. I hope you remember this problem for the database server.
+(Attention) When exposed  uploaded tunneling files. Security issues may arise. I hope you remember this problem for the database server.
 
 - PHP Environment
 ```
