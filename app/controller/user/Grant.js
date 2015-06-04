@@ -101,7 +101,7 @@ Ext.define('Planche.controller.user.Grant', {
     initPrivList: function() {
 
         var privList = this.getPrivList();
-        privList.store.removeAll();
+        privList.store.removeAll(true);
     },
 
     addUser: function() {
@@ -201,8 +201,6 @@ Ext.define('Planche.controller.user.Grant', {
                     return;
                 }
             });
-
-            debugger;
 
             Ext.Array.each(oldPriv, function(val, idx) {
 
@@ -458,7 +456,7 @@ Ext.define('Planche.controller.user.Grant', {
             settings = user.get('priv');
 
         settings[selTree[0].raw.path] = selectedPrivs;
-
+        
         user.set('priv', settings);
 
         this.getSaveChangeBtn().setDisabled(false);
