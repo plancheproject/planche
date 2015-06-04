@@ -8,12 +8,12 @@ Ext.define('Planche.controller.menu.Table', {
             scope : this.application,
             allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()) {
+                if(this.getSelectedTable()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             menu : [{
                 text: 'INSERT INTO &lt;Table Name&gt;..',
@@ -56,12 +56,12 @@ Ext.define('Planche.controller.menu.Table', {
             scope : this.application,
             allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()) {
+                if(this.getSelectedTable()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             handler : function () {
 
@@ -73,12 +73,12 @@ Ext.define('Planche.controller.menu.Table', {
             scope : this.application,
             allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()) {
+                if(this.getSelectedDatabase()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             handler : function () {
 
@@ -89,21 +89,35 @@ Ext.define('Planche.controller.menu.Table', {
             scope : this.application,
             allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()) {
+                if(this.getSelectedTable()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             handler : function () {
 
-                var node = this.getSelectedNode();
+                var node = this.getSelectedTable(true);
                 this.openAlterTableWindow(node);
             }
         },{
-            text : 'Manage Indexes(Not Yet)',
-            disabled : true
+            text : 'Manage Indexes',
+            scope : this.application,
+            allowDisable : function (topBtn, menu) {
+
+                if(this.getSelectedTable()){
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler : function () {
+
+                var node = this.getSelectedTable(true);
+                this.openAlterTableWindow(node);
+            }
         },{
             text : 'Relationships/Foreign Keys(Not Yet)',
             disabled : true
@@ -112,19 +126,19 @@ Ext.define('Planche.controller.menu.Table', {
             scope : this.application,
             allowDisable : function (topBtn, menu) {
 
-                if(!this.getSelectedNode()) {
+                if(this.getSelectedTable()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             menu : [{
                 text: 'Rename Table',
                 scope : this.application,
                 handler : function () {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedTable(true);
                     this.renameTable(node);
                 }
             },{
@@ -132,7 +146,7 @@ Ext.define('Planche.controller.menu.Table', {
                 scope : this.application,
                 handler : function () {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedTable(true);
                     this.truncateTable(node);
                 }
             },{
@@ -140,7 +154,7 @@ Ext.define('Planche.controller.menu.Table', {
                 scope : this.application,
                 handler : function () {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedTable(true);
                     this.dropTable(node);
                 }
             },{
@@ -148,7 +162,7 @@ Ext.define('Planche.controller.menu.Table', {
                 scope : this.application,
                 handler : function () {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedTable(true);
                     this.openReorderColumns(node);
                 }
             },{
@@ -164,7 +178,7 @@ Ext.define('Planche.controller.menu.Table', {
                 scope : this.application,
                 handler : function () {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedTable(true);
                     this.openAdvancedProperties(node);
                 }
             },{
@@ -245,6 +259,24 @@ Ext.define('Planche.controller.menu.Table', {
                 ]
             }]
         },'-',{
+            text : 'Create Trigger',
+            disabled : true,
+            scope : this.application,
+            allowDisable : function () {
+
+                if(this.getSelectedDatabase()){
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler : function () {
+
+                var node = this.getSelectedDatabase(true);
+                this.createTrigger(node);
+            }
+        },'-',{
             text : 'Backup/Export(Not Yet)',
             disabled : true,
             menu : [{
@@ -267,9 +299,6 @@ Ext.define('Planche.controller.menu.Table', {
             disabled : true
         },{
             text : 'Copy To Google Spreadsheet(Not Yet)',
-            disabled : true
-        },'-',{
-            text : 'Create Trigger(Not Yet)',
             disabled : true
         }]);
 

@@ -27,17 +27,17 @@ Ext.define('Planche.controller.menu.Database', {
             scope       : this.application,
             handler     : function() {
 
-                var node = this.getSelectedNode();
+                var node = this.getSelectedDatabase(true);
                 this.alterDatabase(node);
             },
             allowDisable: function(topBtn, menu) {
 
-                if (!this.getActiveConnectTab()) {
+                if(this.getSelectedDatabase()){
 
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             }
         }, {
             text        : 'Create',
@@ -102,22 +102,19 @@ Ext.define('Planche.controller.menu.Database', {
             scope       : this.application,
             allowDisable: function(topBtn, menu) {
 
-                var node = this.getSelectedNode();
-                var db = this.getParentNode(node);
+                if(this.getSelectedDatabase()){
 
-                if (!db) {
-
-                    return true;
+                    return false;
                 }
 
-                return false;
+                return true;
             },
             menu        : [{
                 text   : 'Drop Database',
                 scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedDatabase(true);
                     this.dropDatabase(node);
                 }
             }, {
@@ -125,7 +122,7 @@ Ext.define('Planche.controller.menu.Database', {
                 scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedDatabase(true);
                     this.truncateDatabase(node);
                 }
             }, {
@@ -133,7 +130,7 @@ Ext.define('Planche.controller.menu.Database', {
                 scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedNode();
+                    var node = this.getSelectedDatabase(true);
                     this.emptyDatabase(node);
                 }
             }
