@@ -337,7 +337,7 @@ Ext.define('Planche.lib.QueryParser', {
             if(token.type == this.type.QUERY_END){
 
                 tmpTokens.push(token);
-                raw += token.value;
+                
                 queries.push({raw : raw, sline : sline, eline : token.eline, tokens : tmpTokens, delimiter : false});
 
                 sline = token.eline;
