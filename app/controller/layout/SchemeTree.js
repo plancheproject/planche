@@ -27,7 +27,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                         var node = tree.getRootNode(),
                             tab = app.getActiveConnectTab();
 
-                        node.set('text', tab.getUser()+'@'+tab.getHost());
+                        node.set('text', tab.getUser() + '@' + tab.getHost());
 
                         tree.getSelectionModel().select(node);
 
@@ -42,6 +42,8 @@ Ext.define('Planche.controller.layout.SchemeTree', {
     selectNode: function(tree, node, index, eOpts) {
 
         var app = this.getApplication();
+
+        tree = tree.view.up("treepanel");
 
         app.setSelectedNode(node);
         app.setSelectedTree(tree);
@@ -326,7 +328,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                     children.push({
                         type: 'trigger',
-                        text: row[0] + ' - ' + row[1],
+                        text: row[0],
                         leaf: true
                     });
                 });
@@ -403,6 +405,7 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
                     children.push({
                         type: 'column',
+                        name: row[0],
                         text: row[0] + ' ' + row[1] + (row[8] ? ' [ ' + row[8] + ' ] ' : ''),
                         icon: 'resources/images/icon_' + (row[4] == 'PRI' ? 'primary' : 'column') + '.png',
                         leaf: true,

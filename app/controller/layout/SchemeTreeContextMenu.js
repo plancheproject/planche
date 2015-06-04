@@ -1,15 +1,15 @@
 Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
     extend: 'Ext.app.Controller',
-    init : function () {
+    init  : function() {
 
         this.control({
-            'scheme-tree' : {
-                'itemcontextmenu' : this.initContextMenu
+            'scheme-tree': {
+                'itemcontextmenu': this.initContextMenu
             }
         });
     },
 
-    initContextMenu : function (view, record, item, index, e, eOpts) {
+    initContextMenu: function(view, record, item, index, e, eOpts) {
 
         //서버트리의 이벤트를 잡아 내서 node위에서 right click을 했을 경우만 
         //context메뉴를 보여준다.
@@ -21,7 +21,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             type = node.raw.type,
             func = 'load' + type.charAt(0).toUpperCase() + type.slice(1) + 'ContextMenu';
 
-        if(!this[func]) {
+        if (!this[func]) {
 
             return;
         }
@@ -31,21 +31,21 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         menu.showAt(e.getXY());
     },
 
-    loadRootContextMenu : function () {
+    loadRootContextMenu: function() {
 
         var app = this.getApplication();
 
         return [
             {
-                text: 'Create Database',
-                handler : function () {
+                text   : 'Create Database',
+                handler: function() {
 
                     app.createDatabase();
                 }
             },
             {
-                text: 'Refresh All',
-                handler : function () {
+                text   : 'Refresh All',
+                handler: function() {
 
                     app.reloadTree();
                 }
@@ -53,49 +53,43 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         ];
     },
 
-    loadDatabaseContextMenu : function () {
+    loadDatabaseContextMenu: function() {
 
         var app = this.getApplication();
 
         return [
             {
-                text: 'Refresh Databases',
-                handler : function () {
-
-                    app.reloadTree();
-                }
+                text   : 'Refresh Databases',
+                handler: app.reloadTree
             },
             {
-                text: 'Create Database',
-                handler : function () {
-
-                    app.createDatabase();
-                }
-            },{
-                text: 'Alter Database',
-                handler : function () {
+                text   : 'Create Database',
+                handler: app.createDatabase
+            }, {
+                text   : 'Alter Database',
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.alterDatabase(node);
                 }
             },
             {
-                text: 'Drop Database',
-                handler : function () {
+                text   : 'Drop Database',
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.dropDatabase(node);
                 }
-            },{
-                text: 'Truncate Database',
-                handler : function () {
+            }, {
+                text   : 'Truncate Database',
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.truncateDatabase(node);
                 }
-            },{
-                text: 'Empty Database',
-                handler : function () {
+            }, {
+                text   : 'Empty Database',
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.emptyDatabase(node);
@@ -104,233 +98,228 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         ];
     },
 
-    loadTablesContextMenu : function () {
+    loadTablesContextMenu: function() {
 
         var app = this.getApplication();
+
         return [{
-            text: 'Refresh Tables',
-            handler : function () {
+            text   : 'Refresh Tables',
+            scope  : app,
+            handler: function() {
 
                 app.reloadTree();
             }
         }, {
-            text: 'Create Table',
-            handler : function () {
+            text   : 'Create Table',
+            scope  : app,
+            handler: function() {
 
                 app.openCreateTableWindow();
             }
         }, {
-            text: 'Copy Table(s) To Differnt Host/Database',
-            disabled : true,
-            handler : function () {
+            text    : 'Copy Table(s) To Differnt Host/Database',
+            disabled: true,
+            handler : function() {
 
             }
         }];
     },
 
-    loadTableContextMenu : function () {
+    loadTableContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Paste SQL Statement',
+            text     : 'Paste SQL Statement',
             defaults : {
-                scope : this
+                scope: this
             },
-            listeners : {
-                scope : this,
-                activate : function (menu) {
+            listeners: {
+                scope   : this,
+                activate: function(menu) {
 
                     var subTab = app.getActiveQueryTab();
-                    Ext.Object.each(menu.menu.items.items, function (idx, obj) { 
-                        obj[subTab ? 'enable' : 'disable'](); 
+                    Ext.Object.each(menu.menu.items.items, function(idx, obj) {
+                        obj[subTab ? 'enable' : 'disable']();
                     });
                 }
             },
-            menu : [{
-                text: 'INSERT INTO &lt;Table Name&gt;..',
-                scope : this,
-                handler : function () {
+            menu     : [{
+                text   : 'INSERT INTO &lt;Table Name&gt;..',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('insert', node);
                 }
-            },{
-                text: 'UPDATE &lt;Table Name&gt; SET..',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'UPDATE &lt;Table Name&gt; SET..',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('update', node);
                 }
-            },{
-                text: 'DELETE FROM &lt;Table Name&gt;..',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'DELETE FROM &lt;Table Name&gt;..',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('delete', node);
                 }
-            },{
-                text: 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('select', node);
                 }
             }]
-        },{
-            text: 'Copy Table(s) To Differnt Host/Database',
-            disabled : true,
-            handler : function () {
+        }, {
+            text    : 'Copy Table(s) To Differnt Host/Database',
+            disabled: true,
+            handler : function() {
 
             }
-        },{
+        }, {
             xtype: 'menuseparator'
-        },{
-            text: 'Open Table',
-            handler : function () {
+        }, {
+            text   : 'Open Table',
+            handler: function() {
 
                 app.openTable(app.getSelectedNode());
             }
-        },{
-            text: 'Create Table',
-            handler : function () {
+        }, {
+            text   : 'Create Table',
+            handler: function() {
 
                 app.openCreateTableWindow();
             }
-        },{
-            text: 'Alter Table',
-            scope : this,
-            handler : function () {
-                
+        }, {
+            text   : 'Alter Table',
+            scope  : this,
+            handler: function() {
+
                 var node = app.getSelectedNode();
                 app.openAlterTableWindow(node);
             }
-        },{
+        }, {
             text: 'More Table Operations',
-            menu : [{
-                text: 'Rename Table',
-                scope : this,
-                handler : function () {
+            menu: [{
+                text   : 'Rename Table',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.renameTable(node);
                 }
-            },{
-                text: 'Truncate Table',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'Truncate Table',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.truncateTable(node);
                 }
-            },{
-                text: 'Drop Table From Database',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'Drop Table From Database',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.dropTable(node);
                 }
-            },{
-                text: 'Reorder Column(s)',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'Reorder Column(s)',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.openReorderColumns(node);
                 }
-            },{
-                text: 'Duplicate Table Structure/Data',
-                scope : this,
-                disabled : true,
-                handler : function () {
+            }, {
+                text    : 'Duplicate Table Structure/Data',
+                scope   : this,
+                disabled: true,
+                handler : function() {
 
                 }
-            },{
-                text: 'View Advanced Properties',
-                scope : this,
-                handler : function () {
+            }, {
+                text   : 'View Advanced Properties',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.openAdvancedProperties(node);
                 }
-            },{
+            }, {
                 text: 'Change Table To Type',
-                menu : [
+                menu: [
                     {
-                        scope : this,
-                        text : 'MYISAM', 
-                        handler : function (btn) {
+                        scope  : this,
+                        text   : 'MYISAM',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'MRG_MYISAM', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'MRG_MYISAM',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'CSV', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'CSV',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'BLACKHOLE', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'BLACKHOLE',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'MEMORY', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'MEMORY',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'FEDERATED', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'FEDERATED',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'ARCHIVE', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'ARCHIVE',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'INNODB', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'INNODB',
+                        handler: function(btn) {
                             app.changeTableToType(btn.text);
                         }
-                    },
-                    {
-                        scope : this,
-                        text : 'PERFORMANCE_SCHEMA', 
-                        handler : function (btn) {
+                    }, {
+                        scope  : this,
+                        text   : 'PERFORMANCE_SCHEMA',
+                        handler: function(btn) {
 
                             app.changeTableToType(btn.text);
                         }
                     }
                 ]
             }]
-        },{
+        }, {
             xtype: 'menuseparator'
-        },{
-            text: 'Create Trigger',
-            handler : function () {
+        }, {
+            text   : 'Create Trigger',
+            handler: function() {
 
                 var node = app.getSelectedNode();
                 app.createTrigger(node);
@@ -338,322 +327,249 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }];
     },
 
-    loadViewsContextMenu : function () {
-
-        return [{
-            text: 'Refresh Views',
-            handler : function () {
-
-                app.reloadTree();
-            }
-        },{
-            text: 'Create View',
-            handler : function () {
-
-                this.getApplication().createView();
-            }
-        },
-        {
-            text: 'Alter View',
-            disabled : true
-        },
-        {
-            text: 'Drop View',
-            disabled : true
-        },
-        {
-            text: 'Rename View',
-            disabled : true
-        },
-        {
-            text: 'Export View',
-            disabled : true
-        },
-        {
-            text: 'Open View',
-            disabled : true
-        }];
-    },
-
-    loadViewContextMenu : function () {
+    loadViewsContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Create View',
-            handler : function () {
-
-                app.createView();
-            }
-        },
-        {
-            text: 'Alter View',
-            handler : function () {
-
-                app.alterView();
-            }
-        },
-        {
-            text: 'Drop View',
-            handler : function () {
-
-            }
-        },
-        {
-            text: 'Rename View',
-            handler : function () {
-
-            }
-        },
-        {
-            text: 'Export View',
-            handler : function () {
-
-            }
-        },
-        {
-            text: 'Open View',
-            handler : function () {
-
-                app.openTable(app.getSelectedNode());
-            }
+            text   : 'Refresh Views',
+            scope  : app,
+            handler: app.reloadTree
+        }, {
+            text   : 'Create View',
+            scope  : app,
+            handler: app.createView
         }];
     },
 
-    loadEventsContextMenu : function () {
+    loadViewContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Refresh Events',
-            handler : function () {
+            text   : 'Create View',
+            scope  : app,
+            handler: app.createView
+        }, {
+            text   : 'Alter View',
+            scope  : app,
+            handler: function() {
 
-                app.reloadTree();
+                var node = this.getSelectedNode();
+                app.alterView(node);
             }
-        },{
-            text: 'Create Event',
-            handler : function () {
+        }, {
+            text   : 'Drop View',
+            scope  : app,
+            handler: function() {
 
-                app.createEvent();
+                var node = this.getSelectedNode();
+                app.dropView(node);
             }
-        },
-        {
-            text: 'Alter Event',
-            disabled : true
-        },
-        {
-            text: 'Drop Event',
-            disabled : true
-        },
-        {
-            text: 'Rename Event',
-            disabled : true
-        }];
-    },
+        }, {
+            text   : 'Open View',
+            scope  : app,
+            handler: function() {
 
-    loadEventContextMenu : function () {
-
-        var app = this.getApplication();
-
-        return [{
-            text: 'Create Event',
-            handler : function () {
-
-                app.createEvent();
+                var node = this.getSelectedNode();
+                app.openTable(node);
             }
-        },
-        {
-            text: 'Alter Event',
-            handler : function () {
+        }, {
+            text   : 'Rename View',
+            scope  : app,
+            handler: function() {
 
-                app.alterEvent();
+                var node = this.getSelectedNode();
+                app.renameView(node);
             }
-        },
-        {
-            text: 'Drop Event',
-            handler : function () {
+        }, {
+            text   : 'Export View',
+            scope  : app,
+            handler: function() {
 
-                app.dropEvent();
-            }
-        },
-        {
-            text: 'Rename Event',
-            handler : function () {
-
-                app.renameEvent();
             }
         }];
     },
 
-    loadTriggersContextMenu : function () {
+    loadEventsContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Refresh Triggers',
-            handler : function () {
-
-                app.reloadTree();
-            }
-        },{
-            text: 'Create Trigger',
-            handler : function () {
-
-                app.createTrigger();
-            }
-        },
-        {
-            text: 'Alter Trigger',
-            disabled : true
-        },
-        {
-            text: 'Drop Trigger',
-            disabled : true
-        },
-        {
-            text: 'Rename Trigger',
-            disabled : true
+            text   : 'Refresh Events',
+            scope  : app,
+            handler: app.reloadTree
+        }, {
+            text   : 'Create Event',
+            scope  : app,
+            handler: app.createEvent
         }];
     },
 
-    loadTriggerContextMenu : function () {
+    loadEventContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Create Trigger',
-            handler : function () {
+            text   : 'Create Event',
+            scope  : app,
+            handler: app.createEvent
+        }, {
+            text   : 'Alter Event',
+            scope  : app,
+            handler: function(){
 
-                app.createTrigger();
+                var node = this.getSelectedNode();
+                app.alterEvent(node);
             }
-        },
-        {
-            text: 'Alter Trigger',
-            handler : function () {
+        }, {
+            text   : 'Drop Event',
+            scope  : app,
+            handler: function(){
 
-                app.alterTrigger();
+                var node = this.getSelectedNode();
+                app.dropEvent(node);
             }
-        },
-        {
-            text: 'Drop Trigger',
-            handler : function () {
+        }, {
+            text   : 'Rename Event',
+            scope  : app,
+            handler: function(){
 
-                app.dropTrigger();
-            }
-        },
-        {
-            text: 'Rename Trigger',
-            handler : function () {
-
-                app.renameTrigger();
+                var node = this.getSelectedNode();
+                app.renameEvent(node);
             }
         }];
     },
 
-    loadFunctionsContextMenu : function () {
+    loadTriggersContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Refresh Functions',
-            handler : function () {
-
-                app.reloadTree();
-            }
-        },{
-            text: 'Create Function',
-            handler : function () {
-
-                app.createfunction ();
-            }
-        },
-        {
-            text: 'Alter Function',
-            disabled : true
-        },
-        {
-            text: 'Drop Function',
-            disabled : true
+            text   : 'Refresh Triggers',
+            handler: app.reloadTree
+        }, {
+            text   : 'Create Trigger',
+            scope  : app,
+            handler: app.createTrigger
         }];
     },
 
-    loadFunctionContextMenu : function () {
+    loadTriggerContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Create Function',
-            handler : function () {
+            text   : 'Create Trigger',
+            scope  : app,
+            handler: app.createTrigger
+        }, {
+            text   : 'Alter Trigger',
+            scope  : app,
+            handler: function(){
 
-                app.createfunction ();
+                var node = this.getSelectedNode();
+                app.alterTrigger(node);
             }
-        },
-        {
-            text: 'Alter Function',
-            handler : function () {
+        }, {
+            text   : 'Drop Trigger',
+            scope  : app,
+            handler: function(){
 
-                app.alterfunction ();
+                var node = this.getSelectedNode();
+                app.dropTrigger(node);
             }
-        },
-        {
-            text: 'Drop Function',
-            handler : function () {
+        }, {
+            text   : 'Rename Trigger',
+            scope  : app,
+            handler: function(){
 
-                app.dropfunction ();
+                var node = this.getSelectedNode();
+                app.renameTrigger(node);
             }
         }];
     },
 
-    loadProceduresContextMenu : function () {
+    loadFunctionsContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Refresh Procedures',
-            handler : function () {
-
-                app.reloadTree();
-            }
-        },{
-            text: 'Create Procedure',
-            handler : function () {
-
-                app.createProcedure();
-            }
-        },
-        {
-            text: 'Alter Procedure',
-            disabled : true
-        },
-        {
-            text: 'Drop Procedure',
-            disabled : true
+            text   : 'Refresh Functions',
+            scope  : app,
+            handler: app.reloadTree
+        }, {
+            text   : 'Create Function',
+            scope  : app,
+            handler: app.createFunction
         }];
     },
 
-    loadProcedureContextMenu : function () {
+    loadFunctionContextMenu: function() {
 
         var app = this.getApplication();
 
         return [{
-            text: 'Create Procedure',
-            handler : function () {
+            text   : 'Create Function',
+            scope  : app,
+            handler: app.createFunction
+        }, {
+            text   : 'Alter Function',
+            scope  : app,
+            handler: function(){
 
-                app.createProcedure();
+                var node = this.getSelectedNode();
+                app.alterFunction(node);
             }
-        },
-        {
-            text: 'Alter Procedure',
-            handler : function () {
+        }, {
+            text   : 'Drop Function',
+            scope  : app,
+            handler: function(){
 
-                app.alterProcedure();
+                var node = this.getSelectedNode();
+                app.dropFunction(node);
             }
-        },
-        {
-            text: 'Drop Procedure',
-            handler : function () {
+        }];
+    },
 
-                app.dropProcedure();
+    loadProceduresContextMenu: function() {
+
+        var app = this.getApplication();
+
+        return [{
+            text   : 'Refresh Procedures',
+            scope  : app,
+            handler: app.reloadTree
+        }, {
+            text   : 'Create Procedure',
+            scope  : app,
+            handler: app.createProcedure
+        }];
+    },
+
+    loadProcedureContextMenu: function() {
+
+        var app = this.getApplication();
+
+        return [{
+            text   : 'Create Procedure',
+            scope  : app,
+            handler: app.createProcedure
+        }, {
+            text   : 'Alter Procedure',
+            scope  : app,
+            handler: function(){
+
+                var node = this.getSelectedNode();
+                app.alterProcedure(node);
+            }
+        }, {
+            text   : 'Drop Procedure',
+            scope  : app,
+            handler: function(){
+
+                var node = this.getSelectedNode();
+                app.dropProcedure(node);
             }
         }];
     }
