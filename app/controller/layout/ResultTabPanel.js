@@ -21,8 +21,6 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
         var 
         app        = this.getApplication(),
-        connectTab = app.getActiveConnectTab(),
-        
         scheme     = response.fields, records = response.records,
         columns    = [], fields = [], grid,
 
@@ -37,7 +35,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
             textRows.setText('0');
             
-            connectTab.setLoading(true);
+            app.setLoading(true);
 
             app.tunneling({
                 db : db,
@@ -46,7 +44,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
                     var data = app.makeRecords(scheme, response.records);              
                     grid.store.loadData(data);
-                    connectTab.setLoading(false);
+                    app.setLoading(false);
 
                     if(refreshPerSec > 0) {
 

@@ -27,7 +27,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
             tunneling,
             messages = [];
 
-        app.getActiveConnectTab().setLoading(true);
+        app.setLoading(true);
 
         me.comboData = {};
         me.comboValue = {};

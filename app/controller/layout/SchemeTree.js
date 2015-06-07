@@ -82,17 +82,14 @@ Ext.define('Planche.controller.layout.SchemeTree', {
 
     loadDatabases: function(node) {
 
-        var app = this.application,
-            tree = app.getSelectedTree();
+        var app = this.getApplication();
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             query  : app.getAPIS().getQuery('SHOW_DATABASE'),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 Ext.Array.each(response.records, function(row, idx) {
@@ -130,25 +127,29 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
 
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadTables: function(node) {
 
-        var app = this.application,
-            db = node.parentNode.data.text,
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = node.parentNode.data.text;
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
@@ -156,7 +157,6 @@ Ext.define('Planche.controller.layout.SchemeTree', {
             node   : node,
             success: function(config, response) {
 
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -181,32 +181,35 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
+
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadViews: function(node) {
 
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = app.getParentNode(node);
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_VIEWS', db),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -219,32 +222,34 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadProcedures: function(node) {
 
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = app.getParentNode(node);
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_PROCEDURES', db),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -257,32 +262,36 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+
+                }
+
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadFunctions: function(node) {
 
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = app.getParentNode(node);
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FUNCTIONS', db),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -295,32 +304,35 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
+
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadTriggers: function(node) {
 
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = app.getParentNode(node);
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_TRIGGERS', db),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -333,32 +345,34 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadEvents: function(node) {
 
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = app.getSelectedTree();
+        var app = this.getApplication(),
+            db = app.getParentNode(node);
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_EVENTS', db),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -371,33 +385,35 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadColumns: function(node) {
 
-        var app = this.application,
+        var app = this.getApplication(),
             db = app.getParentNode(node),
-            tb = node.parentNode.data.text,
-            tree = app.getSelectedTree();
+            tb = node.parentNode.data.text;
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -413,33 +429,35 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     },
 
     loadIndexes: function(node) {
 
-        var app = this.application,
+        var app = this.getApplication(),
             db = app.getParentNode(node),
-            tb = node.parentNode.data.text,
-            tree = app.getSelectedTree();
+            tb = node.parentNode.data.text;
 
-        tree.setLoading(true);
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_INDEXES', db, tb),
             node   : node,
             success: function(config, response) {
-
-                tree.setLoading(false);
 
                 var children = [];
                 node.removeAll();
@@ -460,13 +478,19 @@ Ext.define('Planche.controller.layout.SchemeTree', {
                     });
                 });
 
-                if (children.length == 0) { return; }
+                if (children.length == 0) {
+
+                    app.setLoading(false);
+                    return;
+                }
+
                 node.appendChild(children);
+                app.setLoading(false);
             },
             failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
+                app.setLoading(false);
             }
         });
     }
