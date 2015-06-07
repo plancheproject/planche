@@ -14,6 +14,21 @@ Ext.define('Planche.controller.menu.Connection', {
                 }
 
                 return false;
+            },
+            handler : function () {
+
+                var tab = this.getActiveConnectTab();
+                this.initConnectTab({
+                    hostName    : tab.getHostName(),
+                    tunnelingURL: tab.getTunnelingURL(),
+                    requestType : tab.getRequestType(),
+                    host        : tab.getHost(),
+                    user        : tab.getUser(),
+                    pass        : tab.getPass(),
+                    charset     : tab.getCharset(),
+                    port        : tab.getPort(),
+                    dbms        : tab.getDBMS()
+                });
             }
         },{
             text : 'New Connection',
@@ -121,10 +136,11 @@ Ext.define('Planche.controller.menu.Connection', {
             },
             handler : function () {
 
-                var connections = this.getConnectTabPanel().query('>>tab');
-                Ext.Array.each(connections, function (tab, idx) {
+                var app = this,
+                    conns = app.getConnectTabPanel().query('>>tab');
+                Ext.Array.each(conns, function (tab, idx) {
 
-                    tab.destroy();
+                    app.closeActiveConnectionTab();
                 });
             }
         }]);
