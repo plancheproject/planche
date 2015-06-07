@@ -19,7 +19,11 @@ Ext.define('Planche.controller.layout.Toolbar', {
             '#toolbar-query-exec' : {
                 click : Ext.Function.bind(app.executeQuery, app)
             },
-            
+
+            '#toolbar-stop-operation' : {
+                click : Ext.Function.bind(app.stopOperation, app)
+            },
+
             '#toolbar-user-manager' : {
                 click : Ext.Function.bind(app.openUserPanel, app)
             },

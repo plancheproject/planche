@@ -28,6 +28,11 @@ Ext.define('Planche.view.layout.Toolbar', {
             id     : 'toolbar-query-exec'
         },
         {
+            icon   : 'resources/images/icon_stop24x24.png',
+            tooltip: 'Stop Operations(ALT+S)',
+            id     : 'toolbar-stop-operation'
+        },
+        {
             icon   : 'resources/images/icon_user24x24.png',
             tooltip: 'User Manager(ALT+U)',
             id     : 'toolbar-user-manager'
