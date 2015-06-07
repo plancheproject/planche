@@ -1,6 +1,25 @@
 Ext.define('Planche.controller.layout.TableDataTab', {
     extend: 'Ext.app.Controller',
+    prevNode : null,
     init : function () {
 
+        var app = this.getApplication();
+
+        this.control({
+            'table-data-tab'   : {
+                show: function() {
+
+                    var node = app.getSelectedNode();
+
+                    if(this.prevNode == node){
+
+                        return;
+                    }
+
+                    this.prevNode = node;
+                    app.openTable(node);
+                }
+            }
+        });
     }
 });

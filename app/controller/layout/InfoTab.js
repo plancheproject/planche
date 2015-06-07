@@ -1,23 +1,34 @@
 Ext.define('Planche.controller.layout.InfoTab', {
     extend: 'Ext.app.Controller',
+    prevNode : null,
     init  : function() {
+
+        var app = this.getApplication();
 
         this.control({
             'info-tab'   : {
                 show: function(grid) {
 
-                    this.openInfo(this.application.getSelectedNode());
+                    var node = app.getSelectedNode();
+
+                    if(this.prevNode == node){
+
+                        return;
+                    }
+
+                    this.prevNode = node;
+
+                    this.openInfo(node);
                 }
             },
             'scheme-tree': {
                 select: function(view) {
 
-                    var app = this.getApplication(),
-                        treeview = view.views[0],
+                    var treeview = view.views[0],
                         tree = treeview.up("treepanel");
 
                     app.setSelectedTree(tree);
-
+                    
                     var node = app.getSelectedNode();
 
                     this.openInfo(node);
@@ -46,15 +57,18 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             queries = {
                 databases: api.getQuery('SHOW_DATABASES')
             },
             keys = Ext.Object.getKeys(queries),
+
             responses = {},
             tunneling;
+
+        app.setLoading(true);
 
         (tunneling = Ext.Function.bind(function() {
 
@@ -78,6 +92,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Show Databases</h3>');
                 this.makeTableByRecord(responses.databases, html);
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
 
         }, this))();
@@ -87,7 +103,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             queries = {
@@ -102,6 +118,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
             keys = Ext.Object.getKeys(queries),
             responses = {},
             tunneling;
+
+        app.setLoading(true);
 
         (tunneling = Ext.Function.bind(function() {
 
@@ -137,6 +155,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Create Database DDL</h3>');
                 html.push('<div class="info">' + responses.ddl.records[0][1].replace(/\n/gi, '<br/>') + '</div>');
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
 
         }, this))();
@@ -146,10 +166,12 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             me = this;
+
+        app.setLoading(true);
 
         app.tunneling({
             db     : db,
@@ -161,6 +183,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Show Table Status</h3>');
                 me.makeTableByRecord(response, html);
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
         });
     },
@@ -169,18 +193,20 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
+            tb = app.getSelectedTable(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             queries = {
-                create: api.getQuery('TABLE_CREATE_INFO', db, node.data.text),
-                fields: api.getQuery('SHOW_FULL_FIELDS', db, node.data.text),
-                keys  : api.getQuery('TABLE_KEYS_INFO', db, node.data.text)
+                create: api.getQuery('TABLE_CREATE_INFO', db, tb),
+                fields: api.getQuery('SHOW_FULL_FIELDS', db, tb),
+                keys  : api.getQuery('TABLE_KEYS_INFO', db, tb)
             },
             keys = Ext.Object.getKeys(queries),
             responses = {},
             tunneling;
 
+        app.setLoading(true);
         (tunneling = Ext.Function.bind(function() {
 
             var key = keys.shift();
@@ -207,6 +233,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Create Table DDL</h3>');
                 html.push('<div class="info">' + responses.create.records[0][1].replace(/\n/gi, '<br/>') + '</div>');
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
 
         }, this))();
@@ -216,15 +244,18 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
+            tb = app.getSelectedTable(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             queries = {
-                fields: api.getQuery('SHOW_FULL_FIELDS', db, node.data.text)
+                fields: api.getQuery('SHOW_FULL_FIELDS', db, tb)
             },
             keys = Ext.Object.getKeys(queries),
             responses = {},
             tunneling;
+
+        app.setLoading(true);
 
         (tunneling = Ext.Function.bind(function() {
 
@@ -248,6 +279,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Show Table Fields</h3>');
                 this.makeTableByRecord(responses.fields, html);
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
 
         }, this))();
@@ -257,15 +290,18 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             api = app.getAPIS(),
-            db = app.getParentNode(node),
+            db = app.getSelectedDatabase(),
+            tb = app.getSelectedTable(),
             info = app.getActiveInfoTab(),
             dom = Ext.get(info.getEl().query("div[id$=innerCt]")),
             queries = {
-                keys  : api.getQuery('TABLE_KEYS_INFO', db, node.data.text)
+                keys  : api.getQuery('TABLE_KEYS_INFO', db, tb)
             },
             keys = Ext.Object.getKeys(queries),
             responses = {},
             tunneling;
+
+        app.setLoading(true);
 
         (tunneling = Ext.Function.bind(function() {
 
@@ -289,6 +325,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
                 html.push('<h3>Show Table Indexes</h3>');
                 this.makeTableByRecord(responses.keys, html);
                 dom.setHTML(html.join(""));
+
+                app.setLoading(false);
             }
 
         }, this))();
