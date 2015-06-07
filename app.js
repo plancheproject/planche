@@ -460,6 +460,7 @@ Ext.application({
         if (tab) {
 
             Ext.applyIf(config, {
+                hostName    : tab.getHostName(),
                 host        : tab.getHost(),
                 user        : tab.getUser(),
                 pass        : tab.getPass(),
@@ -540,6 +541,14 @@ Ext.application({
                     response = {
                         success: false,
                         message: 'Can\'t connect to MySQL Server'
+                    }
+                }
+
+                if (response == 'abort') {
+
+                    response = {
+                        success: false,
+                        message: 'This operation was aborted'
                     }
                 }
 
@@ -826,7 +835,7 @@ Ext.application({
                             },
                             afterAllQueries: function(queries, results) {
 
-                                app.getActiveConnectTab().setLoading(false);
+                                app.setLoading(false);
 
                                 if (messages.length > 0) {
 
@@ -913,7 +922,7 @@ Ext.application({
     },
 
     createFunction: function() {
-        
+
         var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create Function', 'Please enter new function name:', function(btn, name) {
 
@@ -1065,7 +1074,7 @@ Ext.application({
                             },
                             afterAllQueries: function(queries, results) {
 
-                                app.getActiveConnectTab().setLoading(false);
+                                app.setLoading(false);
 
                                 if (messages.length > 0) {
 
@@ -1169,7 +1178,7 @@ Ext.application({
                             },
                             afterAllQueries: function(queries, results) {
 
-                                app.getActiveConnectTab().setLoading(false);
+                                app.setLoading(false);
 
                                 if (messages.length > 0) {
 
@@ -1356,7 +1365,7 @@ Ext.application({
                         this.multipleTunneling(db, queries, {
                             prevAllQueries : function(queries) {
 
-                                app.getActiveConnectTab().setLoading(true);
+                                app.setLoading(true);
                             },
                             failureQuery   : function(idx, query, config, response) {
 
@@ -1364,7 +1373,7 @@ Ext.application({
                             },
                             afterAllQueries: function(queries, results) {
 
-                                app.getActiveConnectTab().setLoading(false);
+                                app.setLoading(false);
 
                                 if (messages.length > 0) {
 
@@ -1613,7 +1622,7 @@ Ext.application({
                     return;
                 }
 
-                this.getActiveConnectTab().setLoading(true);
+                this.setLoading(true);
 
                 this.tunneling({
                     db     : db,
@@ -1637,7 +1646,7 @@ Ext.application({
                             messages.push(this.generateQuerySuccessMsg(query.getSQL(), msg));
                         }
 
-                        this.getActiveConnectTab().setLoading(false);
+                        this.setLoading(false);
 
                         tunneling();
                     },
@@ -1645,7 +1654,7 @@ Ext.application({
 
                         messages.push(this.generateError(query.getSQL(), response.message));
 
-                        this.getActiveConnectTab().setLoading(false);
+                        this.setLoading(false);
 
                         tunneling();
                     }
@@ -1665,6 +1674,23 @@ Ext.application({
         if (messages.length == 0) { return; }
 
         this.openMessage(messages);
+    },
+
+    setLoading : function(loading){
+
+        var connTab = this.getActiveConnectTab();
+        connTab.setLoading(loading);
+
+        var stopBtn = Ext.getCmp('toolbar-stop-operation');
+
+        stopBtn.setDisabled(!loading);
+    },
+
+    stopOperation : function(){
+
+        Ext.data.JsonP.abort();
+        Ext.Ajax.abortAll();
+        this.setLoading(false);
     },
 
     /**
@@ -1743,11 +1769,9 @@ Ext.application({
             db = this.getSelectedDatabase(),
             parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
             queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, node.data.text, "*")),
-            query = queries[0],
-            tree = this.getSelectedTree();
+            query = queries[0];
 
-        tab.setLoading(true);
-        tree.setDisabled(true);
+        this.setLoading(true);
 
         this.tunneling({
             db     : db,
@@ -1757,9 +1781,7 @@ Ext.application({
             success: function(config, response) {
 
                 this.initQueryResult({openTable: node.data.text}, db, query, response);
-
-                tree.setDisabled(false);
-                tab.setLoading(false);
+                this.setLoading(false);
             }
         });
     },
@@ -1768,6 +1790,8 @@ Ext.application({
 
         var tmp = [];
         Ext.Array.each(records, function(row, ridx) {
+
+            if(!row) return;
 
             var record = {};
             Ext.Array.each(fields, function(col, cidx) {
