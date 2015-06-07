@@ -456,7 +456,7 @@ Ext.define('Planche.controller.user.Grant', {
             settings = user.get('priv');
 
         settings[selTree[0].raw.path] = selectedPrivs;
-        
+
         user.set('priv', settings);
 
         this.getSaveChangeBtn().setDisabled(false);

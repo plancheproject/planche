@@ -19,7 +19,7 @@ Ext.define('Planche.controller.table.EditSchemeWindow', {
 
     initWindow : function (db, tb) {
 
-        var title = (tb ? 'Alter Table \''+tb+'\' in \''+db+'\'' : 'Create new table');
+        var title = (tb ? 'Alter Table \'' + tb + '\' in \'' + db + '\'' : 'Create new table');
         Ext.create('Planche.view.table.EditSchemeWindow', {
             title: title,
             items: this.initTabPanel(db, tb)
