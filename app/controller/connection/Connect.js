@@ -1,6 +1,6 @@
 Ext.define('Planche.controller.connection.Connect', {
-    extend: 'Ext.app.Controller',
-
+    extend    : 'Ext.app.Controller',
+    tmpCopy   : null,
     initWindow: function() {
 
         var app = this.getApplication(),
@@ -12,25 +12,40 @@ Ext.define('Planche.controller.connection.Connect', {
             fields.push(obj.dataIndex);
         });
 
-        var store = Ext.create('Ext.data.Store', {
+        this.store = Ext.create('Ext.data.Store', {
             fields: fields
         });
 
-
-        var grid = Ext.create('Ext.grid.Panel', {
+        this.grid = Ext.create('Ext.grid.Panel', {
             id         : 'connect-grid',
             border     : false,
             columnLines: true,
             width      : '100%',
             flex       : 1,
             columns    : columns,
-            store      : store,
+            store      : this.store,
             listeners  : {
-                scope      : this,
-                itemdblclick: this.connect,
-                cellkeydown: function(grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
+                scope       : this,
+                select      : function(grid, record) {
 
-                    if(e.keyCode === Ext.EventObject.ENTER){
+                    if (record.raw.into == 'localstorage') {
+
+                        Ext.getCmp('edit-conn-btn').setDisabled(false);
+                        Ext.getCmp('del-conn-btn').setDisabled(false);
+                    }
+                    else {
+
+                        Ext.getCmp('edit-conn-btn').setDisabled(true);
+                        Ext.getCmp('del-conn-btn').setDisabled(true);
+                    }
+
+                    Ext.getCmp('conn-btn').setDisabled(false);
+                    Ext.getCmp('test-conn-btn').setDisabled(false);
+                },
+                itemdblclick: this.connect,
+                cellkeydown : function(grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
+
+                    if (e.keyCode === Ext.EventObject.ENTER) {
 
                         this.connect();
                     }
@@ -38,11 +53,6 @@ Ext.define('Planche.controller.connection.Connect', {
             }
         });
 
-        store.on('refresh', function(store, records, successful, eOpts) {
-
-            this.getSelectionModel().select(store.getAt(0));
-            //debugger;
-        }, grid);
 
         Ext.create('Planche.lib.Window', {
             id        : 'connect-window',
@@ -60,26 +70,91 @@ Ext.define('Planche.controller.connection.Connect', {
             shadow    : false,
             autoShow  : true,
             constrain : true,
-            items     : grid,
+            items     : this.grid,
             buttons   : [{
-                text   : 'Connect',
-                scope  : this,
-                handler: this.connect
+                text    : 'Connect',
+                id      : 'conn-btn',
+                disabled: true,
+                scope   : this,
+                handler : this.connect
             }, {
-                text   : 'Test Connect',
+                text    : 'Test Connect',
+                id      : 'test-conn-btn',
+                disabled: true,
+                scope   : this,
+                handler : this.testConnect
+            }, {
+                text   : 'Add New Connnection',
                 scope  : this,
-                handler: this.testConnect
+                handler: this.newConnect
+            }, {
+                text    : 'Edit Connnection',
+                id      : 'edit-conn-btn',
+                disabled: true,
+                scope   : this,
+                handler : this.editConnect
+            }, {
+                text    : 'Del Connnection',
+                id      : 'del-conn-btn',
+                disabled: true,
+                scope   : this,
+                handler : this.delConnect
             }],
             listeners : {
+                scope   : this,
                 boxready: function() {
 
-                    store.loadData(Planche.config.hosts);
+                    this.initHosts();
+                    this.initKeyMap();
                 }
             }
         });
+
+        app.on('initHosts', this.initHosts, this);
     },
 
-    connect: function() {
+    initHosts: function() {
+
+        var hosts = [];
+
+        Ext.Array.each(Planche.config.hosts, function(connInfo, index) {
+
+            Ext.apply(connInfo, {
+                'into' : 'hostfile',
+                'index': index
+            });
+
+            hosts.push(connInfo);
+        });
+
+        if (typeof(Storage) !== "undefined") {
+
+            try {
+
+                var savedLocalHosts = JSON.parse(localStorage.getItem('planche-hosts'));
+            }
+            catch (e) {
+
+                var savedLocalHosts = [];
+            }
+
+            Ext.Array.each(savedLocalHosts, function(connInfo, index) {
+
+                Ext.apply(connInfo, {
+                    'into' : 'localstorage',
+                    'index': index
+                });
+
+                hosts.push(connInfo);
+            });
+        }
+
+        this.store.loadData(hosts);
+
+        Ext.getCmp('edit-conn-btn').setDisabled(true);
+        Ext.getCmp('del-conn-btn').setDisabled(true);
+    },
+    connect  : function() {
 
         var me = this,
             app = me.getApplication();
@@ -106,6 +181,43 @@ Ext.define('Planche.controller.connection.Connect', {
 
             Ext.Msg.alert('Info', 'Connection is successful');
         });
+    },
+
+    newConnect: function() {
+
+        if (typeof localStorage == 'undefined') {
+
+            Ext.Msg.alert('notice', 'Your browser does not support local storage');
+            return;
+        }
+
+        var app = this.getApplication();
+        app.openWindow('connection.NewConnect');
+    },
+
+    editConnect: function() {
+
+        if (typeof localStorage == 'undefined') {
+
+            Ext.Msg.alert('notice', 'Your browser does not support local storage');
+            return;
+        }
+
+        var app = this.getApplication(),
+            conn = this.getSelectedConnection();
+
+        app.openWindow('connection.NewConnect', conn);
+    },
+
+    delConnect : function(){
+
+        var app = this.getApplication(),
+            conn = this.getSelectedConnection(),
+            hosts = app.getHostsInStorage();
+
+        hosts.splice(conn.raw.index, 1);
+
+        app.setHostsInStorage(hosts);
     },
 
     ping: function(callback) {
@@ -171,14 +283,63 @@ Ext.define('Planche.controller.connection.Connect', {
             }
             },
             {
-                text: 'Request Type', dataIndex: 'requestType', width: 100, renderer: function(value) {
+                text: 'Req.Type', dataIndex: 'requestType', width: 60, renderer: function(value) {
 
-                return value ? value.toUpperCase() : 'AJAX';
+                return value ? value.toUpperCase() : 'JSONP';
             }
             },
-            {text: 'Charset', dataIndex: 'charset', width: 100},
-            {text: 'Port', dataIndex: 'port', width: 60},
+            {text: 'Save in', dataIndex: 'into', width: 80},
+            {text: 'Charset', dataIndex: 'charset', width: 50},
+            {text: 'Port', dataIndex: 'port', width: 40},
             {text: 'HTTP Tunneling URL', dataIndex: 'tunnelingURL', flex: 1}
         ];
+    },
+
+    copyHost: function() {
+
+        if (typeof localStorage == 'undefined') {
+
+            Ext.Msg.alert('notice', 'Your browser does not support local storage');
+            return;
+        }
+
+        this.tmpCopy = Ext.clone(this.getSelectedConnection().raw);
+    },
+
+    pasteHost: function() {
+
+        if(!this.tmpCopy){
+
+            return;
+        }
+
+        var app = this.getApplication(),
+            hosts = app.getHostsInStorage();
+
+        this.tmpCopy['index'] = hosts.length;
+
+        hosts.push(this.tmpCopy);
+
+        app.setHostsInStorage(hosts);
+
+        this.tmpCopy = null;
+    },
+
+    initKeyMap: function() {
+
+        var map = new Ext.util.KeyMap({
+            target : Ext.getCmp('connect-grid').getEl(),
+            binding: [{
+                scope: this,
+                key  : Ext.EventObject.C,
+                ctrl : true,
+                fn   : this.copyHost
+            }, {
+                scope: this,
+                key  : Ext.EventObject.V,
+                ctrl : true,
+                fn   : this.pasteHost
+            }]
+        });
     }
 });

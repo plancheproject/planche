@@ -10,7 +10,8 @@ Ext.define('Planche.Application', {
         'Planche.lib.QueryParser',
         'Planche.lib.QueryAlignment',
         'Planche.dbms.mysql',
-        'Planche.overrides.FixMenuBug'
+        'Planche.overrides.FixMenuBug',
+        'Planche.overrides.RadioGroup'
     ],
     views: [
         'layout.ConnectTab',
@@ -49,6 +50,7 @@ Ext.define('Planche.Application', {
         'command.Status',
         'command.Variables',
         'connection.Connect',
+        'connection.NewConnect',
         'database.CreateDatabase',
         'menu.Connection',
         'menu.Database',

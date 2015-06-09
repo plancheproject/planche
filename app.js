@@ -298,6 +298,29 @@ Ext.application({
         }
     },
 
+    getHostsInStorage : function(){
+
+        var hosts = localStorage.getItem('planche-hosts');
+
+        try {
+
+            hosts = Ext.JSON.decode(hosts) || [];
+        }
+        catch (e) {
+
+            hosts = [];
+        }
+
+        return hosts;
+    },
+
+    setHostsInStorage : function(hosts){
+
+        localStorage.setItem('planche-hosts', Ext.JSON.encode(hosts));
+
+        this.fireEvent('initHosts');
+    },
+
     reloadTree: function() {
 
         var tree = this.getSelectedTree(),
