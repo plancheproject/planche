@@ -705,7 +705,7 @@ Ext.application({
 
         var db = this.getSelectedDatabase(),
             table = node.data.text,
-            a = [], b = [],
+            a = [], b = [], c =[],
             api = this.getAPIS();
 
         var func = {
@@ -717,6 +717,19 @@ Ext.application({
                     b.push("'" + row[0] + "'");
                 });
                 return api.getQuery('INSERT_TABLE', db, table, a.join(','), b.join(','));
+            }, this),
+            'duplicate_update': Ext.Function.bind(function(records) {
+
+                Ext.Array.each(records, function(row, idx) {
+
+                    a.push("`" + row[0] + "`");
+                    b.push("'" + row[0] + "'");
+                    if (row[3] != "PRI") {
+
+                        c.push("`" + row[0] + "`= VALUES(" + row[0] + ")");
+                    }
+                });
+                return api.getQuery('INSERT_ON_DUPLICATE', db, table, a.join(','), b.join(','), c.join(','));
             }, this),
             'update': Ext.Function.bind(function(records) {
 
@@ -1497,6 +1510,45 @@ Ext.application({
         }, this);
     },
 
+    duplicateTable: function(node) {
+
+        var db = this.getSelectedDatabase(),
+            table = node.data.text,
+            app = this;
+
+        Ext.Msg.prompt('Duplicate Table \'' + table + '\' in \'' + db + '\'', 'Please enter new table name:', function(btn, name) {
+
+            if (btn == 'ok') {
+
+                var queries = [
+                        app.getAPIS().getQuery('COPY_TABLE_STRUCTURE', db, table, db, name),
+                        app.getAPIS().getQuery('COPY_TABLE_DATA', db, table, db, name)
+                    ],
+                    messages = [];
+
+                this.multipleTunneling(db, queries, {
+                    failureQuery   : function(idx, query, config, response) {
+
+                        messages.push(app.generateQueryErrorMsg(query, response.message));
+                    },
+                    afterAllQueries: function(queries, results) {
+
+                        app.setLoading(false);
+
+                        if (messages.length > 0) {
+
+                            app.openMessage(messages);
+                        }
+                        else {
+
+                            app.getSelectedTree().getSelectionModel().select(node.parentNode);
+                            app.reloadTree();
+                        }
+                    }
+                });
+            }
+        }, this);
+    },
 
     setActiveEditorValue: function(v) {
 
@@ -1684,6 +1736,8 @@ Ext.application({
                 })
             }
             else {
+
+                this.setLoading(false);
 
                 this.afterExecuteQuery(messages);
                 this.reloadTree();

@@ -176,6 +176,14 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('select', node);
                 }
+            },{
+                text   : 'INSERT ... ON DUPLICATE KEY UPDATE',
+                scope  : this,
+                handler: function() {
+
+                    var node = app.getSelectedNode();
+                    app.pasteSQLStatement('duplicate_update', node);
+                }
             }]
         }, {
             text    : 'Copy Table(s) To Differnt Host/Database',
@@ -242,9 +250,18 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
             }, {
                 text    : 'Duplicate Table Structure/Data',
                 scope   : this,
-                disabled: true,
                 handler : function() {
 
+                    var node = app.getSelectedNode();
+                    app.duplicateTable(node);
+                }
+            }, {
+                text    : 'Copy Table Structure/Data To Other Database',
+                scope   : this,
+                handler : function() {
+
+                    var node = app.getSelectedNode();
+                    app.duplicateTable(node);
                 }
             }, {
                 text   : 'View Advanced Properties',
