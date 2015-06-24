@@ -5,8 +5,6 @@ Ext.define('Planche.lib.QueryParser', {
 
 		this.type = Planche.lib.QueryTokenType.get();
 
-		this.isNotSelectQueryKeyword = ["UPDATE", "CREATE", "DELETE", "INSERT", "ALTER", "DROP"];
-
 		this.defaultLimit	= 100;
 		this.openComments	= ['#', '-- ', '/*'];
 		this.closeComments	= ['\n', '\n', '*/'];
@@ -14,26 +12,34 @@ Ext.define('Planche.lib.QueryParser', {
 								'`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '()', '(', ')', '+', '-',
 								'=', '\\', '[', ']', '{', '}', ';', ':', '<', '>', ',', '.', '/', '?'
 							  ];
-		this.comparison		= ['=', '<=', '>=', '!=', '<', '>'];
+		this.comparison		= ['=', '<=', '>=', '!=', '<>', '<', '>'];
 
 		var boundaries		= this.addSlashes(this.boundaries).join("|");
 
-		this.regexpWhiteSpace		= /^\s+/g;
-		this.regexpTrim				= /(^\s*)|(\s*$)/gi;
-		this.regexpIsNotSelectQuery	= new RegExp('^('+this.isNotSelectQueryKeyword.join("|")+')', "gi");
+		this.regexpWhiteSpace		= new RegExp('^\\s+', 'g');
+		this.regexpTrim				= new RegExp('(^\\s*)|(\\s*$)', 'gi');
+		this.regexpNotSelectQueries	= new RegExp('^('+this.engine.getNotSelectQueries().join("|")+')', "gi");
 		this.regexpBoundaries		= new RegExp('^('+boundaries+')', "g");
 		this.regexpSplit			= new RegExp('('+boundaries+'|$|\\s)', "g");
 		this.regexpJoin				= new RegExp('^('+this.engine.getJoins().join("|")+')', "gi");
 		this.regexpLimit			= new RegExp('^'+this.engine.getRegexpLimit(), "gi");
 
-		this.regexpDelimiter		= /^;/g;
-		this.regexpFunctions		= new RegExp('^('+this.engine.getFunctions().join("|")+')\\((.*?[\\\']) {0,}.*?\\)', "gi");
+		this.regexpDelimiter		= new RegExp('^;', 'g');
+		this.regexpFunctions		= new RegExp('^([a-zA-Z0-9_$.]+)\\(', "gi");
 		this.regexpReservedWords	= new RegExp('^('+this.engine.getReservedWords().join("|")+')($|\\s|'+boundaries+')', "i");
 		this.regexpComparison		= new RegExp('^('+this.addSlashes(this.comparison).join("|")+')', "g");
+        this.regexpFunctions		= new RegExp('^([a-zA-Z0-9_$.]+)\\(', "gi");
 
+        this.regexpBackTickQuotedString		= /^\`(?:[^\`\\]|\\.)*\`/;
 		this.regexpQuotedString		= /^(\'(?:[^\'\\]|\\.)*\'|\"(?:[^\"\\]|\\.)*\")/;
-		this.regexpTable			= /^([`]?([a-zA-Z0-9_$#]+)[`]?[.@])?[`]?([a-zA-Z0-9_$#]+)[`]?/;
+
+		this.regexpReference		= /(^[`]?[\w.]+[`]?\.[`]?[\w.]+[`]?)|(^[`]?[\w.]+[`]?)/;
 		this.regexpNumber			= /^[0-9]+/;
+
+//"sdfsfsf.`dsfasd` `sdfsdf`.sdfs.fs `extjs.makewebapp.net`.`wp_commentmeta`".match(/^([\w.]+\.[`][\w.]+[`]|[`][\w.]+[`]\.[\w.]+|([\w.]+)[\b]?|([`]?(.*)[`]?))/)
+
+
+        //"WM_CONCAT(params.VALUE_STRING) AS PARAMS".match(/^([a-zA-Z0-9_$#]+)\((.*?[\'\"]?) {0,}.*?\)/gi)
 
 		this.regexpAlgorithm		= /^ALGORITHM(\s+)?=(\s+)?[a-zA-Z]+/gi;
 		this.regexpDefiner			= /^DEFINER(\s+)?=(\s+)?([`\'\"]?)(.+?)\3@?([`\'\"]?)(.+?)\5/gi;
@@ -68,7 +74,7 @@ Ext.define('Planche.lib.QueryParser', {
 
 		var len = string.length;
 		var tokens = [], token;
-		this.pass_by_from = false;
+		this.detect = false;
 
 		while(len) {
 
@@ -93,143 +99,249 @@ Ext.define('Planche.lib.QueryParser', {
 
 	getNextToken : function (string) {
 
-		var token = {}, matches;
+        var token = {}, matches;
 
-		if(matches = string.match(this.regexpWhiteSpace)) {
+        if(matches = string.match(this.regexpWhiteSpace)) {
 
-			token.type = this.type.SPACE;
-			token.value = matches[0];
-			return token;
-		}
+            token.type = this.type.SPACE;
+            token.value = matches[0];
+            return token;
+        }
 
-		var cmts = this.openComments, cmt, i, inCmt = -1, pos, last;
-		for(i in cmts) {
+        var cmts = this.openComments, cmt, i, inCmt = -1, pos, last;
+        for(i in cmts) {
 
-			cmt = cmts[i];
+            cmt = cmts[i];
 
-			if(string.substring(0, cmt.length) == cmt) {
+            if(string.substring(0, cmt.length) == cmt) {
 
-				inCmt = i;
-				break;
-			}
-		}
-
-		if(inCmt > -1) {
-
-			token.type = this.type.COMMENT;
-			pos = string.indexOf(this.closeComments[inCmt]);
-			if(pos > -1) {
-
-				token.value = string.substring(0, pos + this.closeComments[inCmt].length);
-			}
-			else {
-
-				token.value = string.substring(0);
-			}
-
-			return token;
-		}
-
-		if(matches = string.match(this.regexpDelimiter)) {
-
-			token.type = this.type.QUERY_END;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpAlgorithm)) {
-
-			token.type = this.type.ALGORITHM;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpDefiner)) {
-
-			token.type = this.type.DEFINER;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpComparison)) {
-
-			token.type = this.type.COMPARISON;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpJoin)) {
-
-			token.type = this.type.JOIN;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpFunctions)) {
-
-			token.type = this.type.FUNCTION;
-			token.value = matches[0];
-			return token;
-		}
-
-		if(matches = string.match(this.regexpLimit)) {
-
-			token.type = this.type.LIMIT;
-			token.value = matches[0];
-
-			return token;
-		}
-
-		if(matches = string.match(/^DELIMITER\s?([^\s]+)/i)) {
-
-			token.type = this.type.DELIMITER;
-			token.value = matches[0];
-
-			this.regexpDelimiter = new RegExp("^"+this.addSlashes(matches[1]), 'g');
-
-			return token;
-		}
-
-		if(matches = string.match(this.regexpReservedWords)) {
-
-            var upper = matches[1].toUpperCase();
-
-            if(['FROM', 'UPDATE', 'INSERT'].indexOf(upper) > -1) {
-
-                this.pass_by_from = true;
-            }
-
-			token.type = this.type.RESERVED_WORD;
-			token.value = matches[1];
-			return token;
-		}
-
-        if(this.pass_by_from == true) {
-
-            if(matches = string.match(this.regexpTable)) {
-
-                this.pass_by_from = false;
-
-				token.type = this.type.TABLE;
-				token.value = matches[0];
-				return token;
+                inCmt = i;
+                break;
             }
         }
 
-		if(matches = string.match(this.regexpQuotedString)) {
+        if(inCmt > -1) {
 
-			token.type = this.type.QUOTED_STRING;
-			token.value = matches[0];
-			return token;
-		}
+            token.type = this.type.COMMENT;
+            pos = string.indexOf(this.closeComments[inCmt]);
+            if(pos > -1) {
 
-		if(matches = string.match(this.regexpBoundaries)) {
+                token.value = string.substring(0, pos + this.closeComments[inCmt].length);
+            }
+            else {
 
-			token.type = this.type.BOUNDARY;
-			token.value = matches[0];
-			return token;
-		}
+                token.value = string.substring(0);
+            }
 
+            return token;
+        }
+
+        if(matches = string.match(this.regexpDelimiter)) {
+
+            token.type = this.type.QUERY_END;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpAlgorithm)) {
+
+            token.type = this.type.ALGORITHM;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpDefiner)) {
+
+            token.type = this.type.DEFINER;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpComparison)) {
+
+            token.type = this.type.COMPARISON;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpJoin)) {
+
+            this.detect = true;
+
+            token.type = this.type.JOIN;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpFunctions)) {
+
+            token.type = this.type.FUNCTION;
+
+            var value = matches[0];
+
+            string = string.substring(value.length);
+
+            var len = string.length,
+                funcDepth = 1,
+                funcToken = {},
+                funcPos,
+                me = this,
+                getNextToken = function(string){
+
+                    // console.log(string);
+
+                    if(m = string.match(me.regexpWhiteSpace)) {
+
+                        return m[0];
+                    }
+
+                    if(m = string.match(me.regexpFunctions)) {
+
+                        funcDepth++;
+                        return m[0];
+                    }
+
+                    if(m = string.match(me.regexpQuotedString)) {
+
+                        return m[0];
+                    }
+
+                    if(m = string.match(me.regexpBoundaries)){
+
+                        if(m[0] == '('){
+
+                            funcDepth++;
+                        }
+                        else if(m[0] == ')'){
+
+                            funcDepth--;
+                        }
+
+                        return m[0];
+                    }
+
+                    if(funcPos = string.search(me.regexpSplit)) {
+
+                        if(m = string.match(me.regexpNumber)) {
+
+                            return string.substring(0, funcPos);
+                        }
+                        else {
+
+                            return string.substring(0, funcPos);
+                        }
+                    }
+                    else {
+
+                        return string;
+                    }
+                };
+
+            while(len) {
+
+                var funcToken = getNextToken(string);
+
+                value += funcToken;
+
+                string = string.substring(funcToken.length);
+
+                //break infinity loop
+                if(len == string.length) {
+
+                    break;
+                }
+                else {
+
+                    len = string.length;
+                }
+
+                if(funcDepth === 0){
+
+                    break;
+                }
+            }
+
+
+            token.value = value;
+            return token;
+        }
+
+        if(matches = string.match(this.regexpLimit)) {
+
+            token.type = this.type.LIMIT;
+            token.value = matches[0];
+
+            return token;
+        }
+
+        if(matches = string.match(/^DELIMITER\s?([^\s]+)/i)) {
+
+            token.type = this.type.DELIMITER;
+            token.value = matches[0];
+
+            this.regexpDelimiter = new RegExp("^"+this.addSlashes(matches[1]), 'g');
+
+            return token;
+        }
+
+        if(matches = string.match(this.regexpReservedWords)) {
+
+            this.detect = false;
+
+            var upper = matches[1].toUpperCase();
+
+            if(this.engine.getDetectKeywords().indexOf(upper) > -1) {
+
+                this.detect = upper;
+            }
+
+            token.type = this.type.RESERVED_WORD;
+            token.value = matches[1];
+            return token;
+        }
+
+        if(this.detect) {
+
+            if(matches = string.match(this.regexpReference)) {
+
+                token.type = this.type[this.detect] || this.type.TABLE;
+                token.value = matches[0];
+
+                //console.log(matches);
+                this.detect = false;
+
+                return token;
+            }
+        }
+
+        if(matches = string.match(this.regexpReference)) {
+
+            token.type = this.type.REFERENCE;
+            token.value = matches[0];
+
+            return token;
+        }
+
+        if(matches = string.match(this.regexpBackTickQuotedString)) {
+
+            token.type = this.type.BACKTICK_QUOTED_STRING;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpQuotedString)) {
+
+            token.type = this.type.QUOTED_STRING;
+            token.value = matches[0];
+            return token;
+        }
+
+        if(matches = string.match(this.regexpBoundaries)) {
+
+            token.type = this.type.BOUNDARY;
+            token.value = matches[0];
+            return token;
+        }
 
         if(pos = string.search(this.regexpSplit)) {
 
@@ -337,7 +449,7 @@ Ext.define('Planche.lib.QueryParser', {
             if(token.type == this.type.QUERY_END){
 
                 tmpTokens.push(token);
-                
+
                 queries.push({raw : raw, sline : sline, eline : token.eline, tokens : tmpTokens, delimiter : false});
 
                 sline = token.eline;
@@ -408,7 +520,7 @@ Ext.define('Planche.lib.QueryParser', {
 
 				if(isSelectQuery == null) {
 
-					if(value.match(this.regexpIsNotSelectQuery)) {
+					if(value.match(this.regexpNotSelectQueries)) {
 
 						isSelectQuery = false;
 					}
