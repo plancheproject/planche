@@ -40,6 +40,11 @@ Ext.define('Planche.controller.query.Token', {
         var fields = [];
         Ext.each(columns, function (obj) {
 
+            if(obj.xtype == 'rownumberer'){
+
+                return;
+            }
+
             fields.push(obj.dataIndex);
         });
 
@@ -94,6 +99,7 @@ Ext.define('Planche.controller.query.Token', {
     makeListColumns : function () {   
         
         return [
+            { xtype: 'rownumberer', width : 40},
             { text: 'Token Type', dataIndex: 'type', width : 100},
             { text: 'Token', dataIndex: 'token', flex : 1}
         ];
