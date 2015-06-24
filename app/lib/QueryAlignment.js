@@ -21,9 +21,9 @@ Ext.define('Planche.lib.QueryAlignment', function() {
             type = Planche.lib.QueryTokenType.get();
         },
 
-        equalLastChar: function(str, char) {
+        equalLastChar: function(str, ch) {
 
-            return str.slice(str.length - 1) === char;
+            return str.slice(str.length - 1) === ch;
         },
 
         alignment: function(query) {
