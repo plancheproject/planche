@@ -33,7 +33,7 @@ Ext.define('Planche.view.table.TableSchemeTab', {
             emptyText : 'Enter new table name..',
             disabled  : tb ? true : false,
             value     : tb
-        }
+        };
 
         this.buttons = [{
             id  : 'table-scheme-btn-create',

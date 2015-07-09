@@ -95,9 +95,7 @@ Ext.define('Planche.Application', {
     ],
 
     stores: [
-
         'GrantSchemeTree',
         'SchemeTree'
-        // TODO: add stores here
     ]
 });

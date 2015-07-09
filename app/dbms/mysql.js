@@ -56,6 +56,8 @@ Ext.define('Planche.dbms.mysql', function() {
         SHOW_CREATE_FUNCTION    : 'SHOW CREATE FUNCTION `{0}`.`{1}`',
         SHOW_CREATE_TRIGGER     : 'SHOW CREATE TRIGGER `{0}`.`{1}`',
         SHOW_CREATE_EVENT       : 'SHOW CREATE EVENT `{0}`.`{1}`',
+        CREATE_TABLE            : 'CREATE TABLE `{0}`.`{1}` {2}',
+        ALTER_TABLE             : 'ALTER TABLE `{0}`.`{1}` {2}',
         ALTER_VIEW              : 'DELIMITER $$ USE `{0}`$$ DROP VIEW IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
         ALTER_PROCEDURE         : 'DELIMITER $$ USE `{0}`$$ DROP PROCEDURE IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
         ALTER_FUNCTION          : 'DELIMITER $$ USE `{0}`$$ DROP FUNCTION IF EXISTS `{1}`$$ {2}$$ DELIMITER;',
