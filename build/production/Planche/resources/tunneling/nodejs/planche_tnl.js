@@ -145,14 +145,7 @@ Control.prototype = {
 
             fetchFields.forEach(function(field, idx) {
 
-                if (field.name.match(/([^a-zA-Z0-9_$#])+/)) {
-
-                    var name = "tmp" + idx;
-                }
-                else {
-
-                    var name = field.name;
-                }
+                var name = field.name;
 
                 fields.push({
                     'name'      : name,

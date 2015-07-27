@@ -4,8 +4,21 @@ Ext.define('Planche.controller.menu.Database', {
     add   : function(topBtn) {
 
         topBtn.menu.add([{
-            text    : 'Copy Database To Different Host/Database(Not Yet)',
-            disabled: true
+            text    : 'Copy Database To Different Host/Database',
+            scope  : this.application,
+            handler : function(){
+
+                this.openCopyDatabaseWindow();
+            },
+            allowDisable: function(topBtn, menu) {
+
+                if(this.getSelectedDatabase()){
+
+                    return false;
+                }
+
+                return true;
+            }
         }, {
             text        : 'Create Database',
             scope       : this.application,
@@ -136,7 +149,7 @@ Ext.define('Planche.controller.menu.Database', {
             }
 
             ]
-        }, {
+        },'-',{
             text    : 'Backup/Export(Not Yet)',
             disabled: true,
             menu    : [{
@@ -150,9 +163,25 @@ Ext.define('Planche.controller.menu.Database', {
             }, {
                 text: 'Execute SQL Script'
             }]
-        }, {
+        },'-',{
             text    : 'Create Schema For Database In HTML(Not Yet)',
-            disabled: true
+            scope       : this.application,
+            allowDisable: function(topBtn, menu) {
+
+                if(this.getSelectedDatabase()){
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler : function(){
+
+                
+            }
+        },'-',{
+            text : 'Download To CSV(Not Yet)',
+            disabled : true
         }]);
 
         this.added = true;

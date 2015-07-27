@@ -25,7 +25,9 @@ Ext.define('Planche.Application', {
         'layout.SchemeTree',
         'layout.TableDataTab',
         'layout.Toolbar',
-
+        'database.CopyDatabaseWindow',
+        'database.DatabaseSchemaTree',
+        'database.CopyDatabaseTargetList',
         'table.EditIndexWindow',
         'table.EditSchemeWindow',
         'table.TableIndexesTab',
@@ -52,6 +54,7 @@ Ext.define('Planche.Application', {
         'connection.Connect',
         'connection.NewConnect',
         'database.CreateDatabase',
+        'database.CopyDatabaseWindow',
         'menu.Connection',
         'menu.Database',
         'menu.Edit',
@@ -96,6 +99,7 @@ Ext.define('Planche.Application', {
 
     stores: [
         'GrantSchemeTree',
-        'SchemeTree'
+        'SchemeTree',
+        'DatabaseSchemaTree'
     ]
 });

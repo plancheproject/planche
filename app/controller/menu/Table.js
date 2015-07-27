@@ -49,8 +49,22 @@ Ext.define('Planche.controller.menu.Table', {
                 }
             }]
         },{
-            text : 'Copy Table(s) To Differnt Host/Database(Not Yet)',
-            disabled : true
+            text : 'Copy Table To Differnt Host/Database',
+            scope : this.application,
+            allowDisable : function (topBtn, menu) {
+
+                if(this.getSelectedTable()){
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler : function () {
+
+                var node = this.getSelectedNode();
+                this.openCopyDatabaseWindow(node);
+            }
         },'-',{
             text : 'Open Table',
             scope : this.application,
@@ -119,9 +133,6 @@ Ext.define('Planche.controller.menu.Table', {
                 this.openAlterTableWindow(node);
             }
         },{
-            text : 'Relationships/Foreign Keys(Not Yet)',
-            disabled : true
-        },{
             text : 'More Table Operations',
             scope : this.application,
             allowDisable : function (topBtn, menu) {
@@ -168,10 +179,10 @@ Ext.define('Planche.controller.menu.Table', {
             },{
                 text: 'Duplicate Table Structure/Data',
                 scope : this.application,
-                disabled : true,
                 handler : function () {
 
-                    
+                    var node = this.getSelectedNode();
+                    this.duplicateTable(node);
                 }
             },{
                 text: 'View Advanced Properties',
@@ -276,30 +287,6 @@ Ext.define('Planche.controller.menu.Table', {
                 var node = this.getSelectedDatabase(true);
                 this.createTrigger(node);
             }
-        },'-',{
-            text : 'Backup/Export(Not Yet)',
-            disabled : true,
-            menu : [{
-
-            }]
-        },{
-            text : 'Import(Not Yet)',
-            disabled : true,
-            menu : [{
-
-            }]
-        },'-',{
-            text : 'Download Result Set To Excel(Not Yet)',
-            disabled : true
-        },{
-            text : 'Download To CSV(Not Yet)',
-            disabled : true
-        },{
-            text : 'Download To TSV(Not Yet)',
-            disabled : true
-        },{
-            text : 'Copy To Google Spreadsheet(Not Yet)',
-            disabled : true
         }]);
 
         this.added = true;

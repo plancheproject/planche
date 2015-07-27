@@ -11,6 +11,11 @@ Ext.define('Planche.controller.layout.TableDataTab', {
 
                     var node = app.getSelectedNode();
 
+                    if(!app.getParentNode(node, 'table')){
+
+                        return;
+                    }
+
                     if(this.prevNode == node){
 
                         return;

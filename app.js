@@ -25,8 +25,8 @@ Ext.application({
         });
 
         window.onbeforeunload = function() {
-
             var message = "Are you sure you want to quit planche?"
+
             return message;
         }
 
@@ -249,23 +249,23 @@ Ext.application({
         return Planche.selectedNode.raw.type;
     },
 
-    getSelectedDatabase : function(return_node){
+    getSelectedDatabase: function(return_node) {
 
         var node = this.getSelectedNode();
-        return this.getParentNode(node, 1, return_node);
+        return this.getParentNode(node, 'database', return_node);
     },
 
     getSelectedTable: function(return_node) {
 
         var node = this.getSelectedNode();
-        return this.getParentNode(node, 3, return_node);
+        return this.getParentNode(node, 'table', return_node);
     },
 
-    getParentNode: function(n, depth, return_node) {
+    getParentNode: function(n, depth_or_type, return_node) {
 
-        if (typeof depth == "undefined") {
+        if (typeof depth_or_type == "undefined") {
 
-            depth = 1;
+            depth_or_type = 'database';
         }
 
         if (!n) {
@@ -273,32 +273,56 @@ Ext.application({
             return null;
         }
 
-        if (n.data.depth < depth) {
+        var node = null;
+
+        if (typeof depth_or_type == 'string') {
+
+            while (n) {
+
+                if (n.raw.type == depth_or_type) {
+
+                    node = n;
+                    break;
+                }
+
+                n = n.parentNode;
+            }
+        }
+        else {
+
+            if (n.data.depth < depth_or_type) {
+
+                return null;
+            }
+
+            while (n) {
+
+                if (n.data.depth == depth_or_type) {
+
+                    node = n;
+                    break;
+                }
+
+                n = n.parentNode;
+            }
+        }
+
+        if (!node) {
 
             return null;
         }
 
-        while (n.parentNode) {
-
-            if (n.data.depth == depth) {
-
-                break;
-            }
-
-            n = n.parentNode;
-        }
-
         if (return_node) {
 
-            return n;
+            return node;
         }
         else {
 
-            return n.data.text;
+            return node.data.text;
         }
     },
 
-    getHostsInStorage : function(){
+    getHostsInStorage: function() {
 
         var hosts = localStorage.getItem('planche-hosts');
 
@@ -314,7 +338,7 @@ Ext.application({
         return hosts;
     },
 
-    setHostsInStorage : function(hosts){
+    setHostsInStorage: function(hosts) {
 
         localStorage.setItem('planche-hosts', Ext.JSON.encode(hosts));
 
@@ -368,8 +392,8 @@ Ext.application({
 
     initConnectTab: function(connInfo) {
 
-        var
-            main = this.getConnectTabPanel(),
+
+        var main = this.getConnectTabPanel(),
             tab = Ext.create('Planche.view.layout.ConnectTab', Ext.Object.merge({
                 title: connInfo.hostName
             }, connInfo));
@@ -477,20 +501,20 @@ Ext.application({
      */
     tunneling: function(config) {
 
-        var tab = this.getActiveConnectTab(),
+        var connection = config.connection || this.getActiveConnectTab(),
             app = this;
 
-        if (tab) {
+        if (connection) {
 
             Ext.applyIf(config, {
-                hostName    : tab.getHostName(),
-                host        : tab.getHost(),
-                user        : tab.getUser(),
-                pass        : tab.getPass(),
-                charset     : tab.getCharset(),
-                port        : tab.getPort(),
-                tunnelingURL: tab.getTunnelingURL(),
-                requestType : tab.getRequestType()
+                hostName    : connection.getHostName(),
+                host        : connection.getHost(),
+                user        : connection.getUser(),
+                pass        : connection.getPass(),
+                charset     : connection.getCharset(),
+                port        : connection.getPort(),
+                tunnelingURL: connection.getTunnelingURL(),
+                requestType : connection.getRequestType()
             });
         }
 
@@ -507,6 +531,7 @@ Ext.application({
             port        : 3306,
             tunnelingURL: '',
             requestType : 'jsonp',
+            method      : 'post',
             success     : function(config, response) {
 
                 var msg = response.affected_rows + ' row(s) affected<br>';
@@ -648,7 +673,8 @@ Ext.application({
             }
         });
 
-        var execQueries = [];
+        var execQueries = [],
+            config = {};
 
         callbacks['prevAllQueries'].apply(scope, [queries]);
 
@@ -662,9 +688,8 @@ Ext.application({
 
                 callbacks['prevQuery'].apply(scope, [idx, query]);
 
-                app.tunneling({
+                var config = {
                     db     : db,
-                    query  : query,
                     success: function(config, response) {
 
                         callbacks['successQuery'].apply(scope, [idx, query, config, response]);
@@ -687,7 +712,20 @@ Ext.application({
 
                         tunneling();
                     }
-                });
+                };
+
+                if (typeof query == 'object') {
+
+                    Ext.apply(config, query);
+                }
+                else {
+
+                    Ext.apply(config, {
+                        query: query
+                    });
+                }
+
+                app.tunneling(config);
 
                 callbacks['afterQuery'].apply(scope, [idx, query]);
 
@@ -705,11 +743,11 @@ Ext.application({
 
         var db = this.getSelectedDatabase(),
             table = node.data.text,
-            a = [], b = [], c =[],
+            a = [], b = [], c = [],
             api = this.getAPIS();
 
         var func = {
-            'insert': Ext.Function.bind(function(records) {
+            'insert'          : Ext.Function.bind(function(records) {
 
                 Ext.Array.each(records, function(row, idx) {
 
@@ -731,7 +769,7 @@ Ext.application({
                 });
                 return api.getQuery('INSERT_ON_DUPLICATE', db, table, a.join(','), b.join(','), c.join(','));
             }, this),
-            'update': Ext.Function.bind(function(records) {
+            'update'          : Ext.Function.bind(function(records) {
 
                 Ext.Array.each(records, function(row, idx) {
 
@@ -740,7 +778,7 @@ Ext.application({
                 });
                 return api.getQuery('UPDATE_TABLE', db, table, a.join(',\n'), b.join(' AND '));
             }, this),
-            'delete': Ext.Function.bind(function(records) {
+            'delete'          : Ext.Function.bind(function(records) {
 
                 Ext.Array.each(records, function(row, idx) {
 
@@ -748,7 +786,7 @@ Ext.application({
                 });
                 return api.getQuery('DELETE_TABLE', db, table, a.join(' AND '));
             }, this),
-            'select': Ext.Function.bind(function(records) {
+            'select'          : Ext.Function.bind(function(records) {
 
                 Ext.Array.each(records, function(row, idx) {
 
@@ -1245,7 +1283,14 @@ Ext.application({
 
     openUserPanel: function() {
 
-        this.openWindow('user.Grant');
+        this.tunneling({
+            db     : 'mysql',
+            query  : this.getAPIS().getQuery('SELECT_ALL_USER'),
+            success: function() {
+
+                this.openWindow('user.Grant');
+            }
+        });
     },
 
     openTokenPanel: function(tokens) {
@@ -1308,6 +1353,11 @@ Ext.application({
     openCreateDatabaseWindow: function(node) {
 
         this.openWindow('database.CreateDatabase', node);
+    },
+
+    openCopyDatabaseWindow: function(type, name) {
+
+        this.openWindow('database.CopyDatabaseWindow', type, name);
     },
 
     openReorderColumns: function(node) {
@@ -1753,7 +1803,7 @@ Ext.application({
         this.openMessage(messages);
     },
 
-    setLoading : function(loading){
+    setLoading: function(loading) {
 
         var connTab = this.getActiveConnectTab();
         connTab.setLoading(loading);
@@ -1763,7 +1813,7 @@ Ext.application({
         stopBtn.setDisabled(!loading);
     },
 
-    stopOperation : function(){
+    stopOperation: function() {
 
         Ext.data.JsonP.abort();
         Ext.Ajax.abortAll();
@@ -1863,12 +1913,35 @@ Ext.application({
         });
     },
 
+    countTable: function(node) {
+
+        var tab = this.getActiveTableDataTab(),
+            db = this.getSelectedDatabase(),
+            parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
+            queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, node.data.text, "*")),
+            query = queries[0];
+
+        this.setLoading(true);
+
+        this.tunneling({
+            db     : db,
+            query  : query.getSQL(),
+            node   : node,
+            tab    : tab,
+            success: function(config, response) {
+
+                this.initQueryResult({openTable: node.data.text}, db, query, response);
+                this.setLoading(false);
+            }
+        });
+    },
+
     makeRecords: function(fields, records) {
 
         var tmp = [];
         Ext.Array.each(records, function(row, ridx) {
 
-            if(!row) return;
+            if (!row) return;
 
             var record = {};
             Ext.Array.each(fields, function(col, cidx) {

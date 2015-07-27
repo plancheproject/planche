@@ -9,7 +9,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         });
     },
 
-    initContextMenu: function(view, record, item, index, e, eOpts) {
+    initContextMenu: function(view, node, item, index, e, eOpts) {
 
         //서버트리의 이벤트를 잡아 내서 node위에서 right click을 했을 경우만 
         //context메뉴를 보여준다.
@@ -17,7 +17,6 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
 
         var app = this.getApplication(),
             menu = app.getSchemeContextMenu(),
-            node = app.getSelectedNode(),
             type = node.raw.type,
             func = 'load' + type.charAt(0).toUpperCase() + type.slice(1) + 'ContextMenu';
 
@@ -60,10 +59,12 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         return [
             {
                 text   : 'Refresh Databases',
+                scope  : app,
                 handler: app.reloadTree
             },
             {
                 text   : 'Create Database',
+                scope  : app,
                 handler: app.createDatabase
             }, {
                 text   : 'Alter Database',
@@ -117,10 +118,10 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                 app.openCreateTableWindow();
             }
         }, {
-            text    : 'Copy Table(s) To Differnt Host/Database',
-            disabled: true,
-            handler : function() {
+            text   : 'Copy Table(s) To Differnt Host/Database',
+            handler: function() {
 
+                app.openCopyDatabaseWindow();
             }
         }];
     },
@@ -176,7 +177,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                     var node = app.getSelectedNode();
                     app.pasteSQLStatement('select', node);
                 }
-            },{
+            }, {
                 text   : 'INSERT ... ON DUPLICATE KEY UPDATE',
                 scope  : this,
                 handler: function() {
@@ -186,10 +187,10 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                 }
             }]
         }, {
-            text    : 'Copy Table(s) To Differnt Host/Database',
-            disabled: true,
-            handler : function() {
+            text   : 'Copy Table(s) To Differnt Host/Database',
+            handler: function() {
 
+                app.openCopyDatabaseWindow();
             }
         }, {
             xtype: 'menuseparator'
@@ -200,6 +201,12 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                 app.openTable(app.getSelectedNode());
             }
         }, {
+            text   : 'Count Table',
+            handler: function() {
+
+                app.countTable(app.getSelectedNode());
+            }
+        }, , {
             text   : 'Create Table',
             handler: function() {
 
@@ -248,17 +255,17 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
                     app.openReorderColumns(node);
                 }
             }, {
-                text    : 'Duplicate Table Structure/Data',
-                scope   : this,
-                handler : function() {
+                text   : 'Duplicate Table Structure/Data',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.duplicateTable(node);
                 }
             }, {
-                text    : 'Copy Table Structure/Data To Other Database',
-                scope   : this,
-                handler : function() {
+                text   : 'Copy Table Structure/Data To Other Database',
+                scope  : this,
+                handler: function() {
 
                     var node = app.getSelectedNode();
                     app.duplicateTable(node);
@@ -434,7 +441,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Alter Event',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.alterEvent(node);
@@ -442,7 +449,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Drop Event',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.dropEvent(node);
@@ -450,7 +457,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Rename Event',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.renameEvent(node);
@@ -483,7 +490,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Alter Trigger',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.alterTrigger(node);
@@ -491,7 +498,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Drop Trigger',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.dropTrigger(node);
@@ -499,7 +506,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Rename Trigger',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.renameTrigger(node);
@@ -533,7 +540,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Alter Function',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.alterFunction(node);
@@ -541,7 +548,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Drop Function',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.dropFunction(node);
@@ -575,7 +582,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Alter Procedure',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.alterProcedure(node);
@@ -583,7 +590,7 @@ Ext.define('Planche.controller.layout.SchemeTreeContextMenu', {
         }, {
             text   : 'Drop Procedure',
             scope  : app,
-            handler: function(){
+            handler: function() {
 
                 var node = this.getSelectedNode();
                 app.dropProcedure(node);

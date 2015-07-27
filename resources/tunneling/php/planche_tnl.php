@@ -265,13 +265,7 @@ class Control
             $fields = $result->fetch_fields();
             foreach ($fields as $idx => $row) {
 
-                if (preg_match("/([^a-zA-Z0-9_$#])+/", $row->name, $matches)) {
-
-                    $name = "tmp".$idx;
-                } else {
-
-                    $name = $row->name;
-                }
+                $name = $row->name;
 
                 array_push($this->fields, array(
                     'name'       => $name,

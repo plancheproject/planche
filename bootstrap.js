@@ -843,6 +843,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.command.Variables": [],
   "Planche.controller.connection.Connect": [],
   "Planche.controller.connection.NewConnect": [],
+  "Planche.controller.database.CopyDatabaseWindow": [],
   "Planche.controller.database.CreateDatabase": [],
   "Planche.controller.layout.ConnectTab": [],
   "Planche.controller.layout.HistoryTab": [],
@@ -886,13 +887,18 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
+  "Planche.lib.SchemaTree": [],
   "Planche.lib.Window": [],
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
+  "Planche.store.DatabaseSchemaTree": [],
   "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [],
   "Planche.view.Viewport": [],
+  "Planche.view.database.CopyDatabaseTargetList": [],
+  "Planche.view.database.CopyDatabaseWindow": [],
+  "Planche.view.database.DatabaseSchemaTree": [],
   "Planche.view.layout.ConnectTab": [],
   "Planche.view.layout.HistoryTab": [],
   "Planche.view.layout.InfoTab": [],
@@ -1912,6 +1918,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.command.Variables": [],
   "Planche.controller.connection.Connect": [],
   "Planche.controller.connection.NewConnect": [],
+  "Planche.controller.database.CopyDatabaseWindow": [],
   "Planche.controller.database.CreateDatabase": [],
   "Planche.controller.layout.ConnectTab": [],
   "Planche.controller.layout.HistoryTab": [],
@@ -1955,15 +1962,24 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
+  "Planche.lib.SchemaTree": [],
   "Planche.lib.Window": [],
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
+  "Planche.store.DatabaseSchemaTree": [],
   "Planche.store.GrantSchemeTree": [],
   "Planche.store.SchemeTree": [],
   "Planche.view.Main": [
     "widget.app-main"
   ],
   "Planche.view.Viewport": [],
+  "Planche.view.database.CopyDatabaseTargetList": [
+    "widget.copy-database-target-list"
+  ],
+  "Planche.view.database.CopyDatabaseWindow": [],
+  "Planche.view.database.DatabaseSchemaTree": [
+    "widget.database-schema-tree"
+  ],
   "Planche.view.layout.ConnectTab": [
     "widget.connect-tab"
   ],

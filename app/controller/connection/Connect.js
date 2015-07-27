@@ -164,6 +164,7 @@ Ext.define('Planche.controller.connection.Connect', {
             var win = me.getConnectWindow(),
                 conn = me.getSelectedConnection();
 
+            conn.raw.requestType = window.location.protocol == 'file:' ? 'jsonp' : conn.raw.requestType;
             app.initConnectTab(conn.raw);
 
             win.destroy();

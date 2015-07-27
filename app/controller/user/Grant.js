@@ -1,11 +1,32 @@
 Ext.define('Planche.controller.user.Grant', {
-    extend: 'Ext.app.Controller',
+    extend: 'Planche.lib.SchemaTree',
     views : [
         'user.Grant',
         'user.GrantSchemeTree',
         'user.GrantUserList'
     ],
     init  : function() {
+
+        this.callParent(arguments);
+
+        this.setDatabasesChildren([{
+            text: 'Tables',
+            leaf: false
+        }, {
+            text: 'Views',
+            leaf: false
+        }, {
+            text: 'Procedures',
+            leaf: false
+        }, {
+            text: 'Functions',
+            leaf: false
+        }]);
+
+        this.setTablesChildren([{
+            text: 'Columns',
+            leaf: false
+        }]);
 
         var app = this.getApplication(),
             me = this;
@@ -61,8 +82,10 @@ Ext.define('Planche.controller.user.Grant', {
 
     initGrant: function() {
 
-        var tree = this.getSchemeTree(),
+        var tree = this.getSchemaTree(),
             node = tree.getRootNode();
+
+        this.setRootType('global');
 
         this.initUserList();
         this.loadTree(node);
@@ -92,7 +115,7 @@ Ext.define('Planche.controller.user.Grant', {
 
     initSchemeTree: function() {
 
-        var tree = this.getSchemeTree();
+        var tree = this.getSchemaTree();
 
         tree.selModel.deselectAll();
         tree.selModel.select(0, true);
@@ -315,7 +338,7 @@ Ext.define('Planche.controller.user.Grant', {
         var me = this,
             app = me.getApplication(),
             api = app.getAPIS(),
-            tree = this.getSchemeTree(),
+            tree = this.getSchemaTree(),
             user = this.getSelectedUser(),
             userList = this.getUserList(),
             privList = this.getPrivList(),
@@ -447,7 +470,7 @@ Ext.define('Planche.controller.user.Grant', {
     selectPrivList: function() {
 
         var user = this.getSelectedUser(),
-            selTree = this.getSchemeTreeSelection(),
+            selTree = this.getSchemaTreeSelection(),
             privList = this.getPrivList(),
             selectedPrivs = privList.selModel.getSelection().map(function(model) {
 
@@ -518,286 +541,6 @@ Ext.define('Planche.controller.user.Grant', {
         }
     },
 
-    expandTree: function(node) {
-
-        if (node.childNodes.length > 0) { return; }
-        this.loadTree(node);
-    },
-
-    loadTree: function(node) {
-
-
-        var loadFunc = this['load' + (node.isRoot() ? 'Databases' : node.data.text.replace(/\s/gi, ''))];
-
-        if (loadFunc) {
-
-            node.removeAll();
-            Ext.Function.bind(loadFunc, this)(node);
-        }
-    },
-
-    reloadTree: function(node) {
-
-        this.loadTree(node);
-    },
-
-    loadDatabases: function(node) {
-
-        var app = this.application,
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            query  : app.getAPIS().getQuery('SHOW_DATABASE'),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    children.push({
-                        type    : 'database',
-                        path    : ['database', row[0]].join("`"),
-                        text    : row[0],
-                        icon    : 'resources/images/icon_database.png',
-                        leaf    : false,
-                        children: [{
-                            text: 'Tables',
-                            leaf: false
-                        }, {
-                            text: 'Views',
-                            leaf: false
-                        }, {
-                            text: 'Procedures',
-                            leaf: false
-                        }, {
-                            text: 'Functions',
-                            leaf: false
-                        }]
-                    });
-                });
-
-                if (children.length == 0) { return; }
-
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
-    loadTables: function(node) {
-
-        var app = this.application,
-            db = node.parentNode.data.text,
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            db     : db,
-            query  : app.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                node.removeAll();
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    if (row[1] == 'NULL') { return; }
-
-                    children.push({
-                        type    : 'table',
-                        path    : ['table', db, row[0]].join("`"),
-                        text    : row[0],
-                        icon    : 'resources/images/icon_table.png',
-                        leaf    : false,
-                        children: [{
-                            text: 'Columns',
-                            leaf: false
-                        }]
-                    });
-                });
-
-                if (children.length == 0) { return; }
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
-    loadViews: function(node) {
-
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            db     : db,
-            query  : app.getAPIS().getQuery('SHOW_VIEWS', db),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                node.removeAll();
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    children.push({
-                        type: 'view',
-                        path: ['view', db, row[0]].join("`"),
-                        text: row[0],
-                        leaf: true
-                    });
-                });
-
-                if (children.length == 0) { return; }
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
-    loadProcedures: function(node) {
-
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            db     : db,
-            query  : app.getAPIS().getQuery('SHOW_PROCEDURES', db),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                node.removeAll();
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    children.push({
-                        type: 'procedure',
-                        path: ['procedure', db, row[1]].join("`"),
-                        text: row[1],
-                        leaf: true
-                    });
-                });
-
-                if (children.length == 0) { return; }
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
-    loadFunctions: function(node) {
-
-        var app = this.application,
-            db = app.getParentNode(node),
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            db     : db,
-            query  : app.getAPIS().getQuery('SHOW_FUNCTIONS', db),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                node.removeAll();
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    children.push({
-                        type: 'function',
-                        path: ['function', db, row[1]].join("`"),
-                        text: row[1],
-                        leaf: true
-                    });
-                });
-
-                if (children.length == 0) { return; }
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
-
-    loadColumns: function(node) {
-
-        var app = this.application,
-            db = app.getParentNode(node),
-            tb = node.parentNode.data.text,
-            tree = this.getSchemeTree();
-
-        tree.setLoading(true);
-
-        app.tunneling({
-            db     : db,
-            query  : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb),
-            node   : node,
-            success: function(config, response) {
-
-                tree.setLoading(false);
-
-                var children = [];
-                node.removeAll();
-                Ext.Array.each(response.records, function(row, idx) {
-
-                    children.push({
-                        type: 'column',
-                        path: ['column', db, tb, row[0]].join("`"),
-                        text: row[0] + ' ' + row[1],
-                        icon: 'resources/images/icon_' + (row[4] == 'PRI' ? 'primary' : 'column') + '.png',
-                        leaf: true,
-                        qtip: row[8]
-                    });
-                });
-
-                if (children.length == 0) { return; }
-                node.appendChild(children);
-            },
-            failure: function(config, response) {
-
-                Ext.Msg.alert('Error', response.message);
-                tree.setLoading(false);
-            }
-        });
-    },
-
     getUserList: function() {
 
         return Ext.getCmp('grant-user-list');
@@ -808,14 +551,14 @@ Ext.define('Planche.controller.user.Grant', {
         return this.getUserList().selModel.getSelection();
     },
 
-    getSchemeTree: function() {
+    getSchemaTree : function(){
 
         return Ext.getCmp('grant-scheme-tree');
     },
 
-    getSchemeTreeSelection: function() {
+    getSchemaTreeSelection: function() {
 
-        return this.getSchemeTree().selModel.getSelection();
+        return this.getSchemaTree().selModel.getSelection();
     },
 
     getPrivList: function() {

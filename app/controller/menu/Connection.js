@@ -54,7 +54,7 @@ Ext.define('Planche.controller.menu.Connection', {
                 return false;
             }
         },{
-            text : 'Close Tab',
+            text : 'Close Query Tab',
             scope : this.application,
             handler : function () {
 
@@ -71,7 +71,7 @@ Ext.define('Planche.controller.menu.Connection', {
                 return false;
             }
         },{
-            text : 'Close Other Tabs',
+            text : 'Close Other Query Tabs',
             scope : this.application,
             handler : function () {
 
