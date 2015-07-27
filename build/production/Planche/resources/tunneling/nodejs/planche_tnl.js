@@ -53,7 +53,7 @@ Control.prototype = {
 
         } else {
 
-            this.response.writeHead(200, {'Content-Type': 'application/json'});
+            this.response.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'});
         }
     },
 
@@ -254,33 +254,53 @@ console.log("-------------------------------------------------------------------
 //Create Webserver
 http.createServer(function(request, response) {
 
+    var tunneling = function(params) {
+
+        console.log("Execute Query");
+
+        if (params.callback) {
+
+            console.log("JSON Callback : " + params.callback);
+            Planche.setCallback(params.callback);
+        }
+
+        Planche.connect(params.host, params.user, params.pass, params.db, response);
+
+        console.log("The execution SQL is");
+
+        console.log(params.query);
+
+        Planche.setCharset(params.charset);
+        Planche.query(params.query);
+
+        console.log("-----------------------------------------------------------------------");
+    };
+
     if (request.url == '/favicon.ico') {
 
         response.end('\n');
         return;
     }
 
-    var parse = url.parse(request.url),
-        get = querystring.parse(parse.query);
+    if (request.method == 'GET') {
 
-    console.log("Execute Query");
+        var parse = url.parse(request.url),
+            params = querystring.parse(parse.query);
 
-    if (get.callback) {
-
-        console.log("JSON Callback : " + get.callback);
-        Planche.setCallback(get.callback);
+        tunneling(params);
     }
+    else {
 
-    Planche.connect(get.host, get.user, get.pass, get.db, response);
+        var body = '';
+        request.on('data', function(data) {
 
-    console.log("The execution SQL is");
+            body += data;
+        });
+        request.on('end', function() {
 
-    console.log(get.query);
-
-
-    Planche.setCharset(get.charset);
-    Planche.query(get.query);
-
-    console.log("-----------------------------------------------------------------------");
+            var params = querystring.parse(body);
+            tunneling(params);
+        });
+    }
 
 }).listen(port, addr);

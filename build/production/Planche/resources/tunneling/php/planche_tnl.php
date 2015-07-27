@@ -32,35 +32,33 @@ if (!function_exists('debug')) {
 
 if (!function_exists('http_parse_headers')) {
 
-    function http_parse_headers($raw_headers)
+    function http_parse_headers($raw_headers, $method = 'GET')
     {
         $headers = array();
-        $key     = ''; // [+]
 
-        foreach (explode("\n", $raw_headers) as $i => $h) {
-            $pos = strpos($h, "GET");
+        if ($method == 'GET') {
 
-            if ($pos > -1) {
+            $pos  = strpos($raw_headers, $method) + strlen($method) + 1;
+            $body = substr($raw_headers, $pos);
+            $body = trim(substr($body, 0, strpos($body, " ")));
 
-                $get = trim(substr($h, $pos + 3));
-                $get = explode(" ", $get);
+            $headers['URL'] = parse_url($body, PHP_URL_PATH);
+            parse_str(parse_url($body, PHP_URL_QUERY), $headers['PARAMS']);
 
-                $pos = strpos($get[0], "?");
+        } else if ($method == 'POST') {
 
-                if ($pos === false) {
+            $pos  = strpos($raw_headers, $method) + strlen($method) + 1;
+            $body = substr($raw_headers, $pos);
+            $body = substr($body, 0, strpos($body, " "));
 
-                    $headers['URL'] = $get[0];
-                    continue;
-                }
+            $headers['URL'] = parse_url($body, PHP_URL_PATH);
 
-                $headers['URL'] = substr($get[0], 0, $pos);
-                parse_str(substr($get[0], $pos + 1), $headers['GET']);
-                continue;
+            $param = trim(substr($raw_headers, strpos($raw_headers, "\r\n\r\n")));
+
+            if ($param) {
+
+                parse_str($param, $headers['PARAMS']);
             }
-
-            $pos = strpos($h, ":");
-
-            $headers[substr($h, 0, $pos)] = trim(substr($h, $pos + 2));
         }
 
         return $headers;
@@ -106,9 +104,10 @@ if (!function_exists('generateRSAKey')) {
     }
 }
 
-if(!function_exists('descriptData')){
+if (!function_exists('descriptData')) {
 
-    function descriptData($encrypted, $privKey){
+    function descriptData($encrypted, $privKey)
+    {
 
         openssl_private_decrypt($encrypted, $decrypted, $privKey);
 
@@ -138,7 +137,8 @@ class Control
         if ($this->conn->connect_error) {
 
             $this->error('Connect Error ('.$this->conn->connect_errno.') '.$this->conn->connect_error);
-            exit;
+
+            return false;
         }
 
         return true;
@@ -164,6 +164,7 @@ class Control
 
             } else {
 
+                writeResponse("Access-Control-Allow-Origin: * \r\n", $this->client);
                 writeResponse("Content-Type: application/json \r\n\r\n", $this->client);
             }
         } else {
@@ -174,6 +175,7 @@ class Control
 
             } else {
 
+                header('Access-Control-Allow-Origin: *');
                 header('Content-Type: application/json');
             }
         }
@@ -403,24 +405,30 @@ if ($isCLI) {
 
             $sRequestHeader = socket_read($client, 1024);
 
-            $aHeaders = http_parse_headers($sRequestHeader);
+            $GET  = http_parse_headers($sRequestHeader, 'GET');
+            $POST = http_parse_headers($sRequestHeader, 'POST');
 
-            if ($aHeaders['URL'] == '/favicon.ico') {
+            $REQUEST = array_merge(
+                $GET,
+                $POST
+            );
+
+            if ($REQUEST['URL'] == '/favicon.ico') {
 
                 socket_close($client);
                 continue;
             }
 
-            if (isset($aHeaders['GET']) === false) {
+            if (isset($REQUEST['PARAMS']) === false) {
 
                 $Planche->error('Invalid request');
                 socket_close($client);
                 continue;
             }
 
-            extract($aHeaders['GET']);
+            extract($REQUEST['PARAMS']);
 
-            if ($callback) {
+            if (@$callback) {
 
                 echo "JSON Callback : $callback\n";
                 $Planche->setCallback($callback);
@@ -453,12 +461,17 @@ if ($isCLI) {
 
 } else {
 
-    extract($_GET);
+    extract($_REQUEST);
 
-    if (@$callback) $Planche->setCallback($callback);
+    if (@$callback) {
 
-    @$Planche->connect($host, $user, $pass, $db);
-    @$Planche->setCharset($charset);
-    @$Planche->query($query);
+        $Planche->setCallback($callback);
+    }
+
+    if (@$Planche->connect($host, $user, $pass, $db)) {
+
+        @$Planche->setCharset($charset);
+        @$Planche->query($query);
+    }
 }
 ?>

@@ -501,6 +501,9 @@ Ext.application({
      */
     tunneling: function(config) {
 
+        Ext.Ajax.cors = true;
+        Ext.Ajax.useDefaultXhrHeader = false;
+
         var connection = config.connection || this.getActiveConnectTab(),
             app = this;
 
@@ -562,7 +565,10 @@ Ext.application({
             timeout: config.timeout,
             success: function(response) {
 
-                //var response = Ext.JSON.decode(response.responseText);
+                if(response.responseText){
+
+                    response = Ext.JSON.decode(response.responseText);
+                }
 
                 if (response.success == true) {
 
@@ -576,11 +582,24 @@ Ext.application({
             },
             failure: function(response) {
 
+                if(response.status === 0){
+
+                    response = {
+                        success: false,
+                        message: 'Can\'t connect to tunneling URL'
+                    }
+                }
+
+                if(response.responseText){
+
+                    response = Ext.JSON.decode(response.responseText);
+                }
+
                 if (response == 'error') {
 
                     response = {
                         success: false,
-                        message: 'Can\'t connect to MySQL Server'
+                        message: 'Can\'t connect to tunneling URL'
                     }
                 }
 
@@ -792,7 +811,7 @@ Ext.application({
 
                     a.push("`" + row[0] + "`");
                 });
-                return api.getQuery('SELECT_TABLE', db, table, a.join(', '));
+                return api.getQuery('SELECT_TABLE', db, table, a.join(', '), '');
             }, this)
         };
 
@@ -1895,7 +1914,7 @@ Ext.application({
         var tab = this.getActiveTableDataTab(),
             db = this.getSelectedDatabase(),
             parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
-            queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, node.data.text, "*")),
+            queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, node.data.text, "*", '')),
             query = queries[0];
 
         this.setLoading(true);
@@ -1909,6 +1928,11 @@ Ext.application({
 
                 this.initQueryResult({openTable: node.data.text}, db, query, response);
                 this.setLoading(false);
+            },
+            failure : function(config, response){
+
+                this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
+                this.setLoading(false);
             }
         });
     },
@@ -1918,7 +1942,7 @@ Ext.application({
         var tab = this.getActiveTableDataTab(),
             db = this.getSelectedDatabase(),
             parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
-            queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, node.data.text, "*")),
+            queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, node.data.text, "*", '')),
             query = queries[0];
 
         this.setLoading(true);
@@ -1931,6 +1955,11 @@ Ext.application({
             success: function(config, response) {
 
                 this.initQueryResult({openTable: node.data.text}, db, query, response);
+                this.setLoading(false);
+            },
+            failure : function(config, response){
+
+                this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
                 this.setLoading(false);
             }
         });

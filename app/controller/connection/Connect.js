@@ -238,8 +238,8 @@ Ext.define('Planche.controller.connection.Connect', {
             },
             failure: function(config, response) {
 
-                win.setLoading(false);
                 Ext.Msg.alert('Error', response.message);
+                win.setLoading(false);
             }
         }, conn.raw));
     },

@@ -420,7 +420,12 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
             var value = [];
             for (var field in row) {
 
-                if(!row[field]) {
+                if(row[field] === null) {
+
+                    value.push("NULL");
+                    continue;
+                }
+                else if(!row[field]){
 
                     value.push("''");
                     continue;
