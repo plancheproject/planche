@@ -13,6 +13,9 @@ Ext.define('Planche.lib.QueryAlignment', function() {
         ];
 
     return {
+        requires : [
+            'Planche.lib.QueryTokenType'
+        ],
         singleton  : true,
         constructor: function(config) {
 

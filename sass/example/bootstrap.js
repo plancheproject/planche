@@ -846,6 +846,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.connection.NewConnect": [],
   "Planche.controller.database.CopyDatabaseWindow": [],
   "Planche.controller.database.CreateDatabase": [],
+  "Planche.controller.database.DownloadToCSV": [],
+  "Planche.controller.database.SchemaToHTML": [],
   "Planche.controller.layout.ConnectTab": [],
   "Planche.controller.layout.HistoryTab": [],
   "Planche.controller.layout.InfoTab": [],
@@ -882,13 +884,22 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
+  "Planche.lib.Base64": [
+    "Planche.Base64"
+  ],
   "Planche.lib.ContextMenu": [],
+  "Planche.lib.DBUtil": [
+    "Planche.DBUtil"
+  ],
   "Planche.lib.Menu": [],
   "Planche.lib.Query": [],
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.SchemaTree": [],
+  "Planche.lib.SchemaUtil": [
+    "Planche.SchemaUtil"
+  ],
   "Planche.lib.Window": [],
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
@@ -900,6 +911,9 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.view.database.CopyDatabaseTargetList": [],
   "Planche.view.database.CopyDatabaseWindow": [],
   "Planche.view.database.DatabaseSchemaTree": [],
+  "Planche.view.database.DownloadToCSV": [],
+  "Planche.view.database.DownloadToCSVTargetList": [],
+  "Planche.view.database.SchemaToHTML": [],
   "Planche.view.layout.ConnectTab": [],
   "Planche.view.layout.HistoryTab": [],
   "Planche.view.layout.InfoTab": [],
@@ -1921,6 +1935,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.connection.NewConnect": [],
   "Planche.controller.database.CopyDatabaseWindow": [],
   "Planche.controller.database.CreateDatabase": [],
+  "Planche.controller.database.DownloadToCSV": [],
+  "Planche.controller.database.SchemaToHTML": [],
   "Planche.controller.layout.ConnectTab": [],
   "Planche.controller.layout.HistoryTab": [],
   "Planche.controller.layout.InfoTab": [],
@@ -1957,13 +1973,16 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
+  "Planche.lib.Base64": [],
   "Planche.lib.ContextMenu": [],
+  "Planche.lib.DBUtil": [],
   "Planche.lib.Menu": [],
   "Planche.lib.Query": [],
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
   "Planche.lib.SchemaTree": [],
+  "Planche.lib.SchemaUtil": [],
   "Planche.lib.Window": [],
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
@@ -1981,6 +2000,11 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.view.database.DatabaseSchemaTree": [
     "widget.database-schema-tree"
   ],
+  "Planche.view.database.DownloadToCSV": [],
+  "Planche.view.database.DownloadToCSVTargetList": [
+    "widget.download-to-csv-target-list"
+  ],
+  "Planche.view.database.SchemaToHTML": [],
   "Planche.view.layout.ConnectTab": [
     "widget.connect-tab"
   ],

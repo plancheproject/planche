@@ -6,16 +6,16 @@ Ext.define('Planche.lib.Menu', {
         this.added = true;
     },
 
-    init : function (topBtn) {
+    show: function(topBtn) {
 
-        if(!this.added) {
+        if (!this.added) {
 
             this.add(topBtn);
         }
 
-        Ext.Array.each(topBtn.menu.query('menuitem'), function (menu, idx) {
-            
-            switch(typeof menu.allowDisable) {
+        Ext.Array.each(topBtn.menu.query('menuitem'), function(menu, idx) {
+
+            switch (typeof menu.allowDisable) {
 
                 case 'function':
 

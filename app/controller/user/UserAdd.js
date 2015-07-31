@@ -44,7 +44,7 @@ Ext.define('Planche.controller.user.UserAdd', {
             query  : app.getAPIS().getQuery('SELECT_USER', user, host),
             success: function(config, response) {
 
-                var list = app.getAssocArray(response.fields, response.records);
+                var list = Planche.DBUtil.getAssocArray(response.fields, response.records);
 
                 Ext.getCmp('user-add-user-name').setValue(list[0]['User']);
                 Ext.getCmp('user-add-host').setValue(list[0]['Host']);

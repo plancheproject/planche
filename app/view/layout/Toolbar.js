@@ -74,15 +74,6 @@ Ext.define('Planche.view.layout.Toolbar', {
             cls   : 'btn',
             margin: '0px 2px 0px 3px'
         }
-        //            {
-                    // icon : 'resources/images/icon_sql.png',
-        //             text : 'Prepare',
-        //             cls : 'btn',
-        //             scope : this,
-        //             handler : function (btn) {
-
-        //             }
-        //            }
     ]
     
 });

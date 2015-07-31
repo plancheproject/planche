@@ -25,7 +25,7 @@ if (!function_exists('debug')) {
 
             return;
         }
-        fwrite($fp, "[".date("Y-m-d H:i:s")."]".$msg." \r\n");
+        echo("[".date("Y-m-d H:i:s")."]".$msg." \r\n");
         fclose($fp);
     }
 }
@@ -38,18 +38,42 @@ if (!function_exists('http_parse_headers')) {
 
         if ($method == 'GET') {
 
-            $pos  = strpos($raw_headers, $method) + strlen($method) + 1;
+            $pos = strpos($raw_headers, $method);
+
+            if ($pos === false) {
+
+                return $headers;
+            }
+
+            $pos += strlen($method) + 1;
             $body = substr($raw_headers, $pos);
             $body = trim(substr($body, 0, strpos($body, " ")));
+
+            if (strlen($body) === 0) {
+
+                return $headers;
+            }
 
             $headers['URL'] = parse_url($body, PHP_URL_PATH);
             parse_str(parse_url($body, PHP_URL_QUERY), $headers['PARAMS']);
 
         } else if ($method == 'POST') {
 
-            $pos  = strpos($raw_headers, $method) + strlen($method) + 1;
+            $pos = strpos($raw_headers, $method);
+
+            if ($pos === false) {
+
+                return $headers;
+            }
+
+            $pos += strlen($method) + 1;
             $body = substr($raw_headers, $pos);
-            $body = substr($body, 0, strpos($body, " "));
+            $body = trim(substr($body, 0, strpos($body, " ")));
+
+            if (strlen($body) === 0) {
+
+                return $headers;
+            }
 
             $headers['URL'] = parse_url($body, PHP_URL_PATH);
 
@@ -66,11 +90,13 @@ if (!function_exists('http_parse_headers')) {
 }
 
 if (!function_exists('writeResponse')) {
+
     function writeResponse($string, $client = null)
     {
         if ($client) {
 
             socket_write($client, $string, strlen($string));
+
         } else {
 
             echo $string;
@@ -178,6 +204,28 @@ class Control
                 header('Access-Control-Allow-Origin: *');
                 header('Content-Type: application/json');
             }
+        }
+    }
+
+    public function sendExportHeader($name)
+    {
+
+        if ($this->client) {
+
+            writeResponse("HTTP/1.1 200 OK \r\n", $this->client);
+            writeResponse("Date: Fri, 31 Dec 1999 23:59:59 GMT \r\n", $this->client);
+
+            writeResponse("Content-type: text/csv \r\n", $this->client);
+            writeResponse("Content-Disposition: attachment; filename=".$name.".csv \r\n", $this->client);
+            writeResponse("Pragma: no-cache \r\n", $this->client);
+            writeResponse("Expires: 0 \r\n\r\n", $this->client);
+
+        } else {
+
+            header("Content-type: text/csv");
+            header("Content-Disposition: attachment; filename=".$name.".csv");
+            header("Pragma: no-cache");
+            header("Expires: 0");
         }
     }
 
@@ -350,9 +398,74 @@ class Control
 
     }
 
-    public function export()
+    public function export($query = null)
     {
+        if (!$query) {
 
+            $this->error('query was empty');
+
+            return;
+        }
+
+        if ($this->conn->error) {
+
+            $this->error($this->conn->error);
+
+            return;
+        }
+
+        $csv = uniqid();
+
+        $result = $this->conn->query($query);
+
+        $this->sendExportHeader($csv);
+
+        if (!method_exists($result, 'fetch_fields')) {
+
+            $this->error('query was not selectable');
+
+            return;
+        }
+
+        if (!method_exists($result, 'fetch_array')) {
+
+            $this->error('query was not selectable');
+
+            return;
+        }
+
+        $fields = $result->fetch_fields();
+        foreach ($fields as $idx => $row) {
+
+            if ($idx > 0) {
+
+                writeResponse(",", $this->client);
+            }
+
+            writeResponse($row->name, $this->client);
+        }
+
+        if ($fields) {
+
+            writeResponse("\n", $this->client);
+        }
+
+        while ($row = $result->fetch_array(MYSQLI_ASSOC)) {
+
+            $idx = 0;
+            foreach ($row as $field => $val) {
+
+                if ($idx > 0) {
+
+                    writeResponse(",", $this->client);
+                }
+
+                writeResponse('"'.$val.'"', $this->client);
+                $idx++;
+            }
+
+            writeResponse("\n", $this->client);
+        }
     }
 }
 
@@ -419,6 +532,12 @@ if ($isCLI) {
                 continue;
             }
 
+            if (@$REQUEST['PARAMS']['callback']) {
+
+                //echo "JSON Callback : ".$REQUEST['PARAMS']['callback']."\n";
+                $Planche->setCallback($REQUEST['PARAMS']['callback']);
+            }
+
             if (isset($REQUEST['PARAMS']) === false) {
 
                 $Planche->error('Invalid request');
@@ -426,13 +545,14 @@ if ($isCLI) {
                 continue;
             }
 
-            extract($REQUEST['PARAMS']);
+            if (isset($REQUEST['PARAMS']['cmd']) === false) {
 
-            if (@$callback) {
-
-                echo "JSON Callback : $callback\n";
-                $Planche->setCallback($callback);
+                $Planche->error('Invalid request');
+                socket_close($client);
+                continue;
             }
+
+            extract(json_decode(base64_decode($REQUEST['PARAMS']['cmd']), true));
 
             echo "Execute Query\n";
 
@@ -443,10 +563,24 @@ if ($isCLI) {
 
                 echo "The execution SQL is\n";
 
-                echo $query."\n";
+                echo "\n";
 
                 $Planche->setCharset($charset);
-                $Planche->query($query);
+
+                if ($type === 'export') {
+
+                    if (is_array($query) == true) {
+
+                        $Planche->export($query[0]);
+                    } else {
+
+                        $Planche->export($query);
+                    }
+
+                } else {
+
+                    $Planche->query($query);
+                }
 
                 echo "-----------------------------------------------------------------------\n";
             } else {
@@ -461,17 +595,37 @@ if ($isCLI) {
 
 } else {
 
-    extract($_REQUEST);
+    if (isset($_REQUEST['callback']) === true) {
 
-    if (@$callback) {
+        $Planche->setCallback($_REQUEST['callback']);
+    }
 
-        $Planche->setCallback($callback);
+    extract(json_decode(base64_decode($_REQUEST['cmd']), true));
+
+    if (isset($_REQUEST['cmd']) === false) {
+
+        $Planche->error('Invalid request');
+        exit;
     }
 
     if (@$Planche->connect($host, $user, $pass, $db)) {
 
         @$Planche->setCharset($charset);
-        @$Planche->query($query);
+
+        if ($type === 'export') {
+
+            if (is_array($query) == true) {
+
+                $Planche->export($query[0]);
+            } else {
+
+                $Planche->export($query);
+            }
+
+        } else {
+
+            $Planche->query($query);
+        }
     }
 }
 ?>

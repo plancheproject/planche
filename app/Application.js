@@ -1,19 +1,23 @@
 Ext.define('Planche.Application', {
     name: 'Planche',
 
-    extend: 'Ext.app.Application',
-    requires : [
-        'Planche.lib.Window',
+    extend  : 'Ext.app.Application',
+    requires: [
+        'Planche.lib.Base64',
+        'Planche.lib.DBUtil',
         'Planche.lib.Menu',
-        'Planche.lib.QueryTokenType',
         'Planche.lib.Query',
-        'Planche.lib.QueryParser',
         'Planche.lib.QueryAlignment',
+        'Planche.lib.QueryParser',
+        'Planche.lib.QueryTokenType',
+        'Planche.lib.SchemaTree',
+        'Planche.lib.SchemaUtil',
+        'Planche.lib.Window',
         'Planche.dbms.mysql',
         'Planche.overrides.FixMenuBug',
         'Planche.overrides.RadioGroup'
     ],
-    views: [
+    views   : [
         'layout.ConnectTab',
         'layout.HistoryTab',
         'layout.InfoTab',
@@ -28,6 +32,9 @@ Ext.define('Planche.Application', {
         'database.CopyDatabaseWindow',
         'database.DatabaseSchemaTree',
         'database.CopyDatabaseTargetList',
+        'database.SchemaToHTML',
+        'database.DownloadToCSVTargetList',
+        'database.DownloadToCSV',
         'table.EditIndexWindow',
         'table.EditSchemeWindow',
         'table.TableIndexesTab',
@@ -44,7 +51,6 @@ Ext.define('Planche.Application', {
     ],
 
     controllers: [
-        // TODO: add controllers here,
         'command.Find',
         'command.Flush',
         'command.Process',
@@ -55,6 +61,8 @@ Ext.define('Planche.Application', {
         'connection.NewConnect',
         'database.CreateDatabase',
         'database.CopyDatabaseWindow',
+        'database.SchemaToHTML',
+        'database.DownloadToCSV',
         'menu.Connection',
         'menu.Database',
         'menu.Edit',

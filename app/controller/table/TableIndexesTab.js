@@ -105,7 +105,7 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
             query : app.getAPIS().getQuery('SHOW_INDEXES', db, tb),
             success : function (config, response) {
 
-                var records = app.getAssocArray(response.fields, response.records);
+                var records = Planche.DBUtil.getAssocArray(response.fields, response.records);
                 tab.getStore().loadData(records);
 
                 tab.setLoading(false);

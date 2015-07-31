@@ -22,7 +22,15 @@ Ext.define('Planche.controller.layout.TableDataTab', {
                     }
 
                     this.prevNode = node;
-                    app.openTable(node);
+
+                    if(app.openMode == 'select'){
+
+                        app.openTable(node);
+                    }
+                    else {
+
+                        app.countTable(node);
+                    }
                 }
             }
         });

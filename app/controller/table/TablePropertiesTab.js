@@ -136,7 +136,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
                     'properties-maximum-row'    : getPropertie('MAX_ROWS')
                 };
 
-                var data = app.getAssocArray(results[1].response.fields, results[1].response.records)[0];
+                var data = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records)[0];
 
                 if (data.Create_options) {
 

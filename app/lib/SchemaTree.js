@@ -51,7 +51,14 @@ Ext.define('Planche.lib.SchemaTree', {
 
             if (app.getActiveTableDataTab().isVisible()) {
 
-                app.openTable(node);
+                if(app.openMode == 'select'){
+
+                    app.openTable(node);
+                }
+                else {
+
+                    app.countTable(node);
+                }
             }
         }
     },

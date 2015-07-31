@@ -105,7 +105,7 @@ Ext.define('Planche.controller.user.Grant', {
             query  : app.getAPIS().getQuery('SELECT_ALL_USER'),
             success: function(config, response) {
 
-                var records = app.getAssocArray(response.fields, response.records);
+                var records = Planche.DBUtil.getAssocArray(response.fields, response.records);
                 userList.store.loadData(records);
 
                 userList.setLoading(false);
@@ -377,7 +377,7 @@ Ext.define('Planche.controller.user.Grant', {
             },
             afterAllQueries: function(queries, results) {
 
-                records = app.getAssocArray(results[0].response.fields, results[0].response.records, true)[0];
+                records = Planche.DBUtil.getAssocArray(results[0].response.fields, results[0].response.records, true)[0];
                 path = 'global';
                 settings[path] = settings[path] || [];
                 Ext.Object.each(records, function(key, val) {
@@ -392,7 +392,7 @@ Ext.define('Planche.controller.user.Grant', {
                     }
                 });
 
-                records = app.getAssocArray(results[1].response.fields, results[1].response.records, true);
+                records = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
                     path = ['database', row.DB].join("`");
@@ -411,7 +411,7 @@ Ext.define('Planche.controller.user.Grant', {
                     });
                 });
 
-                records = app.getAssocArray(results[2].response.fields, results[2].response.records, true);
+                records = Planche.DBUtil.getAssocArray(results[2].response.fields, results[2].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
                     if (!row.TABLE_PRIV) {
@@ -424,7 +424,7 @@ Ext.define('Planche.controller.user.Grant', {
                     settings[path] = row.TABLE_PRIV.toUpperCase().split(",");
                 });
 
-                records = app.getAssocArray(results[3].response.fields, results[3].response.records, true);
+                records = Planche.DBUtil.getAssocArray(results[3].response.fields, results[3].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
                     if (!row.COLUMN_PRIV) {
@@ -437,7 +437,7 @@ Ext.define('Planche.controller.user.Grant', {
                     settings[path] = row.COLUMN_PRIV.toUpperCase().split(",");
                 });
 
-                records = app.getAssocArray(results[4].response.fields, results[4].response.records, true);
+                records = Planche.DBUtil.getAssocArray(results[4].response.fields, results[4].response.records, true);
                 Ext.Array.each(records, function(row, idx) {
 
                     if (!row.PROC_PRIV) {

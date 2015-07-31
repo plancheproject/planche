@@ -549,23 +549,27 @@ Ext.application({
             }
         });
 
+        var params = Planche.Base64.encode(Ext.JSON.encode({
+            db     : config.db,
+            host   : config.host,
+            user   : config.user,
+            pass   : config.pass,
+            charset: config.charset,
+            port   : config.port,
+            query  : config.query,
+            type   : config.type
+        }));
+
         var reqConfig = {
             url    : config.tunnelingURL,
             async  : config.async,
             params : {
-                db     : config.db,
-                host   : config.host,
-                user   : config.user,
-                pass   : config.pass,
-                charset: config.charset,
-                port   : config.port,
-                query  : config.query,
-                type   : config.type
+                cmd: params
             },
             timeout: config.timeout,
             success: function(response) {
 
-                if(response.responseText){
+                if (response.responseText) {
 
                     response = Ext.JSON.decode(response.responseText);
                 }
@@ -582,15 +586,15 @@ Ext.application({
             },
             failure: function(response) {
 
-                if(response.status === 0){
+                if (response.status === 0) {
 
                     response = {
                         success: false,
-                        message: 'Can\'t connect to tunneling URL'
+                        message: 'Network error : Can\'t connect to tunneling URL'
                     }
                 }
 
-                if(response.responseText){
+                if (response.responseText) {
 
                     response = Ext.JSON.decode(response.responseText);
                 }
@@ -599,7 +603,7 @@ Ext.application({
 
                     response = {
                         success: false,
-                        message: 'Can\'t connect to tunneling URL'
+                        message: 'Network error : Can\'t connect to tunneling URL'
                     }
                 }
 
@@ -1379,6 +1383,16 @@ Ext.application({
         this.openWindow('database.CopyDatabaseWindow', type, name);
     },
 
+    openSchemaToHTMLWindow: function() {
+
+        this.openWindow('database.SchemaToHTML');
+    },
+
+    openSchemaToCSVWindow: function() {
+
+        this.openWindow('database.DownloadToCSV');
+    },
+
     openReorderColumns: function(node) {
 
         var db = this.getSelectedDatabase();
@@ -1917,6 +1931,8 @@ Ext.application({
             queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, node.data.text, "*", '')),
             query = queries[0];
 
+        this.openMode = 'select';
+
         this.setLoading(true);
 
         this.tunneling({
@@ -1929,7 +1945,7 @@ Ext.application({
                 this.initQueryResult({openTable: node.data.text}, db, query, response);
                 this.setLoading(false);
             },
-            failure : function(config, response){
+            failure: function(config, response) {
 
                 this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
                 this.setLoading(false);
@@ -1945,6 +1961,8 @@ Ext.application({
             queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, node.data.text, "*", '')),
             query = queries[0];
 
+        this.openMode = 'count';
+
         this.setLoading(true);
 
         this.tunneling({
@@ -1957,7 +1975,7 @@ Ext.application({
                 this.initQueryResult({openTable: node.data.text}, db, query, response);
                 this.setLoading(false);
             },
-            failure : function(config, response){
+            failure: function(config, response) {
 
                 this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
                 this.setLoading(false);
@@ -1991,33 +2009,6 @@ Ext.application({
     showMessage: function(msg) {
 
         Ext.Msg.alert('Message', msg);
-    },
-
-    getAssocArray: function(fields, records, upper_case_key) {
-
-        upper_case_key = upper_case_key || false;
-
-        if (upper_case_key) {
-
-            Ext.Array.each(fields, function(field, fidx) {
-
-                fields[fidx].name = field.name.toUpperCase();
-            });
-        }
-
-        var tmp = [];
-        Ext.Array.each(records, function(record, ridx) {
-
-            var row = {};
-            Ext.Array.each(fields, function(field, fidx) {
-
-                row[field.name] = record[fidx];
-            });
-
-            tmp.push(row);
-        });
-
-        return tmp;
     },
 
     tokenize: function() {

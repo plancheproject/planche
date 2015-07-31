@@ -53,8 +53,21 @@ Control.prototype = {
 
         } else {
 
-            this.response.writeHead(200, {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json'});
+            this.response.writeHead(200, {
+                'Access-Control-Allow-Origin': '*',
+                'Content-Type'               : 'application/json'
+            });
         }
+    },
+
+    sendExportHeader: function(name) {
+
+        this.response.writeHead(200, {
+            'Content-type'       : 'text/csv',
+            'Content-Disposition': 'attachment; filename=' + name + '.csv',
+            'Pragma'             : 'no-cache',
+            'Expires'            : '0'
+        });
     },
 
     setCharset: function(charset) {
@@ -84,7 +97,7 @@ Control.prototype = {
         });
     },
 
-    query: function(query) {
+    query: function(query, type) {
 
         if (!query) {
 
@@ -108,7 +121,15 @@ Control.prototype = {
 
                 var end = new Date().getTime();
 
-                me.success(fields, results, start, end);
+                if (type == 'export') {
+
+                    me.exportCSV(fields, results);
+                }
+                else {
+
+                    me.success(fields, results, start, end);
+                }
+
             });
     },
 
@@ -204,6 +225,48 @@ Control.prototype = {
         this.response.end('\n');
     },
 
+    exportCSV: function(fetchFields, fetchRows) {
+
+        var me = this,
+            csv = 'sdf';
+
+        me.sendExportHeader(csv);
+
+        fetchFields.forEach(function(field, idx) {
+
+            if (idx > 0) {
+
+                me.response.write(",");
+            }
+
+            me.response.write(field.name);
+        });
+
+        if (fetchFields) {
+
+            me.response.write("\n");
+        }
+
+        fetchRows.forEach(function(row) {
+
+            var idx = 0;
+            for (var p in row) {
+
+                if (idx > 0) {
+
+                    me.response.write(",");
+                }
+
+                me.response.write('"' + row[p] + '"');
+                idx++;
+            }
+
+            me.response.write("\n");
+        });
+
+        me.response.end('\n');
+    },
+
     failure: function(err) {
 
         this.conn.end();
@@ -264,14 +327,32 @@ http.createServer(function(request, response) {
             Planche.setCallback(params.callback);
         }
 
-        Planche.connect(params.host, params.user, params.pass, params.db, response);
+        var cmd = new Buffer(params.cmd, 'base64').toString('ascii'),
+            cmd = JSON.parse(cmd);
+
+        Planche.connect(cmd.host, cmd.user, cmd.pass, cmd.db, response);
 
         console.log("The execution SQL is");
 
-        console.log(params.query);
+        console.log(cmd.query);
 
-        Planche.setCharset(params.charset);
-        Planche.query(params.query);
+        Planche.setCharset(cmd.charset);
+
+        if (cmd.type === 'export') {
+
+            if (typeof cmd.query == 'object') {
+
+                Planche.query(cmd.query[0], cmd.type);
+            }
+            else {
+
+                Planche.query(cmd.query, cmd.type);
+            }
+
+        } else {
+
+            Planche.query(cmd.query, cmd.type);
+        }
 
         console.log("-----------------------------------------------------------------------");
     };

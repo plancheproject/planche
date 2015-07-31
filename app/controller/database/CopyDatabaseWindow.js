@@ -15,7 +15,6 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
         this.control({
             '#copy-database-source-tree': {
-                select          : this.selectNode,
                 beforeitemexpand: function(node) {
 
                     var selType = app.getSelectedNode().raw.type;
@@ -105,6 +104,9 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
             },
             '#copy-database-btn-copy'   : {
                 click: this.copy
+            },
+            '#copy-database-btn-close' : {
+                click : this.close
             }
         });
 
@@ -227,13 +229,17 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
         });
 
         this.runQueue();
-        //debugger;
+    },
+
+    close : function(btn){
+
+        btn.up('window').destroy();
     },
 
     addTriggerCopyQueue: function(config, response) {
 
         var app = this.getApplication(),
-            row = app.getAssocArray(response.fields, response.records)[0],
+            row = Planche.DBUtil.getAssocArray(response.fields, response.records)[0],
             query = row['SQL Original Statement'],
             target = this.getSelectedTarget();
 
@@ -249,7 +255,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
         //queue.type을 작업해줘야합니다.
         var app = this.getApplication(),
-            row = app.getAssocArray(response.fields, response.records)[0],
+            row = Planche.DBUtil.getAssocArray(response.fields, response.records)[0],
             query = row['Create ' + type[0].toUpperCase() + type.slice(1)],
             target = this.getSelectedTarget(),
             form = Ext.getCmp('copy-database-option-form'),
@@ -283,7 +289,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
             if (options['copy-database-option-3'] === 'on') {
 
-                this.copyPerOnce = 100;
+                this.copyPerOnce = 10000;
             }
             else {
 
@@ -356,7 +362,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
             this.tableInfo[table] = this.tableInfo[table] || {};
             var info = this.tableInfo[table],
-                row = app.getAssocArray(response.fields, response.records)[0];
+                row = Planche.DBUtil.getAssocArray(response.fields, response.records)[0];
 
             info.cnt = parseInt(row.cnt, 10);
             info.offset = 0;

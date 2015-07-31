@@ -80,7 +80,7 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
 
                 if(editMode){
 
-                    var records = app.getAssocArray(results[1].response.fields, results[1].response.records);
+                    var records = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records);
                     Ext.Array.each(records, function(obj, idx){
 
                         if(obj.Non_unique == '0'){
