@@ -170,6 +170,11 @@ class Control
         return true;
     }
 
+    public function close(){
+
+        $this->conn->close();
+    }
+
     public function setClient($client)
     {
 
@@ -270,7 +275,12 @@ class Control
         }
     }
 
-    public function query($query = null)
+    public function query($query){
+
+        return $this->conn->query($query);
+    }
+
+    public function execute($query = null)
     {
         if (!$query) {
 
@@ -280,7 +290,7 @@ class Control
         }
 
         $start     = substr(microtime(), 0, 10);
-        $result    = $this->conn->query($query);
+        $result    = $this->query($query);
         $end       = substr(microtime(), 0, 10);
         $exec_time = substr($end - $start, 0, 10);
 
@@ -563,6 +573,8 @@ if ($isCLI) {
 
                 echo "The execution SQL is\n";
 
+                print_r($query);
+
                 echo "\n";
 
                 $Planche->setCharset($charset);
@@ -579,8 +591,15 @@ if ($isCLI) {
 
                 } else {
 
-                    $Planche->query($query);
+                    if($type == 'copy'){
+
+                        $Planche->query("SET foreign_key_checks = 0");
+                    }
+
+                    $Planche->execute($query);
                 }
+
+                $Planche->close();
 
                 echo "-----------------------------------------------------------------------\n";
             } else {
@@ -617,6 +636,7 @@ if ($isCLI) {
             if (is_array($query) == true) {
 
                 $Planche->export($query[0]);
+
             } else {
 
                 $Planche->export($query);
@@ -624,8 +644,15 @@ if ($isCLI) {
 
         } else {
 
-            $Planche->query($query);
+            if($type == 'copy'){
+
+                $Planche->query("SET foreign_key_checks = 0");
+            }
+
+            $Planche->execute($query);
         }
+
+        $Planche->close();
     }
 }
 ?>

@@ -507,32 +507,12 @@ Ext.application({
         var connection = config.connection || this.getActiveConnectTab(),
             app = this;
 
-        if (connection) {
-
-            Ext.applyIf(config, {
-                hostName    : connection.getHostName(),
-                host        : connection.getHost(),
-                user        : connection.getUser(),
-                pass        : connection.getPass(),
-                charset     : connection.getCharset(),
-                port        : connection.getPort(),
-                tunnelingURL: connection.getTunnelingURL(),
-                requestType : connection.getRequestType()
-            });
-        }
-
         Ext.applyIf(config, {
-            db          : '',
-            query       : '',
             type        : 'query',
             async       : true,
             timeout     : 1000 * 60 * 5,
-            host        : '',
-            user        : '',
-            pass        : '',
             charset     : 'utf8',
             port        : 3306,
-            tunnelingURL: '',
             requestType : 'jsonp',
             method      : 'post',
             success     : function(config, response) {
@@ -548,6 +528,20 @@ Ext.application({
                 this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
             }
         });
+
+        if (connection) {
+
+            Ext.applyIf(config, {
+                hostName    : connection.getHostName(),
+                host        : connection.getHost(),
+                user        : connection.getUser(),
+                pass        : connection.getPass(),
+                charset     : connection.getCharset(),
+                port        : connection.getPort(),
+                tunnelingURL: connection.getTunnelingURL(),
+                requestType : connection.getRequestType()
+            });
+        }
 
         var params = Planche.Base64.encode(Ext.JSON.encode({
             db     : config.db,
@@ -576,7 +570,11 @@ Ext.application({
 
                 if (response.success == true) {
 
-                    app.pushHistory(response.exec_time, config.query);
+                    if(config.type == 'query'){
+
+                        app.pushHistory(response.exec_time, config.query);
+                    }
+
                     config.success.apply(app, [config, response]);
                 }
                 else {

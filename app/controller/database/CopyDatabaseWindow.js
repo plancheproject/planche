@@ -35,7 +35,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                 expandTree      : function(node) {
 
                     var selType = app.getSelectedNode().raw.type;
-                    
+
                     this.expandTree(node, {
                         checked: selType === 'database'
                     });
@@ -47,7 +47,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                         db = app.getSelectedDatabase(),
                         tab = app.getActiveConnectTab();
 
-                    if(tab.getRequestType() === 'jsonp'){
+                    if (tab.getRequestType() === 'jsonp') {
 
                         Ext.getCmp('copy-database-option-3').setDisabled(true);
                         Ext.getCmp('copy-database-option-3').setValue(false);
@@ -105,8 +105,8 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
             '#copy-database-btn-copy'   : {
                 click: this.copy
             },
-            '#copy-database-btn-close' : {
-                click : this.close
+            '#copy-database-btn-close'  : {
+                click: this.close
             }
         });
 
@@ -231,7 +231,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
         this.runQueue();
     },
 
-    close : function(btn){
+    close: function(btn) {
 
         btn.up('window').destroy();
     },
@@ -426,12 +426,12 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
             var value = [];
             for (var field in row) {
 
-                if(row[field] === null) {
+                if (row[field] === null) {
 
                     value.push("NULL");
                     continue;
                 }
-                else if(!row[field]){
+                else if (!row[field]) {
 
                     value.push("''");
                     continue;
@@ -462,12 +462,12 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
         params = params || [];
 
         this.queue.push({
-            type     : type,
-            conection: connection,
-            db       : db,
-            query    : query,
-            callback : callback,
-            params   : params
+            type      : type,
+            connection: connection,
+            db        : db,
+            query     : query,
+            callback  : callback,
+            params    : params
         });
     },
 
@@ -506,6 +506,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                     connection: queue.connection,
                     db        : queue.db,
                     query     : queue.query,
+                    type      : 'copy',
                     success   : function(config, response) {
 
                         if (queue.type == 'table-count') {

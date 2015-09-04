@@ -12,5 +12,5 @@ Planche.config = {
             port        : 3306,
             dbms        : 'mysql'
         }
-    ]    
+    ]
 }

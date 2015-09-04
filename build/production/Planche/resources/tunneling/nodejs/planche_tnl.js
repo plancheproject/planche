@@ -45,6 +45,11 @@ Control.prototype = {
         });
     },
 
+    close : function(){
+
+        this.conn.end();
+    },
+
     sendHeader: function() {
 
         if (this.callback) {
@@ -79,7 +84,7 @@ Control.prototype = {
 
         var query = 'SET NAMES ' + charset;
 
-        this.conn.query(query);
+        this.query(query);
     },
 
     setCallback: function(callback) {
@@ -97,7 +102,12 @@ Control.prototype = {
         });
     },
 
-    query: function(query, type) {
+    query : function(query, callback){
+
+        return this.conn.query(query, callback);
+    },
+
+    execute : function(query, type) {
 
         if (!query) {
 
@@ -111,7 +121,7 @@ Control.prototype = {
             fields = [];
 
         var me = this,
-            result = this.conn.query(query, function(err, results, fields) {
+            result = this.query(query, function(err, results, fields) {
 
                 if (err) {
 
@@ -184,24 +194,26 @@ Control.prototype = {
         this.response.write('"fields":' + JSON.stringify(fields) + ',');
         this.response.write('"records":[');
 
-        idx = 0;
+        if (fetchFields) {
 
-        fetchRows.forEach(function(row) {
+            idx = 0;
+            fetchRows.forEach(function(row) {
 
-            if (idx > 0) {
+                if (idx > 0) {
 
-                me.response.write(",");
-            }
+                    me.response.write(",");
+                }
 
-            var tmp = [];
-            for (var p in row) {
+                var tmp = [];
+                for (var p in row) {
 
-                tmp.push(row[p]);
-            }
+                    tmp.push(row[p]);
+                }
 
-            me.response.write(JSON.stringify(tmp));
-            idx++;
-        });
+                me.response.write(JSON.stringify(tmp));
+                idx++;
+            });
+        }
 
         this.response.write("],");
 
@@ -342,17 +354,24 @@ http.createServer(function(request, response) {
 
             if (typeof cmd.query == 'object') {
 
-                Planche.query(cmd.query[0], cmd.type);
+                Planche.execute(cmd.query[0], cmd.type);
             }
             else {
 
-                Planche.query(cmd.query, cmd.type);
+                Planche.execute(cmd.query, cmd.type);
             }
 
         } else {
 
-            Planche.query(cmd.query, cmd.type);
+            if(cmd.type == 'copy'){
+
+                Planche.query("SET foreign_key_checks = 0");
+            }
+
+            Planche.execute(cmd.query, cmd.type);
         }
+
+        Planche.close();
 
         console.log("-----------------------------------------------------------------------");
     };
