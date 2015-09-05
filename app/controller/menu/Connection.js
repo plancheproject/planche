@@ -62,6 +62,11 @@ Ext.define('Planche.controller.menu.Connection', {
             },
             allowDisable: function(topBtn, menu) {
 
+                if(this.getQueryTabPanel().child().length < 2){
+
+                    return true;
+                }
+
                 if (!this.getActiveQueryTab()) {
 
                     return true;

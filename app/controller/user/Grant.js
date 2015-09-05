@@ -2,7 +2,7 @@ Ext.define('Planche.controller.user.Grant', {
     extend: 'Planche.lib.SchemaTree',
     views : [
         'user.Grant',
-        'user.GrantSchemeTree',
+        'user.GrantSchemaTree',
         'user.GrantUserList'
     ],
     init  : function() {
@@ -59,11 +59,11 @@ Ext.define('Planche.controller.user.Grant', {
             'grant-user-list gridcolumn[text=Delete]': {
                 click: this.deleteUser
             },
-            'grant-scheme-tree'                      : {
+            'grant-schema-tree'                      : {
                 beforeitemexpand: this.expandTree,
                 reloadTree      : this.reloadTree,
                 expandTree      : this.expandTree,
-                select          : this.selectSchemeTree
+                select          : this.selectSchemaTree
             }
         });
 
@@ -113,7 +113,7 @@ Ext.define('Planche.controller.user.Grant', {
         });
     },
 
-    initSchemeTree: function() {
+    initSchemaTree: function() {
 
         var tree = this.getSchemaTree();
 
@@ -309,7 +309,7 @@ Ext.define('Planche.controller.user.Grant', {
                 win.setDisabled(false);
 
                 me.initPrivList();
-                me.initSchemeTree();
+                me.initSchemaTree();
 
                 Ext.Msg.alert('info', 'Successfully apply the permissions.');
 
@@ -324,7 +324,7 @@ Ext.define('Planche.controller.user.Grant', {
     cancelChanges: function(btn) {
 
         this.initPrivList();
-        this.initSchemeTree();
+        this.initSchemaTree();
         this.initUserList();
     },
 
@@ -348,7 +348,7 @@ Ext.define('Planche.controller.user.Grant', {
         if (user.get('old_priv') && user.get('priv')) {
 
             me.initPrivList();
-            me.initSchemeTree();
+            me.initSchemaTree();
             return;
         }
 
@@ -454,7 +454,7 @@ Ext.define('Planche.controller.user.Grant', {
                 user.set('priv', Ext.clone(settings));
 
                 me.initPrivList();
-                me.initSchemeTree();
+                me.initSchemaTree();
 
                 userList.setLoading(false);
                 tree.setLoading(false);
@@ -485,7 +485,7 @@ Ext.define('Planche.controller.user.Grant', {
         this.getSaveChangeBtn().setDisabled(false);
     },
 
-    selectSchemeTree: function(tree, record, index) {
+    selectSchemaTree: function(tree, record, index) {
 
         var me = this,
             privList = this.getPrivList(),
@@ -553,7 +553,7 @@ Ext.define('Planche.controller.user.Grant', {
 
     getSchemaTree : function(){
 
-        return Ext.getCmp('grant-scheme-tree');
+        return Ext.getCmp('grant-schema-tree');
     },
 
     getSchemaTreeSelection: function() {

@@ -10,7 +10,7 @@ Ext.define('Planche.view.layout.ConnectTab', {
     style   : { "background" : "#E0E0E0" },
     padding : '5px 0px 0px 0px',
     items   : [{
-        xtype : 'scheme-tree'
+        xtype : 'schema-tree'
     },{
 
         xtype : 'query-tab-panel'

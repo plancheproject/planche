@@ -1,6 +1,6 @@
 Ext.define('Planche.lib.SchemaUtil', {
-    singleton         : true,
-    alternateClassName: ['Planche.SchemaUtil'],
+    singleton            : true,
+    alternateClassName   : ['Planche.SchemaUtil'],
     exportAllSchemaToHTML: function(cmp, updateMethod) {
 
         var app = Planche.getApplication(),
@@ -88,6 +88,7 @@ Ext.define('Planche.lib.SchemaUtil', {
                 'Show Databases': api.getQuery('SHOW_DATABASES')
             },
             keys = Ext.Object.getKeys(queries),
+            html = [],
             tunneling;
 
         cmp['setLoading'](true);
@@ -187,7 +188,7 @@ Ext.define('Planche.lib.SchemaUtil', {
             api = app.getAPIS(),
             db = app.getSelectedDatabase(),
             queries = {
-                'Show Table Status' : api.getQuery('SHOW_ALL_TABLE_STATUS', db)
+                'Show Table Status': api.getQuery('SHOW_ALL_TABLE_STATUS', db)
             },
 
             html = [],

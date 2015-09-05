@@ -47,8 +47,8 @@ Ext.define('Planche.view.user.Grant', {
             disabled   : false,
             application: this.getApplication()
         }, {
-            xtype   : 'grant-scheme-tree',
-            id      : 'grant-scheme-tree',
+            xtype   : 'grant-schema-tree',
+            id      : 'grant-schema-tree',
             region  : 'center',
             width   : 200,
             height  : '100%',

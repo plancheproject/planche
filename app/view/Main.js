@@ -103,7 +103,7 @@ Ext.define('Planche.view.Main', {
 
         return {
             xtype   : 'menu',
-            id      : 'scheme-context-menu',
+            id      : 'schema-context-menu',
             margin  : '0 0 10 0',
             defaults: {
                 scope: this

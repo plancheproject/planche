@@ -2,24 +2,14 @@ Ext.define('Planche.controller.menu.Help', {
     extend: 'Planche.lib.Menu',
     add   : function(topBtn) {
 
-        topBtn.menu.add([{
-            text   : 'New Connection Using Current Setting',
-            disable: function() {
+        var app = this.getApplication();
 
-                return false;
+        topBtn.menu.add([{
+            text   : 'About Planche',
+            handler : function(){
+
+                app.openWindow('help.AboutPlanche');
             }
-        }, {
-            text: 'New Connection'
-        }, {
-            text: 'New Query Editor'
-        }, {
-            text: 'Close Tab'
-        }, {
-            text: 'Close Other Tabs'
-        }, {
-            text: 'Disconnect'
-        }, {
-            text: 'Disconnect All'
         }]);
 
         this.added = true;

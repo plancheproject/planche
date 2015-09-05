@@ -20,7 +20,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
         config.tab = config.tab === true || true;
 
         var app = this.getApplication(),
-            scheme = response.fields, records = response.records,
+            schema = response.fields, records = response.records,
             columns = [], fields = [], grid,
 
             loadGridRecord = function(cmd) {
@@ -40,7 +40,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                     query  : query['get' + cmd + 'SQL'](),
                     success: function(config, response) {
 
-                        var data = app.makeRecords(scheme, response.records);
+                        var data = app.makeRecords(schema, response.records);
                         grid.store.loadData(data);
                         app.setLoading(false);
 
@@ -69,7 +69,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
             colObjs = {};
 
-        Ext.Array.each(scheme, function(col, idx) {
+        Ext.Array.each(schema, function(col, idx) {
 
             colObjs[col.name] = Ext.create('Ext.grid.column.Column', {
                 text        : col.name,
@@ -96,7 +96,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             fields    : fields,
             autoLoad  : false,
             pageSize  : 10,
-            data      : app.makeRecords(scheme, records),
+            data      : app.makeRecords(schema, records),
             remoteSort: true,
             proxy     : {
                 type  : 'memory',

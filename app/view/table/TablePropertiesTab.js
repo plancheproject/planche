@@ -184,7 +184,7 @@ Ext.define('Planche.view.table.TablePropertiesTab', {
             tb = this.getTable();
 
         this.tbar = {
-            id        : 'properties-scheme-name',
+            id        : 'properties-schema-name',
             xtype     : 'textfield',
             width     : '100%',
             allowBlank: false,

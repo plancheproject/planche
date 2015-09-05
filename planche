@@ -1,0 +1,38 @@
+#!/bin/bash
+
+message() {
+
+	echo $1
+}
+
+lang=$1
+addr=$2
+port=$3
+path="resources/tunneling/$lang"
+
+if [ $lang = 'nodejs' ]
+then
+
+    file="$path/planche.js"
+    cmd="node $file";
+
+elif [ $lang = 'php' ]
+then
+
+    file="$path/planche.php"
+    cmd="php $file";
+else
+
+    message "Not support this language"
+    exit
+fi
+
+if [ -e $file ]
+then 
+
+	eval "$cmd $addr $port"
+
+else
+
+	message "Not support this language"
+fi

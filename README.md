@@ -80,12 +80,12 @@ Run the "tunneling file" at CLI mode.
 
 - PHP Environment
 ```
-[user@localhost ~]$ php resources/tunneling/php/planche_tnl.php
+[user@localhost ~]$ ./planche php [localhost] [port]
 ```
 
 - nodeJS Environment
 ```
-[user@localhost ~]$ node resources/tunneling/nodejs/planche_tnl.js
+[user@localhost ~]$ ./planche nodejs [localhost] [port] 
 ```
 
 ## Watch the video

@@ -1,7 +1,7 @@
 Ext.define('Planche.controller.layout.ConnectTab', {
     extend: 'Ext.app.Controller',
     views : [
-        'layout.SchemeTree',
+        'layout.SchemaTree',
         'layout.QueryTabPanel'
     ],
     init : function () {

@@ -35,14 +35,14 @@ Ext.application({
 
     /**
      /**
-     * Return context menu component of scheme tree in left side bar
+     * Return context menu component of schema tree in left side bar
      *
      * @access public
-     * @method getSchemeContextMenu
+     * @method getSchemaContextMenu
      */
-    getSchemeContextMenu: function() {
+    getSchemaContextMenu: function() {
 
-        return Ext.getCmp('scheme-context-menu');
+        return Ext.getCmp('schema-context-menu');
     },
 
     /**
@@ -171,6 +171,32 @@ Ext.application({
         }
         catch (e) {
             return null;
+        }
+    },
+
+    /**
+     * Return query editor's selected sql in active query tab
+     *
+     * @access public
+     * @method getActiveEditorSelection
+     */
+    getActiveEditorSelection: function() {
+
+        try {
+
+            var editor = this.getActiveEditor();
+            if (editor.somethingSelected()) {
+
+                return editor.getSelection();
+            }
+            else {
+
+                return "";
+            }
+        }
+        catch (e) {
+
+            return "";
         }
     },
 
@@ -1360,7 +1386,7 @@ Ext.application({
     openAlterTableWindow: function(node) {
 
         var db = this.getSelectedDatabase();
-        this.openWindow('table.EditSchemeWindow', db, node.data.text);
+        this.openWindow('table.EditSchemaWindow', db, node.data.text);
     },
 
     openCreateTableWindow: function() {
@@ -1368,7 +1394,7 @@ Ext.application({
         var node = this.getSelectedNode(),
             db = this.getSelectedDatabase();
 
-        this.openWindow('table.EditSchemeWindow', db);
+        this.openWindow('table.EditSchemaWindow', db);
     },
 
     openCreateDatabaseWindow: function(node) {

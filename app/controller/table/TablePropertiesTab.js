@@ -16,7 +16,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
             '#table-properties-btn-create': {
                 click: function(btn) {
 
-                    var ctrl = app.getController('table.TableSchemeTab');
+                    var ctrl = app.getController('table.TableSchemaTab');
                     ctrl[btn.getText().toLowerCase()](btn);
                 }
             },

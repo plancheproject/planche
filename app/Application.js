@@ -26,7 +26,7 @@ Ext.define('Planche.Application', {
         'layout.QueryTab',
         'layout.QueryTabPanel',
         'layout.ResultTabPanel',
-        'layout.SchemeTree',
+        'layout.SchemaTree',
         'layout.TableDataTab',
         'layout.Toolbar',
         'database.CopyDatabaseWindow',
@@ -36,15 +36,15 @@ Ext.define('Planche.Application', {
         'database.DownloadToCSVTargetList',
         'database.DownloadToCSV',
         'table.EditIndexWindow',
-        'table.EditSchemeWindow',
+        'table.EditSchemaWindow',
         'table.TableIndexesTab',
         'table.TableInfoTab',
         'table.TablePropertiesTab',
-        'table.TableSchemeTab',
+        'table.TableSchemaTab',
         'table.TableSQLTab',
 
         'user.Grant',
-        'user.GrantSchemeTree',
+        'user.GrantSchemaTree',
         'user.GrantUserList',
         'user.GrantPrivList',
         'user.UserAdd'
@@ -75,8 +75,8 @@ Ext.define('Planche.Application', {
         // 'menu.Window'
         'query.Token',
 
-        'layout.SchemeTreeContextMenu',
-        'layout.SchemeTree',
+        'layout.SchemaTreeContextMenu',
+        'layout.SchemaTree',
         'layout.QueryTabPanel',
         'layout.QueryEditor',
         'layout.ResultTabPanel',
@@ -89,11 +89,11 @@ Ext.define('Planche.Application', {
         'layout.Toolbar',
 
         'table.EditIndexWindow',
-        'table.EditSchemeWindow',
+        'table.EditSchemaWindow',
         'table.AdvancedProperties',
         'table.EditTextColumn',
         'table.ReorderColumns',
-        'table.TableSchemeTab',
+        'table.TableSchemaTab',
         'table.TablePropertiesTab',
         'table.TableIndexesTab',
         'table.TableSQLTab',
@@ -106,8 +106,8 @@ Ext.define('Planche.Application', {
     ],
 
     stores: [
-        'GrantSchemeTree',
-        'SchemeTree',
+        'GrantSchemaTree',
+        'SchemaTree',
         'DatabaseSchemaTree'
     ]
 });

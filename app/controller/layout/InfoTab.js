@@ -21,7 +21,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
                     this.openInfo(node);
                 }
             },
-            'scheme-tree': {
+            'schema-tree': {
                 select: function(view) {
 
                     var treeview = view.views[0],

@@ -6,13 +6,7 @@
  */
 Ext.Loader.addClassPathMappings({
   "Ext": "ext/src",
-  "Ext.DomHelper": "ext/src/dom/Helper.js",
-  "Ext.DomQuery": "ext/src/dom/Query.js",
-  "Ext.EventObjectImpl": "ext/src/EventObject.js",
   "Ext.Msg": "ext/src/window/MessageBox.js",
-  "Ext.Supports": "ext/src/Support.js",
-  "Ext.core.DomHelper": "ext/src/dom/Helper.js",
-  "Ext.core.DomQuery": "ext/src/dom/Query.js",
   "Ext.rtl.EventObjectImpl": "ext/src/rtl/EventObject.js",
   "Planche": "app"
 });
@@ -855,8 +849,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.layout.QueryTab": [],
   "Planche.controller.layout.QueryTabPanel": [],
   "Planche.controller.layout.ResultTabPanel": [],
-  "Planche.controller.layout.SchemeTree": [],
-  "Planche.controller.layout.SchemeTreeContextMenu": [],
+  "Planche.controller.layout.SchemaTree": [],
+  "Planche.controller.layout.SchemaTreeContextMenu": [],
   "Planche.controller.layout.TableDataTab": [],
   "Planche.controller.layout.Toolbar": [],
   "Planche.controller.menu.Connection": [],
@@ -872,14 +866,14 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.query.Token": [],
   "Planche.controller.table.AdvancedProperties": [],
   "Planche.controller.table.EditIndexWindow": [],
-  "Planche.controller.table.EditSchemeWindow": [],
+  "Planche.controller.table.EditSchemaWindow": [],
   "Planche.controller.table.EditTextColumn": [],
   "Planche.controller.table.ReorderColumns": [],
   "Planche.controller.table.TableIndexesTab": [],
   "Planche.controller.table.TableInfoTab": [],
   "Planche.controller.table.TablePropertiesTab": [],
   "Planche.controller.table.TableSQLTab": [],
-  "Planche.controller.table.TableSchemeTab": [],
+  "Planche.controller.table.TableSchemaTab": [],
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
@@ -903,8 +897,8 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
   "Planche.store.DatabaseSchemaTree": [],
-  "Planche.store.GrantSchemeTree": [],
-  "Planche.store.SchemeTree": [],
+  "Planche.store.GrantSchemaTree": [],
+  "Planche.store.SchemaTree": [],
   "Planche.view.Main": [],
   "Planche.view.Viewport": [],
   "Planche.view.database.CopyDatabaseTargetList": [],
@@ -921,19 +915,19 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.view.layout.QueryTab": [],
   "Planche.view.layout.QueryTabPanel": [],
   "Planche.view.layout.ResultTabPanel": [],
-  "Planche.view.layout.SchemeTree": [],
+  "Planche.view.layout.SchemaTree": [],
   "Planche.view.layout.TableDataTab": [],
   "Planche.view.layout.Toolbar": [],
   "Planche.view.table.EditIndexWindow": [],
-  "Planche.view.table.EditSchemeWindow": [],
+  "Planche.view.table.EditSchemaWindow": [],
   "Planche.view.table.TableIndexesTab": [],
   "Planche.view.table.TableInfoTab": [],
   "Planche.view.table.TablePropertiesTab": [],
   "Planche.view.table.TableSQLTab": [],
-  "Planche.view.table.TableSchemeTab": [],
+  "Planche.view.table.TableSchemaTab": [],
   "Planche.view.user.Grant": [],
   "Planche.view.user.GrantPrivList": [],
-  "Planche.view.user.GrantSchemeTree": [],
+  "Planche.view.user.GrantSchemaTree": [],
   "Planche.view.user.GrantUserList": [],
   "Planche.view.user.UserAdd": []
 });
@@ -1944,8 +1938,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.layout.QueryTab": [],
   "Planche.controller.layout.QueryTabPanel": [],
   "Planche.controller.layout.ResultTabPanel": [],
-  "Planche.controller.layout.SchemeTree": [],
-  "Planche.controller.layout.SchemeTreeContextMenu": [],
+  "Planche.controller.layout.SchemaTree": [],
+  "Planche.controller.layout.SchemaTreeContextMenu": [],
   "Planche.controller.layout.TableDataTab": [],
   "Planche.controller.layout.Toolbar": [],
   "Planche.controller.menu.Connection": [],
@@ -1961,14 +1955,14 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.query.Token": [],
   "Planche.controller.table.AdvancedProperties": [],
   "Planche.controller.table.EditIndexWindow": [],
-  "Planche.controller.table.EditSchemeWindow": [],
+  "Planche.controller.table.EditSchemaWindow": [],
   "Planche.controller.table.EditTextColumn": [],
   "Planche.controller.table.ReorderColumns": [],
   "Planche.controller.table.TableIndexesTab": [],
   "Planche.controller.table.TableInfoTab": [],
   "Planche.controller.table.TablePropertiesTab": [],
   "Planche.controller.table.TableSQLTab": [],
-  "Planche.controller.table.TableSchemeTab": [],
+  "Planche.controller.table.TableSchemaTab": [],
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
   "Planche.dbms.mysql": [],
@@ -1986,8 +1980,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.overrides.FixMenuBug": [],
   "Planche.overrides.RadioGroup": [],
   "Planche.store.DatabaseSchemaTree": [],
-  "Planche.store.GrantSchemeTree": [],
-  "Planche.store.SchemeTree": [],
+  "Planche.store.GrantSchemaTree": [],
+  "Planche.store.SchemaTree": [],
   "Planche.view.Main": [
     "widget.app-main"
   ],
@@ -2028,8 +2022,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.view.layout.ResultTabPanel": [
     "widget.result-tab-panel"
   ],
-  "Planche.view.layout.SchemeTree": [
-    "widget.scheme-tree"
+  "Planche.view.layout.SchemaTree": [
+    "widget.schema-tree"
   ],
   "Planche.view.layout.TableDataTab": [
     "widget.table-data-tab"
@@ -2038,7 +2032,7 @@ Ext.ClassManager.addNameAliasMappings({
     "widget.planche-toolbar"
   ],
   "Planche.view.table.EditIndexWindow": [],
-  "Planche.view.table.EditSchemeWindow": [],
+  "Planche.view.table.EditSchemaWindow": [],
   "Planche.view.table.TableIndexesTab": [
     "widget.table-indexes-tab"
   ],
@@ -2051,8 +2045,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.view.table.TableSQLTab": [
     "widget.table-sql-tab"
   ],
-  "Planche.view.table.TableSchemeTab": [
-    "widget.table-scheme-tab"
+  "Planche.view.table.TableSchemaTab": [
+    "widget.table-schema-tab"
   ],
   "Planche.view.user.Grant": [
     "widget.grant"
@@ -2060,8 +2054,8 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.view.user.GrantPrivList": [
     "widget.grant-priv-list"
   ],
-  "Planche.view.user.GrantSchemeTree": [
-    "widget.grant-scheme-tree"
+  "Planche.view.user.GrantSchemaTree": [
+    "widget.grant-schema-tree"
   ],
   "Planche.view.user.GrantUserList": [
     "widget.grant-user-list"
