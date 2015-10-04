@@ -9,7 +9,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
             'info-tab'   : {
                 show: function(grid) {
 
-                    var node = app.getSelectedNode();
+                    var node = app.getSelectedNode(true);
 
                     if (this.prevNode == node) {
 
@@ -29,7 +29,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
                     app.setSelectedTree(tree);
 
-                    var node = app.getSelectedNode();
+                    var node = app.getSelectedNode(true);
 
                     this.openInfo(node);
                 }
@@ -41,6 +41,8 @@ Ext.define('Planche.controller.layout.InfoTab', {
 
         var app = this.getApplication(),
             type = node.raw.type,
+            db = app.getSelectedDatabase(),
+            table = app.getSelectedTable(),
             func = 'export' + type.charAt(0).toUpperCase() + type.slice(1) + 'InfoToHTML',
             util = Planche.SchemaUtil;
 
@@ -49,7 +51,7 @@ Ext.define('Planche.controller.layout.InfoTab', {
             var info = app.getActiveInfoTab();
             if (info.isVisible()) {
 
-                util[func](info, 'update');
+                util[func](db, table, info, 'update');
             }
         }
     }

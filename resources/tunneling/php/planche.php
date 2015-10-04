@@ -482,8 +482,8 @@ $Planche = new Control();
 
 if ($isCLI) {
 
-    $sAddr = $argv[1] ? $argv[1] : '127.0.0.1';
-    $nPort = $argv[2] ? $argv[2] : 8888;
+    @$sAddr = $argv[1] ? $argv[1] : '127.0.0.1';
+    @$nPort = $argv[2] ? $argv[2] : 8888;
 
     echo "-----------------------------------------------------------------------\n";
     echo "Start Planche Tunneling Server\n";
@@ -568,7 +568,7 @@ if ($isCLI) {
 
             echo "Execute Query\n";
 
-            if (!$db) {
+            if (@!$db) {
 
                 $db = '';
             }

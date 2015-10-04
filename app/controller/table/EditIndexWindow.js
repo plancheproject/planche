@@ -69,7 +69,7 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
 
         win.setLoading(true);
 
-        app.multipleTunneling(db, queries, {
+        app.tunnelings(db, queries, {
             failureQuery   : function (idx, query, config, response) {
 
                 messages.push(app.generateError(query, response.message));
@@ -231,7 +231,7 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
 
         win.setLoading(true);
 
-        app.multipleTunneling(db, queries, {
+        app.tunnelings(db, queries, {
             failureQuery   : function (idx, query, config, response) {
 
                 messages.push(app.generateError(query, response.message));

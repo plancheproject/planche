@@ -104,7 +104,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
             return;
         }
 
-        app.multipleTunneling(db, [
+        app.tunnelings(db, [
             app.getAPIS().getQuery('SHOW_CREATE_TABLE', db, tb),
             app.getAPIS().getQuery('SHOW_TABLE_STATUS', db, tb)
         ], {

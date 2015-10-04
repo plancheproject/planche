@@ -9,7 +9,7 @@ Ext.define('Planche.controller.layout.TableDataTab', {
             'table-data-tab'   : {
                 show: function() {
 
-                    var node = app.getSelectedNode();
+                    var node = app.getSelectedNode(true);
 
                     if(!app.getParentNode(node, 'table')){
 
@@ -23,13 +23,16 @@ Ext.define('Planche.controller.layout.TableDataTab', {
 
                     this.prevNode = node;
 
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedNode();
+
                     if(app.openMode == 'select'){
 
-                        app.openTable(node);
+                        app.openTable(db, table);
                     }
                     else {
 
-                        app.countTable(node);
+                        app.countTable(db, table);
                     }
                 }
             }

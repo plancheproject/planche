@@ -115,39 +115,8 @@ Ext.define('Planche.controller.connection.Connect', {
 
     initHosts: function() {
 
-        var hosts = [];
-
-        Ext.Array.each(Planche.config.hosts, function(connInfo, index) {
-
-            Ext.apply(connInfo, {
-                'into' : 'hostfile',
-                'index': index
-            });
-
-            hosts.push(connInfo);
-        });
-
-        if (typeof(Storage) !== "undefined") {
-
-            try {
-
-                var savedLocalHosts = JSON.parse(localStorage.getItem('planche-hosts'));
-            }
-            catch (e) {
-
-                var savedLocalHosts = [];
-            }
-
-            Ext.Array.each(savedLocalHosts, function(connInfo, index) {
-
-                Ext.apply(connInfo, {
-                    'into' : 'localstorage',
-                    'index': index
-                });
-
-                hosts.push(connInfo);
-            });
-        }
+        var app = this.getApplication(),
+            hosts = app.getHosts();
 
         this.store.loadData(hosts);
 

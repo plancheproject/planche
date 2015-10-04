@@ -9,7 +9,10 @@ Ext.define('Planche.controller.table.TableInfoTab', {
             'table-info-tab': {
                 boxready: function(tab) {
 
-                    Planche.SchemaUtil.exportTableInfoToHTML(tab, 'update');
+                    var db = tab.getDatabase(),
+                        table = tab.getTable();
+
+                    Planche.SchemaUtil.exportTableInfoToHTML(db, table, tab, 'update');
                 }
             }
         });

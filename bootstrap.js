@@ -889,6 +889,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
+  "Planche.lib.QuickCommand": [],
   "Planche.lib.SchemaTree": [],
   "Planche.lib.SchemaUtil": [
     "Planche.SchemaUtil"
@@ -1974,6 +1975,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.lib.QueryAlignment": [],
   "Planche.lib.QueryParser": [],
   "Planche.lib.QueryTokenType": [],
+  "Planche.lib.QuickCommand": [],
   "Planche.lib.SchemaTree": [],
   "Planche.lib.SchemaUtil": [],
   "Planche.lib.Window": [],

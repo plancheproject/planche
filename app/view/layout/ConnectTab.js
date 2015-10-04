@@ -7,16 +7,16 @@ Ext.define('Planche.view.layout.ConnectTab', {
     closable: true,
     width   : '100%',
     height  : 30,
-    style   : { "background" : "#E0E0E0" },
+    style   : {"background": "#E0E0E0"},
     padding : '5px 0px 0px 0px',
     items   : [{
-        xtype : 'schema-tree'
-    },{
+        xtype: 'schema-tree'
+    }, {
 
-        xtype : 'query-tab-panel'
+        xtype: 'query-tab-panel'
     }],
-    config      : {
-        hostName    : 'localhost', 
+    config  : {
+        hostName    : 'localhost',
         tunnelingURL: 'http://',
         host        : '',
         user        : '',
@@ -25,6 +25,7 @@ Ext.define('Planche.view.layout.ConnectTab', {
         port        : 3306,
         DBMS        : 'mysql',
         APIS        : Planche.dbms.mysql,
-        requestType : 'ajax'
+        requestType : 'ajax',
+        quickCommand: null
     }
 });

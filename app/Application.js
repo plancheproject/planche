@@ -13,6 +13,7 @@ Ext.define('Planche.Application', {
         'Planche.lib.SchemaTree',
         'Planche.lib.SchemaUtil',
         'Planche.lib.Window',
+        'Planche.lib.QuickCommand',
         'Planche.dbms.mysql',
         'Planche.overrides.FixMenuBug',
         'Planche.overrides.RadioGroup'

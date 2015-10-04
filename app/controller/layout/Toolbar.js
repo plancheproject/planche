@@ -52,6 +52,10 @@ Ext.define('Planche.controller.layout.Toolbar', {
                 click : Ext.Function.bind(app.openFlushPanel, app)
             },
 
+            '#toolbar-fullscreen' : {
+                click : Ext.Function.bind(app.changeToFullscreen, app)
+            },
+
             'app-main toolbar splitbutton' : {
                 click : this.showMenu,
                 mouseover : this.showMenu

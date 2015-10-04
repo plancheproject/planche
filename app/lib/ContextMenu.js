@@ -29,7 +29,7 @@ Ext.define('Planche.lib.ContextMenu', {
             scope : this,
             handler : function () {
 
-                var n = this.getSelectedNode();
+                var n = this.getSelectedNode(true);
                 this.fireEvent('paste-sql-statement-insert', n);
             }
         },{
@@ -37,7 +37,7 @@ Ext.define('Planche.lib.ContextMenu', {
             scope : this,
             handler : function () {
 
-                var n = this.getSelectedNode();
+                var n = this.getSelectedNode(true);
                 this.fireEvent('paste-sql-statement-update', n);
             }
         },{
@@ -45,7 +45,7 @@ Ext.define('Planche.lib.ContextMenu', {
             scope : this,
             handler : function () {
 
-                var n = this.getSelectedNode();
+                var n = this.getSelectedNode(true);
                 this.fireEvent('paste-sql-statement-delete', n);
             }
         },{
@@ -53,7 +53,7 @@ Ext.define('Planche.lib.ContextMenu', {
             scope : this,
             handler : function () {
 
-                var n = this.getSelectedNode();
+                var n = this.getSelectedNode(true);
                 this.fireEvent('paste-sql-statement-select', n);
             }
         }]
@@ -68,9 +68,13 @@ Ext.define('Planche.lib.ContextMenu', {
     },{
         id : 'btn-context-each-tb-open',
         text: 'Open Table',
+        scope : this,
         handler : function () {
 
-            this.openTable(this.getSelectedNode());
+            var db = this.getSelectedDatabase(),
+                table = this.getSelectedNode();
+
+            this.alterTable(db, table);
         }
     },{
         id : 'btn-context-each-tb-create',
@@ -84,7 +88,10 @@ Ext.define('Planche.lib.ContextMenu', {
         scope : this,
         handler : function () {
 
-            this.openTableWindow();
+            var db = this.getSelectedDatabase(),
+                table = this.getSelectedTable();
+
+            this.openTable(db, table);
         }
     },{
         id : 'btn-context-each-tb-more-operation',

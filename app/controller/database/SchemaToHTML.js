@@ -17,7 +17,8 @@ Ext.define('Planche.controller.database.SchemaToHTML', {
             '#schema-to-html': {
                 boxready: function(panel){
 
-                    Planche.SchemaUtil.exportAllSchemaToHTML(panel, 'update');
+                    var db = app.getSelectedDatabase();
+                    Planche.SchemaUtil.exportAllSchemaToHTML(db, panel, 'update');
                 }
             },
             '#schema-to-html-btn-close' : {

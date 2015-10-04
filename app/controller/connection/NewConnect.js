@@ -130,6 +130,26 @@ Ext.define('Planche.controller.connection.NewConnect', {
                             margin    : '0px 10px 0px 0px'
                         }
                     ]
+                }, {
+                    xtype      : 'radiogroup',
+                    fieldLabel : 'Auto Connection',
+                    defaultType: 'radiofield',
+                    id         : 'new-conn-autoConnection',
+                    padding    : '0px 10px 5px 0px',
+                    layout     : 'hbox',
+                    items      : [
+                        {
+                            boxLabel  : 'Yes',
+                            name      : 'new-conn-autoConnection',
+                            inputValue: true,
+                            margin    : '0px 10px 0px 0px',
+                            checked   : true
+                        }, {
+                            boxLabel  : 'No',
+                            name      : 'new-conn-autoConnection',
+                            inputValue: false
+                        }
+                    ]
                 }]
             },
             buttons   : [{
@@ -205,13 +225,12 @@ Ext.define('Planche.controller.connection.NewConnect', {
         if(this.mode == 'add'){
 
             newValues['index'] = hosts.length;
+            hosts.push(newValues);
         }
         else if(this.mode == 'edit'){
 
-            hosts.splice(newValues['index'], 1);
+            hosts[newValues['index']] = newValues;
         }
-
-        hosts.push(newValues);
 
         app.setHostsInStorage(hosts);
 

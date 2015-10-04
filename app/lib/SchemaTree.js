@@ -35,7 +35,8 @@ Ext.define('Planche.lib.SchemaTree', {
             text: 'Indexes',
             leaf: false
         }],
-        rootType         : 'root'
+        rootType         : 'root',
+        tables           : {}
     },
 
     constructor: function(config) {
@@ -51,13 +52,16 @@ Ext.define('Planche.lib.SchemaTree', {
 
             if (app.getActiveTableDataTab().isVisible()) {
 
-                if(app.openMode == 'select'){
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedNode();
 
-                    app.openTable(node);
+                if (app.openMode == 'select') {
+
+                    app.openTable(db, table);
                 }
                 else {
 
-                    app.countTable(node);
+                    app.countTable(db, table);
                 }
             }
         }
@@ -89,16 +93,17 @@ Ext.define('Planche.lib.SchemaTree', {
 
         var app = this.application,
             me = this,
-            tree = node.getOwnerTree();
+            tree = node.getOwnerTree(),
+            tab = tree.up('connect-tab');
 
         nodeConfig = nodeConfig || {};
 
         tree.setLoading(true);
 
         app.tunneling({
-            query  : app.getAPIS().getQuery('SHOW_DATABASE'),
-            node   : node,
-            success: function(config, response) {
+            connection: tab,
+            query     : app.getAPIS().getQuery('SHOW_DATABASE'),
+            success   : function(config, response) {
 
                 var children = [];
                 Ext.Array.each(response.records, function(row, idx) {
@@ -122,7 +127,7 @@ Ext.define('Planche.lib.SchemaTree', {
                 node.appendChild(children);
                 tree.setLoading(false);
             },
-            failure: function(config, response) {
+            failure   : function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
                 tree.setLoading(false);
@@ -144,9 +149,7 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
-            node   : node,
             success: function(config, response) {
-
 
                 var children = [];
                 node.removeAll();
@@ -171,6 +174,9 @@ Ext.define('Planche.lib.SchemaTree', {
                 }
 
                 node.appendChild(children);
+
+                tree.fireEvent('iteminsert', tree, node);
+
                 tree.setLoading(false);
             },
             failure: function(config, response) {
@@ -194,7 +200,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_VIEWS', db),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -239,7 +244,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_PROCEDURES', db),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -285,7 +289,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FUNCTIONS', db),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -330,7 +333,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_TRIGGERS', db),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -374,7 +376,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_EVENTS', db),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -419,7 +420,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];
@@ -467,7 +467,6 @@ Ext.define('Planche.lib.SchemaTree', {
         app.tunneling({
             db     : db,
             query  : app.getAPIS().getQuery('SHOW_INDEXES', db, tb),
-            node   : node,
             success: function(config, response) {
 
                 var children = [];

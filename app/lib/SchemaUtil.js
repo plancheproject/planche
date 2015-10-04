@@ -1,11 +1,10 @@
 Ext.define('Planche.lib.SchemaUtil', {
     singleton            : true,
     alternateClassName   : ['Planche.SchemaUtil'],
-    exportAllSchemaToHTML: function(cmp, updateMethod) {
+    exportAllSchemaToHTML: function(db, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
             queries = {
                 'Table Information'    : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
                 'View Information'     : api.getQuery('SHOW_VIEWS', db),
@@ -79,11 +78,10 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportRootInfoToHTML: function(cmp, updateMethod) {
+    exportRootInfoToHTML: function(db, nodeName, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
             queries = {
                 'Show Databases': api.getQuery('SHOW_DATABASES')
             },
@@ -124,11 +122,10 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportDatabaseInfoToHTML: function(cmp, updateMethod) {
+    exportDatabaseInfoToHTML: function(db, nodeName, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
             queries = {
                 'Table Information'    : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
                 'View Information'     : api.getQuery('SHOW_VIEWS', db),
@@ -182,15 +179,14 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportTablesInfoToHTML: function(cmp, updateMethod) {
+    exportTablesInfoToHTML: function(db, nodeName, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
             queries = {
                 'Show Table Status': api.getQuery('SHOW_ALL_TABLE_STATUS', db)
             },
-
+            keys = Ext.Object.getKeys(queries),
             html = [],
             tunneling;
 
@@ -227,16 +223,14 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportTableInfoToHTML: function(cmp, updateMethod) {
+    exportTableInfoToHTML: function(db, table, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
-            tb = app.getSelectedTable(),
             queries = {
-                'Show Table Fields' : api.getQuery('SHOW_FULL_FIELDS', db, tb),
-                'Show Table Indexes': api.getQuery('TABLE_KEYS_INFO', db, tb),
-                'Create Table DDL'  : api.getQuery('TABLE_CREATE_INFO', db, tb)
+                'Show Table Fields' : api.getQuery('SHOW_FULL_FIELDS', db, table),
+                'Show Table Indexes': api.getQuery('TABLE_KEYS_INFO', db, table),
+                'Create Table DDL'  : api.getQuery('TABLE_CREATE_INFO', db, table)
             },
             keys = Ext.Object.getKeys(queries),
             html = [],
@@ -290,14 +284,12 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportColumnsInfoToHTML: function(cmp, updateMethod) {
+    exportColumnsInfoToHTML: function(db, table, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
-            tb = app.getSelectedTable(),
             queries = {
-                'Show Table Fields': api.getQuery('SHOW_FULL_FIELDS', db, tb)
+                'Show Table Fields': api.getQuery('SHOW_FULL_FIELDS', db, table)
             },
             keys = Ext.Object.getKeys(queries),
             html = [],
@@ -336,14 +328,12 @@ Ext.define('Planche.lib.SchemaUtil', {
         }, this))();
     },
 
-    exportIndexesInfoToHTML: function(cmp, updateMethod) {
+    exportIndexesInfoToHTML: function(db, table, cmp, updateMethod) {
 
         var app = Planche.getApplication(),
             api = app.getAPIS(),
-            db = app.getSelectedDatabase(),
-            tb = app.getSelectedTable(),
             queries = {
-                'Show Table Indexes': api.getQuery('TABLE_KEYS_INFO', db, tb)
+                'Show Table Indexes': api.getQuery('TABLE_KEYS_INFO', db, table)
             },
             keys = Ext.Object.getKeys(queries),
             html = [],

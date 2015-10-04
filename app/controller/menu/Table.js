@@ -2,12 +2,13 @@ Ext.define('Planche.controller.menu.Table', {
     extend: 'Planche.lib.Menu',
     add   : function(topBtn) {
 
+        var app = this.getApplication();
+
         topBtn.menu.add([{
             text        : 'Paste SQL Statement',
-            scope       : this.application,
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -15,44 +16,56 @@ Ext.define('Planche.controller.menu.Table', {
                 return true;
             },
             menu        : [{
-                text   : 'INSERT INTO &lt;Table Name&gt;..',
-                scope  : this.application,
+                text: 'INSERT INTO &lt;Table Name&gt;..',
                 handler: function() {
 
-                    var node = this.getSelectedNode();
-                    this.pasteSQLStatement('insert', node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.pasteSQLStatement(db, table, 'insert');
                 }
             }, {
-                text   : 'UPDATE &lt;Table Name&gt; SET..',
-                scope  : this.application,
+                text: 'UPDATE &lt;Table Name&gt; SET..',
                 handler: function() {
 
-                    var node = this.getSelectedNode();
-                    this.pasteSQLStatement('update', node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.pasteSQLStatement(db, table, 'update');
                 }
             }, {
-                text   : 'DELETE FROM &lt;Table Name&gt;..',
-                scope  : this.application,
+                text: 'DELETE FROM &lt;Table Name&gt;..',
                 handler: function() {
 
-                    var node = this.getSelectedNode();
-                    this.pasteSQLStatement('delete', node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.pasteSQLStatement(db, table, 'delete');
                 }
             }, {
-                text   : 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
-                scope  : this.application,
+                text: 'SELECT &lt;col-1&gt;..&lt;col-n&gt; FROM &lt;Table Name&gt;',
                 handler: function() {
 
-                    var node = this.getSelectedNode();
-                    this.pasteSQLStatement('select', node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.pasteSQLStatement(db, table, 'select');
+                }
+            }, {
+                text   : 'INSERT ... ON DUPLICATE KEY UPDATE',
+                handler: function() {
+
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.pasteSQLStatement(db, table, 'duplicate_update');
                 }
             }]
         }, {
-            text        : 'Copy Table To Differnt Host/Database',
-            scope       : this.application,
+            text: 'Copy Table To Differnt Host/Database',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -61,15 +74,14 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                var node = this.getSelectedNode();
-                this.openCopyDatabaseWindow(node);
+                var node = app.getSelectedNode(true);
+                app.openCopyDatabaseWindow(node);
             }
         }, '-', {
-            text        : 'Open Table',
-            scope       : this.application,
+            text: 'Open Table',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -78,15 +90,16 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                var node = this.getSelectedNode();
-                this.openTable(node);
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedNode();
+
+                app.openTable(db, table);
             }
         }, {
-            text        : 'Create Table',
-            scope       : this.application,
+            text: 'Create Table',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedDatabase()) {
+                if (app.getSelectedDatabase()) {
 
                     return false;
                 }
@@ -95,14 +108,14 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                this.openCreateTableWindow();
+                var db = app.getSelectedDatabase();
+                app.openCreateTableWindow(db);
             }
         }, {
-            text        : 'Alter Table',
-            scope       : this.application,
+            text: 'Alter Table',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -111,15 +124,16 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                var node = this.getSelectedTable(true);
-                this.openAlterTableWindow(node);
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table);
             }
         }, {
-            text        : 'Manage Indexes',
-            scope       : this.application,
+            text: 'Manage Indexes',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -128,15 +142,16 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                var node = this.getSelectedTable(true);
-                this.openAlterTableWindow(node);
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table);
             }
         }, {
-            text        : 'More Table Operations',
-            scope       : this.application,
+            text: 'More Table Operations',
             allowDisable: function(topBtn, menu) {
 
-                if (this.getSelectedTable()) {
+                if (app.getSelectedTable()) {
 
                     return false;
                 }
@@ -145,125 +160,148 @@ Ext.define('Planche.controller.menu.Table', {
             },
             menu        : [{
                 text   : 'Rename Table',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedTable(true);
-                    this.renameTable(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.renameTable(db, table, function(config, response, text) {
+
+                        var node = app.getSelectedTable(true);
+                        node.set('text', text);
+                    });
                 }
             }, {
                 text   : 'Truncate Table',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedTable(true);
-                    this.truncateTable(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.truncateTable(db, table, function() {
+
+                        app.openTable(db, table);
+                    });
                 }
             }, {
                 text   : 'Drop Table From Database',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedTable(true);
-                    this.dropTable(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.dropTable(db, table, function() {
+
+                        var node = app.getSelectedTable(true);
+                        app.getSelectedTree().getSelectionModel().select(node.parentNode);
+                        node.remove();
+                    });
                 }
             }, {
                 text   : 'Reorder Column(s)',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedTable(true);
-                    this.openReorderColumns(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable(true);
+
+                    app.openReorderColumns(db, table);
                 }
             }, {
                 text   : 'Duplicate Table Structure/Data',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedNode();
-                    this.duplicateTable(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.duplicateTable(db, table, function(){
+
+                        var node = app.getSelectedTable(true);
+                        app.getSelectedTree().getSelectionModel().select(node.parentNode);
+                        app.reloadTree();
+                    });
                 }
             }, {
                 text   : 'View Advanced Properties',
-                scope  : this.application,
                 handler: function() {
 
-                    var node = this.getSelectedTable(true);
-                    this.openAdvancedProperties(node);
+                    var db = app.getSelectedDatabase(),
+                        table = app.getSelectedTable();
+
+                    app.openAdvancedProperties(db, table);
                 }
             }, {
                 text: 'Change Table To Type',
                 menu: [
                     {
-                        scope  : this.application,
+
                         text   : 'MYISAM',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'MRG_MYISAM',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'CSV',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'BLACKHOLE',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'MEMORY',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'FEDERATED',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'ARCHIVE',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'INNODB',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     },
                     {
-                        scope  : this.application,
+
                         text   : 'PERFORMANCE_SCHEMA',
                         handler: function(btn) {
 
-                            this.changeTableToType(btn.text);
+                            app.changeTableToType(app.getSelectedDatabase(), app.getSelectedNode(), btn.text);
                         }
                     }
                 ]
@@ -271,10 +309,9 @@ Ext.define('Planche.controller.menu.Table', {
         }, '-', {
             text        : 'Create Trigger',
             disabled    : true,
-            scope       : this.application,
             allowDisable: function() {
 
-                if (this.getSelectedDatabase()) {
+                if (app.getSelectedDatabase()) {
 
                     return false;
                 }
@@ -283,8 +320,8 @@ Ext.define('Planche.controller.menu.Table', {
             },
             handler     : function() {
 
-                var node = this.getSelectedDatabase(true);
-                this.createTrigger(node);
+                var db = app.getSelectedDatabase();
+                app.createTrigger(db);
             }
         }]);
 

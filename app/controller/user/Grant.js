@@ -295,7 +295,7 @@ Ext.define('Planche.controller.user.Grant', {
             return;
         }
 
-        app.multipleTunneling('', queries, {
+        app.tunnelings('', queries, {
             prevAllQueries : function(queries) {
 
                 win.setDisabled(true);
@@ -366,7 +366,7 @@ Ext.define('Planche.controller.user.Grant', {
             records = [],
             path = "";
 
-        app.multipleTunneling('', queries, {
+        app.tunnelings('', queries, {
             prevAllQueries : function(queries) {
 
                 tree.setDisabled(false);

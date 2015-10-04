@@ -68,7 +68,7 @@ Ext.define('Planche.view.database.CopyDatabaseWindow', {
                 }, {
                     xtype   : 'checkbox',
                     margin  : '0 0 0 8',
-                    id    : 'copy-database-option-2',
+                    id      : 'copy-database-option-2',
                     name    : 'copy-database-option-2',
                     boxLabel: 'Drop if exists in target',
                     value   : 1,
@@ -76,7 +76,7 @@ Ext.define('Planche.view.database.CopyDatabaseWindow', {
                 }, {
                     xtype   : 'checkbox',
                     margin  : '0 0 0 8',
-                    id    : 'copy-database-option-3',
+                    id      : 'copy-database-option-3',
                     name    : 'copy-database-option-3',
                     boxLabel: 'Use bulk INSERT(Only Post Method Ajax)',
                     value   : 1,

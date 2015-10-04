@@ -3,6 +3,8 @@ Ext.application({
 
     extend            : 'Planche.Application',
     history           : [],
+    taskQueue         : [],
+    onTask            : false,
     autoCreateViewport: true,
 
     /**
@@ -25,12 +27,28 @@ Ext.application({
         });
 
         window.onbeforeunload = function() {
-            var message = "Are you sure you want to quit planche?"
 
+            var message = "Are you sure you want to quit planche?"
             return message;
         }
 
-        this.initKeyMap();
+        var app = this;
+        app.initKeyMap();
+
+        Ext.Array.each(app.getHosts(), function(host, idx) {
+
+            if (host.autoConnection) {
+
+                app.initConnectTab(host);
+            }
+        });
+
+        app.loadTask();
+
+        if (Planche.config.autoLoadConnectionWindow) {
+
+            app.openConnPanel();
+        }
     },
 
     /**
@@ -79,6 +97,107 @@ Ext.application({
         return mainTab.getActiveTab();
     },
 
+    /**
+     * Return active connected tab's quick command list
+     *
+     * @access public
+     * @method getActiveQuickCommands
+     */
+    getActiveQuickCommands: function() {
+
+        return this.getActiveConnectTab().quickCommand.get();
+    },
+
+    /**
+     * Return footer task progress bar
+     *
+     * @access public
+     * @method getTaskProgressBar
+     */
+    getTaskProgressBar: function() {
+
+        return Ext.getCmp('footer-task-progressbar');
+    },
+
+    updateTaskProgressBar: function(val) {
+
+        var per = Math.ceil(val * 100);
+
+        this.getTaskProgressBar().updateProgress(val, per + '% (Remaining ' + this.getTaskQueue().length + ' task(s))');
+    },
+
+    addTask: function(task, params) {
+
+        this.getTaskQueue().push([task, params]);
+    },
+
+    getTaskQueue: function() {
+
+        return this.taskQueue;
+    },
+
+    getTask: function() {
+
+        return this.getTaskQueue().shift();
+    },
+
+    loadTask: function() {
+
+        var app = this,
+            run;
+
+        (run = function() {
+            setTimeout(function() {
+
+                if (app.onTask) {
+
+                    run();
+                    return;
+                }
+
+                var task = app.getTask();
+
+                if (task) {
+
+                    task[0].apply(app, task[1]);
+                }
+
+                run();
+
+            }, 1000);
+        })();
+
+    },
+
+    /**
+     * Return footer task message
+     *
+     * @access public
+     * @method getTaskMessage
+     */
+    getTaskMessage: function() {
+
+        var el;
+
+        if (el) {
+
+            return el;
+        }
+
+        el = Ext.get('footer-task-message').el;
+        return el;
+    },
+
+    /**
+     * update task message
+     *
+     * @access public
+     * @method updateTaskMessage
+     */
+    updateTaskMessage: function(text) {
+
+        this.getTaskMessage().update(text);
+    },
 
     /**
      * Close the active connection tab
@@ -260,9 +379,14 @@ Ext.application({
         Planche.selectedNode = node;
     },
 
-    getSelectedNode: function() {
+    getSelectedNode: function(return_node) {
 
-        return Planche.selectedNode;
+        if (return_node) {
+
+            return Planche.selectedNode;
+        }
+
+        return Planche.selectedNode.data.text;
     },
 
     getSelectedNodeType: function() {
@@ -277,13 +401,13 @@ Ext.application({
 
     getSelectedDatabase: function(return_node) {
 
-        var node = this.getSelectedNode();
+        var node = this.getSelectedNode(true);
         return this.getParentNode(node, 'database', return_node);
     },
 
     getSelectedTable: function(return_node) {
 
-        var node = this.getSelectedNode();
+        var node = this.getSelectedNode(true);
         return this.getParentNode(node, 'table', return_node);
     },
 
@@ -364,6 +488,46 @@ Ext.application({
         return hosts;
     },
 
+    getHosts: function() {
+
+        var hosts = [],
+            hostIdx = 0;
+
+        Ext.Array.each(Planche.config.hosts, function(connInfo, index) {
+
+            Ext.apply(connInfo, {
+                'into' : 'hostfile',
+                'index': index
+            });
+
+            hosts.push(connInfo);
+        });
+
+        if (typeof(Storage) !== "undefined") {
+
+            try {
+
+                var savedLocalHosts = JSON.parse(localStorage.getItem('planche-hosts'));
+            }
+            catch (e) {
+
+                var savedLocalHosts = [];
+            }
+
+            Ext.Array.each(savedLocalHosts, function(connInfo, index) {
+
+                Ext.apply(connInfo, {
+                    'into' : 'localstorage',
+                    'index': index
+                });
+
+                hosts.push(connInfo);
+            });
+        }
+
+        return hosts;
+    },
+
     setHostsInStorage: function(hosts) {
 
         localStorage.setItem('planche-hosts', Ext.JSON.encode(hosts));
@@ -374,7 +538,7 @@ Ext.application({
     reloadTree: function() {
 
         var tree = this.getSelectedTree(),
-            node = this.getSelectedNode();
+            node = this.getSelectedNode(true);
 
         tree.fireEvent('reloadTree', node);
     },
@@ -418,15 +582,16 @@ Ext.application({
 
     initConnectTab: function(connInfo) {
 
-
         var main = this.getConnectTabPanel(),
             tab = Ext.create('Planche.view.layout.ConnectTab', Ext.Object.merge({
-                title: connInfo.hostName
+                title       : connInfo.hostName,
+                quickCommand: Ext.create('Planche.lib.QuickCommand')
             }, connInfo));
 
         main.add(tab);
         main.setActiveTab(tab);
 
+        this.addTask(this.loadQuickCommands, [tab]);
         return tab;
     },
 
@@ -447,8 +612,9 @@ Ext.application({
             binding: [{
                 scope: this,
                 key  : Ext.EventObject.F9,
-                fn   : function() {
+                fn   : function(keyCode, e) {
 
+                    e.stopEvent();
                     this.executeQuery();
                 }
             }, {
@@ -457,6 +623,7 @@ Ext.application({
                 alt  : true,
                 fn   : function(keyCode, e) {
 
+                    e.stopEvent();
                     this.openQueryTab();
                 }
             }, {
@@ -465,22 +632,31 @@ Ext.application({
                 alt  : true,
                 fn   : function(keyCode, e) {
 
+                    e.stopEvent();
                     this.openConnPanel();
                 }
             }, {
                 scope: this,
-                key  : Ext.EventObject.F,
-                alt  : true,
+                key  : [
+                    Ext.EventObject.P,
+                    Ext.EventObject.O
+                ],
+                ctrl : true,
                 fn   : function(keyCode, e) {
 
-                    this.openFindPanel();
+                    e.stopEvent();
+                    this.openQuickPanel();
                 }
             }, {
                 scope: this,
-                key  : Ext.EventObject.P,
+                key  : [
+                    Ext.EventObject.P,
+                    Ext.EventObject.O
+                ],
                 alt  : true,
                 fn   : function(keyCode, e) {
 
+                    e.stopEvent();
                     this.openQuickPanel();
                 }
             }, {
@@ -489,16 +665,8 @@ Ext.application({
                 alt  : true,
                 fn   : function(keyCode, e) {
 
+                    e.stopEvent();
                     this.openUserPanel();
-                }
-            }, {
-                scope: this,
-                key  : Ext.EventObject.ESC,
-                fn   : function(keyCode, e) {
-
-                    var cmp = Ext.getCmp('window-quick');
-                    if (!cmp) { return; }
-                    cmp.destroy();
                 }
             }]
         });
@@ -534,14 +702,14 @@ Ext.application({
             app = this;
 
         Ext.applyIf(config, {
-            type        : 'query',
-            async       : true,
-            timeout     : 1000 * 60 * 5,
-            charset     : 'utf8',
-            port        : 3306,
-            requestType : 'jsonp',
-            method      : 'post',
-            success     : function(config, response) {
+            type       : 'query',
+            async      : true,
+            timeout    : 1000 * 60 * 5,
+            charset    : 'utf8',
+            port       : 3306,
+            requestType: 'jsonp',
+            method     : 'post',
+            success    : function(config, response) {
 
                 var msg = response.affected_rows + ' row(s) affected<br>';
                 msg += 'Execution Time : 00:00:00:000<br>';
@@ -549,7 +717,7 @@ Ext.application({
                 msg += 'Total Time     : 00:00:00:000';
                 this.openMessage(msg);
             },
-            failure     : function(config, response) {
+            failure    : function(config, response) {
 
                 this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
             }
@@ -596,7 +764,7 @@ Ext.application({
 
                 if (response.success == true) {
 
-                    if(config.type == 'query'){
+                    if (config.type == 'query') {
 
                         app.pushHistory(response.exec_time, config.query);
                     }
@@ -690,13 +858,13 @@ Ext.application({
     /**
      * execute mulitple queries and run user callbacks
      *
-     * @method multipleTunneling
+     * @method tunnelings
      * @param {String} db database name
      * @param {Object} queries to be executed
      * @param {Object} callbacks callback functions object
      * @param {Object} scope scope
      */
-    multipleTunneling: function(db, queries, callbacks, scope) {
+    tunnelings: function(db, queries, callbacks, scope) {
 
         if (typeof scope == 'undefined') {
 
@@ -786,62 +954,59 @@ Ext.application({
         })();
     },
 
-    pasteSQLStatement: function(mode, node) {
+    pasteSQLStatement: function(db, table, mode) {
 
-        var db = this.getSelectedDatabase(),
-            table = node.data.text,
-            a = [], b = [], c = [],
-            api = this.getAPIS();
+        var a = [], b = [], c = [],
+            api = this.getAPIS(),
+            func = {
+                'insert'          : function(records) {
 
-        var func = {
-            'insert'          : Ext.Function.bind(function(records) {
+                    Ext.Array.each(records, function(row) {
 
-                Ext.Array.each(records, function(row, idx) {
+                        a.push("`" + row[0] + "`");
+                        b.push("'" + row[0] + "'");
+                    });
+                    return api.getQuery('INSERT_TABLE', db, table, a.join(','), b.join(','));
+                },
+                'duplicate_update': function(records) {
 
-                    a.push("`" + row[0] + "`");
-                    b.push("'" + row[0] + "'");
-                });
-                return api.getQuery('INSERT_TABLE', db, table, a.join(','), b.join(','));
-            }, this),
-            'duplicate_update': Ext.Function.bind(function(records) {
+                    Ext.Array.each(records, function(row) {
 
-                Ext.Array.each(records, function(row, idx) {
+                        a.push("`" + row[0] + "`");
+                        b.push("'" + row[0] + "'");
+                        if (row[3] != "PRI") {
 
-                    a.push("`" + row[0] + "`");
-                    b.push("'" + row[0] + "'");
-                    if (row[3] != "PRI") {
+                            c.push("`" + row[0] + "`= VALUES(" + row[0] + ")");
+                        }
+                    });
+                    return api.getQuery('INSERT_ON_DUPLICATE', db, table, a.join(','), b.join(','), c.join(','));
+                },
+                'update'          : function(records) {
 
-                        c.push("`" + row[0] + "`= VALUES(" + row[0] + ")");
-                    }
-                });
-                return api.getQuery('INSERT_ON_DUPLICATE', db, table, a.join(','), b.join(','), c.join(','));
-            }, this),
-            'update'          : Ext.Function.bind(function(records) {
+                    Ext.Array.each(records, function(row) {
 
-                Ext.Array.each(records, function(row, idx) {
+                        a.push("`" + row[0] + "`='" + row[0] + "'");
+                        if (row[3] == "PRI") { b.push("`" + row[0] + "`='" + row[0] + "'"); }
+                    });
+                    return api.getQuery('UPDATE_TABLE', db, table, a.join(',\n'), b.join(' AND '));
+                },
+                'delete'          : function(records) {
 
-                    a.push("`" + row[0] + "`='" + row[0] + "'");
-                    if (row[3] == "PRI") { b.push("`" + row[0] + "`='" + row[0] + "'"); }
-                });
-                return api.getQuery('UPDATE_TABLE', db, table, a.join(',\n'), b.join(' AND '));
-            }, this),
-            'delete'          : Ext.Function.bind(function(records) {
+                    Ext.Array.each(records, function(row) {
 
-                Ext.Array.each(records, function(row, idx) {
+                        if (row[3] == "PRI") { a.push("`" + row[0] + "`='" + row[0] + "'"); }
+                    });
+                    return api.getQuery('DELETE_TABLE', db, table, a.join(' AND '));
+                },
+                'select'          : function(records) {
 
-                    if (row[3] == "PRI") { a.push("`" + row[0] + "`='" + row[0] + "'"); }
-                });
-                return api.getQuery('DELETE_TABLE', db, table, a.join(' AND '));
-            }, this),
-            'select'          : Ext.Function.bind(function(records) {
+                    Ext.Array.each(records, function(row) {
 
-                Ext.Array.each(records, function(row, idx) {
-
-                    a.push("`" + row[0] + "`");
-                });
-                return api.getQuery('SELECT_TABLE', db, table, a.join(', '), '');
-            }, this)
-        };
+                        a.push("`" + row[0] + "`");
+                    });
+                    return api.getQuery('SELECT_TABLE', db, table, a.join(', '), '');
+                }
+            };
 
         this.tunneling({
             db     : db,
@@ -854,25 +1019,20 @@ Ext.application({
         });
     },
 
-    changeTableToType: function(engine) {
-
-        var node = this.getSelectedNode();
-        var db = this.getSelectedDatabase();
-        var table = node.data.text;
+    changeTableToType: function(db, table, engine) {
 
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('CHANGE_TABLE_TYPE', db, table, engine),
             success: function(config, response) {
 
-                this.openMessage('Table engine changed to ' + engine);
+                this.openMessage(this.generateQuerySuccessMsg(config.query, 'Table engine changed to ' + engine));
             }
         });
     },
 
-    createView: function() {
+    createView: function(db) {
 
-        var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create View', 'Please enter new view name:', function(btn, name) {
 
             if (btn == 'ok') {
@@ -885,30 +1045,23 @@ Ext.application({
         }, this);
     },
 
-    alterView: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            name = node.getData().text;
+    alterView: function(db, view) {
 
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_VIEW', db, name),
-            node   : node,
+            query  : this.getAPIS().getQuery('SHOW_CREATE_VIEW', db, view),
             success: function(config, response) {
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_VIEW', db, name, response.records[0][1]),
+                var body = this.getAPIS().getQuery('ALTER_VIEW', db, view, response.records[0][1]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
         });
     },
 
-    dropView: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            view = node.data.text;
+    dropView: function(db, view, callback) {
 
         Ext.Msg.confirm('Drop View \'' + view + '\'', 'Do you really want to drop the view?', function(btn, text) {
 
@@ -919,19 +1072,19 @@ Ext.application({
                     query  : this.getAPIS().getQuery('DROP_VIEW', db, view),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    renameView: function(node) {
+    renameView: function(db, view, callback) {
 
-        var db = this.getSelectedDatabase(),
-            view = node.data.text,
-            app = this;
+        var app = this;
 
         Ext.Msg.prompt('Rename View \'' + view + '\' in \'' + db + '\'', 'Please enter new view name:', function(btn, name) {
 
@@ -949,7 +1102,7 @@ Ext.application({
                         queries.push(app.getAPIS().getQuery('DROP_VIEW', db, view));
                         queries.push(body.replace('`' + view + '`', '`' + name + '`'));
 
-                        this.multipleTunneling(db, queries, {
+                        this.tunnelings(db, queries, {
                             failureQuery   : function(idx, query, config, response) {
 
                                 messages.push(app.generateQueryErrorMsg(query, response.message));
@@ -964,8 +1117,10 @@ Ext.application({
                                 }
                                 else {
 
-                                    app.getSelectedTree().getSelectionModel().select(node.parentNode);
-                                    app.reloadTree();
+                                    if (callback) {
+
+                                        callback(queries, results);
+                                    }
                                 }
                             }
                         });
@@ -975,29 +1130,24 @@ Ext.application({
         }, this);
     },
 
-    createProcedure: function() {
+    createProcedure: function(db) {
 
-        var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create Procedure', 'Please enter new procedure name:', function(btn, name) {
 
             if (btn == 'ok') {
 
                 this.openQueryTab();
-
                 var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_PROCEDURE', db, name));
                 this.setActiveEditorValue(sql);
             }
         }, this);
     },
 
-    alterProcedure: function(node) {
+    alterProcedure: function(db, procedure) {
 
-        var db = this.getSelectedDatabase(),
-            name = node.getData().text;
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_PROCEDURE', db, name),
-            node   : node,
+            query  : this.getAPIS().getQuery('SHOW_CREATE_PROCEDURE', db, procedure),
             success: function(config, response) {
 
                 if (response.records.length == 0) {
@@ -1013,17 +1163,14 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_PROCEDURE', db, name, response.records[0][2]),
+                var body = this.getAPIS().getQuery('ALTER_PROCEDURE', db, procedure, response.records[0][2]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
         });
     },
 
-    dropProcedure: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            proc = node.data.text;
+    dropProcedure: function(db, procedure, callback) {
 
         Ext.Msg.confirm('Drop Procedure \'' + proc + '\'', 'Do you really want to drop the procedure?', function(btn, text) {
 
@@ -1031,20 +1178,21 @@ Ext.application({
 
                 this.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_PROCEDURE', db, proc),
+                    query  : this.getAPIS().getQuery('DROP_PROCEDURE', db, procedure),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    createFunction: function() {
+    createFunction: function(db) {
 
-        var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create Function', 'Please enter new function name:', function(btn, name) {
 
             if (btn == 'ok') {
@@ -1057,15 +1205,11 @@ Ext.application({
         }, this);
     },
 
-    alterFunction: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            name = node.getData().text;
+    alterFunction: function(db, func) {
 
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_FUNCTION', db, name),
-            node   : node,
+            query  : this.getAPIS().getQuery('SHOW_CREATE_FUNCTION', db, func),
             success: function(config, response) {
 
                 if (response.records.length == 0) {
@@ -1081,17 +1225,14 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_FUNCTION', db, name, response.records[0][2]),
+                var body = this.getAPIS().getQuery('ALTER_FUNCTION', db, func, response.records[0][2]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
         });
     },
 
-    dropFunction: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            func = node.data.text;
+    dropFunction: function(db, func, callback) {
 
         Ext.Msg.confirm('Drop Function \'' + func + '\'', 'Do you really want to drop the function?', function(btn, text) {
 
@@ -1102,17 +1243,18 @@ Ext.application({
                     query  : this.getAPIS().getQuery('DROP_FUNCTION', db, func),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    createTrigger: function() {
+    createTrigger: function(db) {
 
-        var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create Trigger', 'Please enter new trigger name:', function(btn, name) {
 
             if (btn == 'ok') {
@@ -1125,29 +1267,23 @@ Ext.application({
         }, this);
     },
 
-    alterTrigger: function(node) {
+    alterTrigger: function(db, trigger) {
 
-        var db = this.getSelectedDatabase(),
-            name = node.getData().text.match(/.+?\b/)[0];
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_TRIGGER', db, name),
-            node   : node,
+            query  : this.getAPIS().getQuery('SHOW_CREATE_TRIGGER', db, trigger),
             success: function(config, response) {
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_TRIGGER', db, name, response.records[0][2]),
+                var body = this.getAPIS().getQuery('ALTER_TRIGGER', db, trigger, response.records[0][2]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
         });
     },
 
-    dropTrigger: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            trigger = node.data.text;
+    dropTrigger: function(db, trigger, callback) {
 
         Ext.Msg.confirm('Drop Trigger \'' + trigger + '\'', 'Do you really want to drop the trigger?', function(btn, text) {
 
@@ -1158,19 +1294,19 @@ Ext.application({
                     query  : this.getAPIS().getQuery('DROP_TRIGGER', db, trigger),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    renameTrigger: function(node) {
+    renameTrigger: function(db, trigger, callback) {
 
-        var db = this.getSelectedDatabase(),
-            trigger = node.data.text,
-            app = this;
+        var app = this;
 
         Ext.Msg.prompt('Rename Trigger \'' + trigger + '\' in \'' + db + '\'', 'Please enter new trigger name:', function(btn, name) {
 
@@ -1188,7 +1324,7 @@ Ext.application({
                         queries.push(app.getAPIS().getQuery('DROP_TRIGGER', db, trigger));
                         queries.push(body.replace('`' + trigger + '`', '`' + name + '`'));
 
-                        this.multipleTunneling(db, queries, {
+                        this.tunnelings(db, queries, {
                             failureQuery   : function(idx, query, config, response) {
 
                                 messages.push(app.generateQueryErrorMsg(query, response.message));
@@ -1203,8 +1339,10 @@ Ext.application({
                                 }
                                 else {
 
-                                    app.getSelectedTree().getSelectionModel().select(node.parentNode);
-                                    app.reloadTree();
+                                    if (callback) {
+
+                                        callback(config, response, name);
+                                    }
                                 }
                             }
                         });
@@ -1214,9 +1352,8 @@ Ext.application({
         }, this);
     },
 
-    createEvent: function() {
+    createEvent: function(db) {
 
-        var db = this.getSelectedDatabase();
         Ext.Msg.prompt('Create Event', 'Please enter new event name:', function(btn, name) {
 
             if (btn == 'ok') {
@@ -1229,29 +1366,23 @@ Ext.application({
         }, this);
     },
 
-    alterEvent: function(node) {
+    alterEvent: function(db, event) {
 
-        var db = this.getSelectedDatabase(),
-            name = node.getData().text;
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_EVENT', db, name),
-            node   : node,
+            query  : this.getAPIS().getQuery('SHOW_CREATE_EVENT', db, event),
             success: function(config, response) {
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_EVENT', db, name, response.records[0][3]),
+                var body = this.getAPIS().getQuery('ALTER_EVENT', db, event, response.records[0][3]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
         });
     },
 
-    dropEvent: function(node) {
-
-        var db = this.getSelectedDatabase(),
-            event = node.data.text;
+    dropEvent: function(db, event, callback) {
 
         Ext.Msg.confirm('Drop Event \'' + event + '\'', 'Do you really want to drop the event?', function(btn, text) {
 
@@ -1262,19 +1393,19 @@ Ext.application({
                     query  : this.getAPIS().getQuery('DROP_EVENT', db, event),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    renameEvent: function(node) {
+    renameEvent: function(db, event, callback) {
 
-        var db = this.getSelectedDatabase(),
-            event = node.data.text,
-            app = this;
+        var app = this;
 
         Ext.Msg.prompt('Rename Event \'' + event + '\' in \'' + db + '\'', 'Please enter new event name:', function(btn, name) {
 
@@ -1292,7 +1423,7 @@ Ext.application({
                         queries.push(app.getAPIS().getQuery('DROP_EVENT', db, event));
                         queries.push(body.replace('`' + event + '`', '`' + name + '`'));
 
-                        this.multipleTunneling(db, queries, {
+                        this.tunnelings(db, queries, {
                             failureQuery   : function(idx, query, config, response) {
 
                                 messages.push(app.generateQueryErrorMsg(query, response.message));
@@ -1307,8 +1438,10 @@ Ext.application({
                                 }
                                 else {
 
-                                    app.getSelectedTree().getSelectionModel().select(node.parentNode);
-                                    app.reloadTree();
+                                    if (callback) {
+
+                                        callback(config, response, name);
+                                    }
                                 }
                             }
                         });
@@ -1370,36 +1503,24 @@ Ext.application({
         this.openWindow('command.Variables');
     },
 
-    openQuickPanel: function(records) {
+    openQuickPanel: function() {
 
-        var db = this.getParentNode(this.getSelectedNode());
-        this.tunneling({
-            db     : db,
-            query  : this.getAPIS().getQuery('SHOW_ALL_TABLE_STATUS', db),
-            success: function(config, response) {
-
-                this.openWindow('command.Quick', response);
-            }
-        });
+        this.openWindow('command.Quick');
     },
 
-    openAlterTableWindow: function(node) {
+    openAlterTableWindow: function(db, table) {
 
-        var db = this.getSelectedDatabase();
-        this.openWindow('table.EditSchemaWindow', db, node.data.text);
+        this.openWindow('table.EditSchemaWindow', db, table);
     },
 
-    openCreateTableWindow: function() {
-
-        var node = this.getSelectedNode(),
-            db = this.getSelectedDatabase();
+    openCreateTableWindow: function(db) {
 
         this.openWindow('table.EditSchemaWindow', db);
     },
 
-    openCreateDatabaseWindow: function(node) {
+    openCreateDatabaseWindow: function(db) {
 
-        this.openWindow('database.CreateDatabase', node);
+        this.openWindow('database.CreateDatabase', db);
     },
 
     openCopyDatabaseWindow: function(type, name) {
@@ -1417,28 +1538,26 @@ Ext.application({
         this.openWindow('database.DownloadToCSV');
     },
 
-    openReorderColumns: function(node) {
+    openReorderColumns: function(db, table) {
 
-        var db = this.getSelectedDatabase();
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_FULL_FIELDS', db, node.data.text),
+            query  : this.getAPIS().getQuery('SHOW_FULL_FIELDS', db, table),
             success: function(config, response) {
 
-                this.openWindow('table.ReorderColumns', db, node.data.text, response);
+                this.openWindow('table.ReorderColumns', db, table, response);
             }
         });
     },
 
-    openAdvancedProperties: function(node) {
+    openAdvancedProperties: function(db, table) {
 
-        var db = this.getSelectedDatabase();
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_ADVANCED_PROPERTIES', db, node.data.text),
+            query  : this.getAPIS().getQuery('SHOW_ADVANCED_PROPERTIES', db, table),
             success: function(config, response) {
 
-                this.openWindow('table.AdvancedProperties', db, node.data.text, response);
+                this.openWindow('table.AdvancedProperties', db, table, response);
             }
         });
     },
@@ -1458,14 +1577,13 @@ Ext.application({
         this.openCreateDatabaseWindow();
     },
 
-    alterDatabase: function(node) {
+    alterDatabase: function(db) {
 
-        this.openCreateDatabaseWindow(node);
+        this.openCreateDatabaseWindow(db);
     },
 
-    dropDatabase: function(node) {
+    dropDatabase: function(db, callback) {
 
-        var db = node.data.text;
         Ext.Msg.confirm('Drop Database \'' + db + '\'', 'Do you really want to drop the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1475,18 +1593,19 @@ Ext.application({
                     query  : this.getAPIS().getQuery('DROP_DATABASE', db),
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    truncateDatabase: function(node) {
+    truncateDatabase: function(db, callback) {
 
-        var db = node.data.text,
-            app = this;
+        var app = this;
 
         Ext.Msg.confirm('Truncate Database \'' + db + '\'', 'Do you really want to truncate the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
@@ -1502,10 +1621,10 @@ Ext.application({
                         Ext.Array.each(response.records, function(row, idx) {
 
                             var table = row[0];
-                            queries.push(app.getAPIS().getQuery('DROP_TABLE', db, table));
+                            queries.push(app.getAPIS().getQuery('DROP_TABLE', db, table, ''));
                         });
 
-                        this.multipleTunneling(db, queries, {
+                        this.tunnelings(db, queries, {
                             prevAllQueries : function(queries) {
 
                                 app.setLoading(true);
@@ -1524,10 +1643,10 @@ Ext.application({
                                 }
                                 else {
 
-                                    Ext.Array.each(node.childNodes, function(childNode, idx) {
+                                    if (callback) {
 
-                                        childNode.removeAll();
-                                    });
+                                        callback(queries, results);
+                                    }
                                 }
                             }
                         });
@@ -1537,9 +1656,8 @@ Ext.application({
         }, this);
     },
 
-    emptyDatabase: function(node) {
+    emptyDatabase: function(db, callback) {
 
-        var db = node.data.text;
         Ext.Msg.confirm('Empty Database \'' + db + '\'', 'Do you really want to empty the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1549,17 +1667,18 @@ Ext.application({
                     query  : 'EMPTY DATABASE `' + db + '`',
                     success: function(config, response) {
 
+                        if (callback) {
 
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    renameTable: function(node) {
+    renameTable: function(db, table, callback) {
 
-        var db = this.getSelectedDatabase();
-        var table = node.data.text;
         Ext.Msg.prompt('Rename Table \'' + table + '\' in \'' + db + '\'', 'Please enter new table name:', function(btn, text) {
 
             if (btn == 'ok') {
@@ -1569,17 +1688,18 @@ Ext.application({
                     query  : this.getAPIS().getQuery('RENAME_TABLE', db, table, db, text),
                     success: function(config, response) {
 
-                        node.set('text', text);
+                        if (callback) {
+
+                            callback(config, response, text);
+                        }
                     }
                 });
             }
         }, this, false, table);
     },
 
-    truncateTable: function(node) {
+    truncateTable: function(db, table, callback) {
 
-        var db = this.getSelectedDatabase();
-        var table = node.data.text;
         Ext.Msg.confirm('Truncate Table \'' + table + '\' in \'' + db + '\'', 'Do you really want to truncate the table?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1589,17 +1709,18 @@ Ext.application({
                     query  : this.getAPIS().getQuery('TRUNCATE_TABLE', db, table),
                     success: function(config, response) {
 
-                        this.openTable(node);
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    dropTable: function(node) {
+    dropTable: function(db, table, callback) {
 
-        var db = this.getSelectedDatabase();
-        var table = node.data.text;
         Ext.Msg.confirm('Drop Table \'' + table + '\' in \'' + db + '\'', 'Do you really want to drop the table?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1609,19 +1730,19 @@ Ext.application({
                     query  : 'DROP TABLE `' + db + '`.`' + table + '`',
                     success: function(config, response) {
 
-                        this.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
+                        if (callback) {
+
+                            callback(config, response);
+                        }
                     }
                 });
             }
         }, this);
     },
 
-    duplicateTable: function(node) {
+    duplicateTable: function(db, table, callback) {
 
-        var db = this.getSelectedDatabase(),
-            table = node.data.text,
-            app = this;
+        var app = this;
 
         Ext.Msg.prompt('Duplicate Table \'' + table + '\' in \'' + db + '\'', 'Please enter new table name:', function(btn, name) {
 
@@ -1633,7 +1754,7 @@ Ext.application({
                     ],
                     messages = [];
 
-                this.multipleTunneling(db, queries, {
+                this.tunnelings(db, queries, {
                     failureQuery   : function(idx, query, config, response) {
 
                         messages.push(app.generateQueryErrorMsg(query, response.message));
@@ -1648,8 +1769,10 @@ Ext.application({
                         }
                         else {
 
-                            app.getSelectedTree().getSelectionModel().select(node.parentNode);
-                            app.reloadTree();
+                            if (callback) {
+
+                                callback(queries, results);
+                            }
                         }
                     }
                 });
@@ -1780,7 +1903,6 @@ Ext.application({
 
         var panel = this.getActiveMessageTab(),
             dom = Ext.get(panel.getEl().query("div[id$=innerCt]")),
-            node = this.getSelectedNode(),
             db = this.getSelectedDatabase();
 
         dom.setHTML('');
@@ -1947,12 +2069,11 @@ Ext.application({
         }
     },
 
-    openTable: function(node) {
+    openTable: function(db, table) {
 
         var tab = this.getActiveTableDataTab(),
-            db = this.getSelectedDatabase(),
             parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
-            queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, node.data.text, "*", '')),
+            queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, table, "*", '')),
             query = queries[0];
 
         this.openMode = 'select';
@@ -1962,11 +2083,10 @@ Ext.application({
         this.tunneling({
             db     : db,
             query  : query.getSQL(),
-            node   : node,
             tab    : tab,
             success: function(config, response) {
 
-                this.initQueryResult({openTable: node.data.text}, db, query, response);
+                this.initQueryResult({openTable: table}, db, query, response);
                 this.setLoading(false);
             },
             failure: function(config, response) {
@@ -1977,12 +2097,11 @@ Ext.application({
         });
     },
 
-    countTable: function(node) {
+    countTable: function(db, table) {
 
         var tab = this.getActiveTableDataTab(),
-            db = this.getSelectedDatabase(),
             parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
-            queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, node.data.text, "*", '')),
+            queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, table, "*", '')),
             query = queries[0];
 
         this.openMode = 'count';
@@ -1992,11 +2111,10 @@ Ext.application({
         this.tunneling({
             db     : db,
             query  : query.getSQL(),
-            node   : node,
             tab    : tab,
             success: function(config, response) {
 
-                this.initQueryResult({openTable: node.data.text}, db, query, response);
+                this.initQueryResult({openTable: table}, db, query, response);
                 this.setLoading(false);
             },
             failure: function(config, response) {
@@ -2059,5 +2177,279 @@ Ext.application({
         });
 
         this.openTokenPanel(tokens);
+    },
+
+    loadQuickCommands: function(tab) {
+
+        var app = this,
+            api = app.getAPIS(),
+            tree = app.getSelectedTree(),
+            root = tree.getRootNode(),
+            children = root.childNodes;
+
+        var queries = [],
+            messages = [],
+            dbs = [];
+
+        app.onTask = true;
+        app.updateTaskMessage('Start quick command indexing');
+
+        tab.quickCommand.append({
+            icon  : 'execute-query',
+            name  : 'Run/Execute Query',
+            value : 0,
+            method: app.executeQuery
+        });
+        tab.quickCommand.append({
+            icon  : 'connection',
+            name  : 'New Connection',
+            value : 0,
+            method: app.openConnPanel
+        });
+        tab.quickCommand.append({
+            icon  : 'user',
+            name  : 'User Manager',
+            value : 0,
+            method: app.openUserPanel
+        });
+        tab.quickCommand.append({
+            icon  : 'proc',
+            name  : 'Show process list',
+            value : 0,
+            method: app.openProcessPanel
+        });
+        tab.quickCommand.append({
+            icon  : 'fullscreen',
+            name  : 'Change to fullscreen',
+            value : 0,
+            method: app.changeToFullscreen
+        });
+        tab.quickCommand.append({
+            icon  : 'database',
+            name  : 'Create database',
+            value : 0,
+            method: app.createDatabase
+        });
+        tab.quickCommand.append({
+            icon  : 'vars',
+            name  : 'Show variables',
+            value : 0,
+            method: app.openVariablesPanel
+        });
+        tab.quickCommand.append({
+            icon  : 'status',
+            name  : 'Show status',
+            value : 0,
+            method: app.openStatusPanel
+        });
+        tab.quickCommand.append({
+            icon  : 'flush',
+            name  : 'Flush',
+            value : 0,
+            method: app.openFlushPanel
+        });
+        app.tunneling({
+            query  : app.getAPIS().getQuery('SHOW_DATABASE'),
+            success: function(config, response) {
+
+                Ext.Array.each(response.records, function(row) {
+
+                    var db = row[0];
+                    if (Planche.config.withoutIndexing.indexOf(db) > -1) {
+
+                        return;
+                    }
+
+                    queries.push(api.getQuery('SHOW_ALL_TABLE_STATUS', db));
+                    dbs.push(db);
+
+                    tab.quickCommand.append({
+                        icon  : 'database',
+                        name  : 'Drop database ' + db,
+                        value : 0,
+                        method: app.dropDatabase,
+                        params: [db]
+                    });
+
+                    tab.quickCommand.append({
+                        icon  : 'database',
+                        name  : 'Alter database ' + db,
+                        value : 0,
+                        method: app.alterDatabase,
+                        params: [db]
+                    });
+
+                    tab.quickCommand.append({
+                        icon  : 'database',
+                        name  : 'Truncate database ' + db,
+                        value : 0,
+                        method: app.truncateDatabase,
+                        params: [db]
+                    });
+
+                    tab.quickCommand.append({
+                        icon  : 'database',
+                        name  : 'Empty database ' + db,
+                        value : 0,
+                        method: app.emptyDatabase,
+                        params: [db]
+                    });
+                });
+
+                if (response.records.length == 0) {
+
+                    app.onTask = false;
+                    return;
+                }
+
+                var total = queries.length,
+                    jobIdx = 1;
+                this.tunnelings('', queries, {
+                    failureQuery   : function(idx, query, config, response) {
+
+                        messages.push(app.generateQueryErrorMsg(query, response.message));
+                    },
+                    successQuery   : function(idx, query, config, response) {
+
+                        var db = dbs[jobIdx - 1];
+                        Ext.Array.each(response.records, function(row, idx) {
+
+                            var table = row[0];
+
+                            app.updateTaskMessage('Indexing `' + db + '`.`' + table + '`');
+
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Open ' + table,
+                                value : 0,
+                                method: app.openTable,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Count ' + table,
+                                value : 0,
+                                method: app.countTable,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'sql',
+                                name  : 'Paste SQL: Select ' + table,
+                                value : 0,
+                                method: app.pasteSQLStatement,
+                                params: [db, table, 'select']
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'sql',
+                                name  : 'Paste SQL: Update ' + table,
+                                value : 0,
+                                method: app.pasteSQLStatement,
+                                params: [db, table, 'update']
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'sql',
+                                name  : 'Paste SQL: Delete ' + table,
+                                value : 0,
+                                method: app.pasteSQLStatement,
+                                params: [db, table, 'delete']
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'sql',
+                                name  : 'Paste SQL: Insert ' + table,
+                                value : 0,
+                                method: app.pasteSQLStatement,
+                                params: [db, table, 'insert']
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Alter Table ' + table,
+                                value : 0,
+                                method: app.openAlterTableWindow,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Rename Table ' + table,
+                                value : 0,
+                                method: app.renameTable,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Truncate Table ' + table,
+                                value : 0,
+                                method: app.truncateTable,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Drop Table From Database ' + table,
+                                value : 0,
+                                method: app.dropTable,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'Reorder Column(s) ' + table,
+                                value : 0,
+                                method: app.openReorderColumns,
+                                params: [db, table]
+                            });
+                            tab.quickCommand.append({
+                                icon  : 'table',
+                                name  : 'View Advanced Properties ' + table,
+                                value : 0,
+                                method: app.openAdvancedProperties,
+                                params: [db, table]
+                            });
+                        });
+
+                        app.updateTaskProgressBar(jobIdx / total);
+                        jobIdx++;
+                    },
+                    afterAllQueries: function() {
+
+                        if (messages.length == 0) {
+
+                            app.updateTaskMessage('Indexing completed');
+                            app.onTask = false;
+                            return;
+                        }
+
+                        app.updateTaskMessage('Indexing Error');
+                        app.openMessage(messages);
+                        app.onTask = false;
+                    }
+                });
+            },
+            failure: function(config, response) {
+
+                app.updateTaskMessage(response.message);
+                app.onTask = false;
+            }
+        });
+    },
+
+    changeToFullscreen: function() {
+
+        // mozilla proposal
+        var elem = Ext.getBody().el.dom;
+
+        if (elem.requestFullscreen) {
+
+            elem.requestFullscreen();
+
+        } else if (elem.mozRequestFullScreen) {
+
+            elem.mozRequestFullScreen();
+
+        } else if (elem.webkitRequestFullscreen) {
+
+            elem.webkitRequestFullscreen();
+        }
+        else {
+
+            Ext.Msg.alert('info', 'This browser is not support fullscreen mode');
+        }
     }
 });

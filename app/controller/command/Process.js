@@ -10,20 +10,10 @@ Ext.define('Planche.controller.command.Process', {
 
         win = Ext.create('Planche.lib.Window', {
             id : 'window-'+this.id,
-            stateful: true,
             title : 'Show Process List',
-            layout : 'fit',
             bodyStyle:"background-color:#FFFFFF",
             width : 900,
             height: 500,
-            overflowY: 'auto',
-            autoScroll : true,
-            modal : true,
-            plain: true,
-            fixed : true,
-            shadow : false,
-            autoShow : true,
-            constrain : true,
             items : this.initGrid(),
             buttons : [{
                 text : 'Kill Process',
@@ -129,7 +119,7 @@ Ext.define('Planche.controller.command.Process', {
 
         var app = this.application;
 
-        var node = app.getSelectedNode();
+        var node = app.getSelectedNode(true);
         var db = app.getParentNode(node);
         app.tunneling({
             db : db,

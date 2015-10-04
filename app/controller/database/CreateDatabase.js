@@ -1,16 +1,8 @@
 Ext.define('Planche.controller.database.CreateDatabase', {
     extend: 'Ext.app.Controller',
-    initWindow : function (node) {
+    initWindow : function (db) {
 
-        var db = '';
-
-        this.isAlter = node ? true : false;
-
-        if(this.isAlter) {
-
-            db = node.data.text;
-        }
-
+        this.isAlter = db ? true : false;
         this.loadData(db);
     },
 
@@ -195,7 +187,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         var textfield = btn.up('window').down('textfield'),
             db        = textfield.getValue(),
             app       = this.getApplication(),
-            node      = app.getSelectedNode(),
+            node      = app.getSelectedNode(true),
             collation = Ext.getCmp('database-collation').getValue(),
             charset   = Ext.getCmp('database-charset').getValue();
 
@@ -256,7 +248,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
     alter : function (btn) {
          
         var app       = this.getApplication(),
-            node      = app.getSelectedNode(),
+            node      = app.getSelectedNode(true),
             db        = app.getParentNode(node),
             collation = Ext.getCmp('database-collation').getValue(),
             charset   = Ext.getCmp('database-charset').getValue();
@@ -270,7 +262,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
             },
             failure : function (config, response) {
 
-                Ext.Msg.alert('Error', response.result);
+                Ext.Msg.alert('Error', response.message);
             }
         });
     },

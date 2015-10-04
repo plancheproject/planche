@@ -111,7 +111,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
             return;
         }
 
-        var node = app.getSelectedNode(),
+        var node = app.getSelectedNode(true),
             db = app.getParentNode(node),
             query = '(',
             primaries = [], fields = [],
@@ -198,7 +198,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
         var
             store = tab.getStore(),
-            node = app.getSelectedNode(),
+            node = app.getSelectedNode(true),
             db = app.getParentNode(node),
             query = '',
             add_primaries = [],

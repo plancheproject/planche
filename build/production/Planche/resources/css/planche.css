@@ -75,3 +75,74 @@ table.info td:last-child{
 .btn {
   border-color: #9d9d9d;
 }
+#quick-combo-inputEl {
+    font-size:20px;
+}
+
+li.x-boundlist-item div.quick-command{
+    padding:10px 5px 10px 5px;
+    font-size:15px;
+    line-height: 24px;
+}
+
+li.x-boundlist-item:nth-child(odd){
+    background-color:#eeeeee;
+    color:#666666;
+}
+
+li.x-boundlist-item span.quick-icon {
+    display:inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align:middle;
+}
+
+li.x-boundlist-item span.quick-icon.execute-query {
+
+    background:url(../images/icon_play24x24.png);
+}
+li.x-boundlist-item span.quick-icon.fullscreen {
+
+    background:url(../images/icon_fullscreen24x24.png);
+}
+li.x-boundlist-item span.quick-icon.user {
+
+    background:url(../images/icon_user24x24.png);
+}
+li.x-boundlist-item span.quick-icon.manage {
+
+    background:url(../images/icon_manage24x24.png);
+}
+li.x-boundlist-item span.quick-icon.database {
+
+    background:url(../images/icon_database24x24.png);
+}
+li.x-boundlist-item span.quick-icon.table {
+
+    background:url(../images/icon_table24x24.png);
+}
+li.x-boundlist-item span.quick-icon.vars {
+
+    background:url(../images/icon_vars24x24.png);
+}
+li.x-boundlist-item span.quick-icon.status {
+
+    background:url(../images/icon_status24x24.png);
+}
+li.x-boundlist-item span.quick-icon.proc {
+
+     background:url(../images/icon_proc24x24.png);
+ }
+li.x-boundlist-item span.quick-icon.flush {
+
+    background:url(../images/icon_flush24x24.png);
+}
+li.x-boundlist-item span.quick-icon.sql {
+
+    background:url(../images/icon_sql24x24.png);
+}
+
+li.x-boundlist-item span.quick-icon.connection {
+
+    background:url(../images/new_database.png);
+}

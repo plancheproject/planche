@@ -19,8 +19,9 @@ Ext.define('Planche.view.Main', {
             this.initTopMenu(),
             this.initToolBar(),
             this.initConnectTabPanel(),
+            this.initFooter(),
             this.initContextMenu()
-        ]
+        ];
 
         this.callParent(arguments);
     },
@@ -44,7 +45,7 @@ Ext.define('Planche.view.Main', {
                 xtype: 'splitbutton',
                 split: false
             },
-            items   : function() {
+            items   : (function() {
 
                 var tmp = [];
                 Ext.Array.each(menus, function(name, idx) {
@@ -53,7 +54,7 @@ Ext.define('Planche.view.Main', {
                 });
 
                 return tmp;
-            }(),
+            })(),
             height  : 30,
             width   : '100%'
         };
@@ -104,11 +105,44 @@ Ext.define('Planche.view.Main', {
         return {
             xtype   : 'menu',
             id      : 'schema-context-menu',
-            margin  : '0 0 10 0',
             defaults: {
                 scope: this
             },
             items   : []
+        };
+    },
+
+    /**
+     * initialize footer
+     *
+     * @method initFooter
+     */
+    initFooter: function() {
+
+        return {
+            xtype   : 'container',
+            layout  : 'hbox',
+            id      : 'planche-footer',
+            defaults: {
+                scope: this
+            },
+            items   : [{
+                xtype : 'progressbar',
+                id    : 'footer-task-progressbar',
+                width : 200,
+                height: 20
+            }, {
+                xtype  : 'component',
+                width : '100%',
+                border: 1,
+                text   : 'Loading tasks',
+                margin : '0px 0px 0px 5px',
+                padding: '3px 0px 0px 0px',
+                html   : '<div id="footer-task-message">Task status</div>',
+                style  : {
+                    color: '#629632'
+                }
+            }]
         };
     }
 });

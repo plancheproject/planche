@@ -4,5 +4,9 @@ Ext.define('Planche.store.SchemaTree', {
         type : 'root',
         text : 'root@',
         expanded: true
+    },
+    initComponent : function(){
+
+        this.callParent(arguments);
     }
 });

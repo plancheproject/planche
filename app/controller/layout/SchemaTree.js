@@ -26,13 +26,14 @@ Ext.define('Planche.controller.layout.SchemaTree', {
                 expandTree      : this.expandTree,
                 boxready        : function(tree) {
 
-                    var task = new Ext.util.DelayedTask();
+                    var node = tree.getRootNode(),
+                        tab = tree.up('connect-tab'),
+                        task = new Ext.util.DelayedTask();
+
                     task.delay(100, function() {
 
-                        var node = tree.getRootNode();
-
-                        var tab = app.getActiveConnectTab();
                         node.set('text', tab.getUser() + '@' + tab.getHost());
+
                         app.setSelectedTree(tree);
 
                         tree.getSelectionModel().select(node);

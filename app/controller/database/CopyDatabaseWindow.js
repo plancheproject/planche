@@ -17,7 +17,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
             '#copy-database-source-tree': {
                 beforeitemexpand: function(node) {
 
-                    var selType = app.getSelectedNode().raw.type;
+                    var selType = app.getSelectedNode(true).raw.type;
 
                     this.expandTree(node, {
                         checked: selType === 'database'
@@ -26,7 +26,7 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                 show            : app.setSelectedTree,
                 reloadTree      : function(node) {
 
-                    var selType = app.getSelectedNode().raw.type;
+                    var selType = app.getSelectedNode(true).raw.type;
 
                     this.reloadTree(node, {
                         checked: selType === 'database'
@@ -34,24 +34,31 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                 },
                 expandTree      : function(node) {
 
-                    var selType = app.getSelectedNode().raw.type;
+                    var selType = app.getSelectedNode(true).raw.type;
 
                     this.expandTree(node, {
                         checked: selType === 'database'
                     });
                 },
+                iteminsert : function(node){
+
+                    var selNode = app.getSelectedNode(true);
+                    Ext.Array.each(node.childNodes, function(child, idx){
+
+                        if(child.raw.text == selNode.raw.text || selNode.raw.type == 'tables'){
+
+                            child.set('checked', true);
+                            child.save();
+                        }
+                    });
+                },
                 boxready        : function(tree) {
 
-                    var task = new Ext.util.DelayedTask(),
+                    var me = this,
+                        task = new Ext.util.DelayedTask(),
                         node = tree.getRootNode(),
                         db = app.getSelectedDatabase(),
-                        tab = app.getActiveConnectTab();
-
-                    if (tab.getRequestType() === 'jsonp') {
-
-                        Ext.getCmp('copy-database-option-3').setDisabled(true);
-                        Ext.getCmp('copy-database-option-3').setValue(false);
-                    }
+                        table = app.getSelectedTable();
 
                     node.set('text', db);
 
@@ -59,11 +66,26 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
                         tree.getSelectionModel().select(node);
 
-                        this.loadTree(node, {
+                        me.loadTree(node, {
                             checked: false
                         });
 
-                    }, this);
+                        Ext.Array.each(node.childNodes, function(child, idx){
+
+                            var checked = false;
+
+                            if(!table){
+
+                                checked = true;
+                            }
+
+                            me.expandTree(child, {
+                                checked: checked
+                            });
+
+                            child.expand();
+                        });
+                    });
                 }
             },
             '#copy-database-target-grid': {
@@ -100,6 +122,15 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
 
 
                     grid.store.loadData(record);
+                },
+
+                select : function(view, record){
+
+                    var reqType = window.location.protocol == 'file:' ? 'jsonp' : record.raw.tab.getRequestType(),
+                        isJSONP = reqType === 'jsonp';
+
+                    Ext.getCmp('copy-database-option-3').setDisabled(isJSONP);
+                    Ext.getCmp('copy-database-option-3').setValue(!isJSONP);
                 }
             },
             '#copy-database-btn-copy'   : {

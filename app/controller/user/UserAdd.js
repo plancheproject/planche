@@ -147,7 +147,7 @@ Ext.define('Planche.controller.user.UserAdd', {
         win.setLoading(true);
 
         var messages = [];
-        app.multipleTunneling(null, queries, {
+        app.tunnelings(null, queries, {
             failureQuery   : function(idx, query, config, response) {
 
                 messages.push(app.generateError(query, response.message));
