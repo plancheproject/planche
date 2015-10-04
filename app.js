@@ -2248,6 +2248,8 @@ Ext.application({
             value : 0,
             method: app.openFlushPanel
         });
+
+        var withoutIndexing = Planche.config.withoutIndexing || [];
         app.tunneling({
             query  : app.getAPIS().getQuery('SHOW_DATABASE'),
             success: function(config, response) {
@@ -2255,7 +2257,7 @@ Ext.application({
                 Ext.Array.each(response.records, function(row) {
 
                     var db = row[0];
-                    if (Planche.config.withoutIndexing.indexOf(db) > -1) {
+                    if (withoutIndexing.indexOf(db) > -1) {
 
                         return;
                     }
