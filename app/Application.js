@@ -43,7 +43,6 @@ Ext.define('Planche.Application', {
         'table.TablePropertiesTab',
         'table.TableSchemaTab',
         'table.TableSQLTab',
-
         'user.Grant',
         'user.GrantSchemaTree',
         'user.GrantUserList',

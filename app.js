@@ -15,26 +15,37 @@ Ext.application({
      */
     launch: function() {
 
+        var app = this;
+
         // setup the state provider, all state information will be saved to a cookie
         Ext.state.Manager.setProvider(Ext.create('Ext.state.CookieProvider'));
 
-        //stop backspace
+        //Defense for backspace
         Ext.EventManager.addListener(Ext.getBody(), 'keydown', function(e) {
 
             if (e.getTarget().type !== 'text' && e.getKey() === '8') {
+
                 e.preventDefault();
             }
         });
 
+        //Defense for backspace
         window.onbeforeunload = function() {
 
-            var message = "Are you sure you want to quit planche?"
+            var message = "Are you sure you want to quit planche?";
             return message;
         }
 
-        var app = this;
+        //Disable the browser context menu
+        Ext.EventManager.addListener(Ext.getBody(), 'contextmenu', function(e) {
+
+            e.preventDefault();
+        });
+
+        //mapping shortcut
         app.initKeyMap();
 
+        //init auto connections
         Ext.Array.each(app.getHosts(), function(host, idx) {
 
             if (host.autoConnection) {
@@ -43,12 +54,16 @@ Ext.application({
             }
         });
 
+        //load background tasks
         app.loadTask();
 
         if (Planche.config.autoLoadConnectionWindow) {
 
             app.openConnPanel();
         }
+
+        //detect event for alter, rename, drop, create table
+        app.detectCRUDEvent();
     },
 
     /**
@@ -411,6 +426,43 @@ Ext.application({
         return this.getParentNode(node, 'table', return_node);
     },
 
+    getChildNode: function(startNode, path, return_node) {
+
+        if (!path) {
+
+            return null;
+        }
+        if (!startNode) {
+
+            return null;
+        }
+
+        var getNode = function(node, path, return_node) {
+
+            if (node.raw.path == path) {
+
+                return return_node ? node : node.data.text;
+            }
+
+            if (node.childNodes.length == 0) {
+
+                return null;
+            }
+
+            for (var i = 0 ; i < node.childNodes.length ; i++) {
+
+                var n = getNode(node.childNodes[i], path, return_node);
+
+                if (n) {
+
+                    return n;
+                }
+            }
+        };
+
+        return getNode(startNode, path, return_node);
+    },
+
     getParentNode: function(n, depth_or_type, return_node) {
 
         if (typeof depth_or_type == "undefined") {
@@ -535,12 +587,30 @@ Ext.application({
         this.fireEvent('initHosts');
     },
 
-    reloadTree: function() {
+    reloadTree: function(node) {
 
         var tree = this.getSelectedTree(),
-            node = this.getSelectedNode(true);
+            node = node || this.getSelectedNode(true);
 
         tree.fireEvent('reloadTree', node);
+    },
+
+    reloadNode: function(path) {
+
+        var tree = this.getSelectedTree(),
+            root = tree.getRootNode(),
+            node = this.getChildNode(root, path, true);
+
+        if (node) {
+
+            this.reloadTree(node);
+            node.expand();
+        }
+    },
+
+    reloadTablesNode: function(db) {
+
+        this.reloadNode(['tables', db, 'Tables'].join('`'));
     },
 
     checkToolbar: function() {
@@ -698,10 +768,11 @@ Ext.application({
         Ext.Ajax.cors = true;
         Ext.Ajax.useDefaultXhrHeader = false;
 
-        var connection = config.connection || this.getActiveConnectTab(),
-            app = this;
+        var app = this,
+            connection = config.connection || app.getActiveConnectTab();
 
         Ext.applyIf(config, {
+            db         : '',
             type       : 'query',
             async      : true,
             timeout    : 1000 * 60 * 5,
@@ -715,11 +786,12 @@ Ext.application({
                 msg += 'Execution Time : 00:00:00:000<br>';
                 msg += 'Transfer Time  : 00:00:00:000<br>';
                 msg += 'Total Time     : 00:00:00:000';
-                this.openMessage(msg);
+
+                app.openMessage(msg);
             },
             failure    : function(config, response) {
 
-                this.openMessage(this.generateQueryErrorMsg(config.query, response.message));
+                app.openMessage(app.generateQueryErrorMsg(config.query, response.message));
             }
         });
 
@@ -859,97 +931,66 @@ Ext.application({
      * execute mulitple queries and run user callbacks
      *
      * @method tunnelings
-     * @param {String} db database name
-     * @param {Object} queries to be executed
-     * @param {Object} callbacks callback functions object
+     * @param {Object} tunnelings to be tunnneling
+     * @param {Object} config config tunnelings options
      * @param {Object} scope scope
      */
-    tunnelings: function(db, queries, callbacks, scope) {
+    tunnelings: function(tunnelings, options) {
 
-        if (typeof scope == 'undefined') {
+        var app = this.getApplication(),
+            options = options || {},
+            execute;
 
-            scope = this;
-        }
-
-        var app = this.getApplication(), tunneling, idx = 0, results = [];
-
-        Ext.applyIf(callbacks, {
-            prevAllQueries : function() {
+        Ext.applyIf(options, {
+            ignoreFailure: false,
+            start        : function() {
             },
-            prevQuery      : function() {
+            success      : function() {
             },
-            successQuery   : function() {
-            },
-            failureQuery   : function() {
-            },
-            afterQuery     : function() {
-            },
-            afterAllQueries: function() {
+            failure      : function() {
             }
         });
 
-        var execQueries = [],
-            config = {};
+        options['start'].apply(app);
 
-        callbacks['prevAllQueries'].apply(scope, [queries]);
+        (execute = function() {
 
-        (tunneling = function() {
+            var queue = tunnelings.shift();
+            if (queue) {
 
-            var query = queries.shift();
+                var success = queue['success'],
+                    failure = queue['failure'];
+                app.tunneling(Ext.apply(queue, {
+                    success: function() {
 
-            if (query) {
+                        if (success) {
 
-                execQueries.push(query);
+                            success.apply(app, arguments);
+                        }
 
-                callbacks['prevQuery'].apply(scope, [idx, query]);
-
-                var config = {
-                    db     : db,
-                    success: function(config, response) {
-
-                        callbacks['successQuery'].apply(scope, [idx, query, config, response]);
-
-                        results.push({
-                            config  : config,
-                            response: response
-                        });
-
-                        tunneling();
+                        execute();
                     },
-                    failure: function(config, response) {
+                    failure: function() {
 
-                        callbacks['failureQuery'].apply(scope, [idx, query, config, response]);
+                        if (failure) {
 
-                        results.push({
-                            config  : config,
-                            response: response
-                        });
+                            failure.apply(app, arguments);
+                        }
 
-                        tunneling();
+                        if (options.ignoreFailure == true) {
+
+                            execute();
+                            return;
+                        }
+
+                        options['failure'].apply(app);
                     }
-                };
-
-                if (typeof query == 'object') {
-
-                    Ext.apply(config, query);
-                }
-                else {
-
-                    Ext.apply(config, {
-                        query: query
-                    });
-                }
-
-                app.tunneling(config);
-
-                callbacks['afterQuery'].apply(scope, [idx, query]);
-
-                idx++;
+                }));
             }
             else {
 
                 //complete all query
-                callbacks['afterAllQueries'].apply(scope, [execQueries, results]);
+                options['success'].apply(app);
             }
         })();
     },
@@ -1090,44 +1131,52 @@ Ext.application({
 
             if (btn == 'ok') {
 
-                var queries = [],
-                    messages = [];
-                this.tunneling({
+                var messages = [];
+                app.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_VIEW', db, view),
                     success: function(config, response) {
 
-                        var body = response.records[0][1];
+                        var body = response.records[0][1],
+                            tunnelings = [{
+                                db     : db,
+                                query  : app.getAPIS().getQuery('DROP_VIEW', db, view),
+                                failure: function(config, response) {
 
-                        queries.push(app.getAPIS().getQuery('DROP_VIEW', db, view));
-                        queries.push(body.replace('`' + view + '`', '`' + name + '`'));
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }, {
+                                db     : db,
+                                query  : body.replace('`' + view + '`', '`' + name + '`'),
+                                failure: function(config, response) {
 
-                        this.tunnelings(db, queries, {
-                            failureQuery   : function(idx, query, config, response) {
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }];
 
-                                messages.push(app.generateQueryErrorMsg(query, response.message));
+                        app.tunnelings(tunnelings, {
+                            start  : function() {
+
+                                app.setLoading(true);
                             },
-                            afterAllQueries: function(queries, results) {
+                            success: function() {
 
                                 app.setLoading(false);
 
-                                if (messages.length > 0) {
+                                if (callback) {
 
-                                    app.openMessage(messages);
+                                    callback();
                                 }
-                                else {
+                            },
+                            failure: function() {
 
-                                    if (callback) {
-
-                                        callback(queries, results);
-                                    }
-                                }
+                                app.openMessage(messages);
                             }
                         });
                     }
                 });
             }
-        }, this);
+        });
     },
 
     createProcedure: function(db) {
@@ -1312,44 +1361,53 @@ Ext.application({
 
             if (btn == 'ok') {
 
-                var queries = [],
-                    messages = [];
-                this.tunneling({
+                var messages = [];
+                app.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_TRIGGER', db, trigger),
                     success: function(config, response) {
 
-                        var body = response.records[0][2];
+                        var body = response.records[0][2],
+                            tunnelings = [{
+                                db     : db,
+                                query  : app.getAPIS().getQuery('DROP_TRIGGER', db, trigger),
+                                failure: function(config, response) {
 
-                        queries.push(app.getAPIS().getQuery('DROP_TRIGGER', db, trigger));
-                        queries.push(body.replace('`' + trigger + '`', '`' + name + '`'));
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }, {
+                                db     : db,
+                                query  : body.replace('`' + trigger + '`', '`' + name + '`'),
+                                failure: function(config, response) {
 
-                        this.tunnelings(db, queries, {
-                            failureQuery   : function(idx, query, config, response) {
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }];
 
-                                messages.push(app.generateQueryErrorMsg(query, response.message));
+                        app.tunnelings(tunnelings, {
+                            start  : function() {
+
+                                app.setLoading(true);
                             },
-                            afterAllQueries: function(queries, results) {
+                            success: function() {
 
                                 app.setLoading(false);
 
-                                if (messages.length > 0) {
+                                if (callback) {
 
-                                    app.openMessage(messages);
+                                    callback();
                                 }
-                                else {
+                            },
+                            failure: function() {
 
-                                    if (callback) {
-
-                                        callback(config, response, name);
-                                    }
-                                }
+                                app.setLoading(false);
+                                app.openMessage(messages);
                             }
                         });
                     }
                 });
             }
-        }, this);
+        });
     },
 
     createEvent: function(db) {
@@ -1411,38 +1469,47 @@ Ext.application({
 
             if (btn == 'ok') {
 
-                var queries = [],
-                    messages = [];
+                var messages = [];
                 this.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_EVENT', db, event),
                     success: function(config, response) {
 
-                        var body = response.records[0][3];
+                        var body = response.records[0][3],
+                            tunnelings = [{
+                                db     : db,
+                                query  : app.getAPIS().getQuery('DROP_EVENT', db, event),
+                                failure: function(config, response) {
 
-                        queries.push(app.getAPIS().getQuery('DROP_EVENT', db, event));
-                        queries.push(body.replace('`' + event + '`', '`' + name + '`'));
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }, {
+                                db     : db,
+                                query  : body.replace('`' + event + '`', '`' + name + '`'),
+                                failure: function(config, response) {
 
-                        this.tunnelings(db, queries, {
-                            failureQuery   : function(idx, query, config, response) {
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            }];
 
-                                messages.push(app.generateQueryErrorMsg(query, response.message));
+                        app.tunnelings(tunnelings, {
+                            start  : function() {
+
+                                app.setLoading(true);
                             },
-                            afterAllQueries: function(queries, results) {
+                            success: function() {
 
                                 app.setLoading(false);
 
-                                if (messages.length > 0) {
+                                if (callback) {
 
-                                    app.openMessage(messages);
+                                    callback();
                                 }
-                                else {
+                            },
+                            failure: function() {
 
-                                    if (callback) {
-
-                                        callback(config, response, name);
-                                    }
-                                }
+                                app.setLoading(false);
+                                app.openMessage(messages);
                             }
                         });
                     }
@@ -1584,6 +1651,7 @@ Ext.application({
 
     dropDatabase: function(db, callback) {
 
+        var app = this;
         Ext.Msg.confirm('Drop Database \'' + db + '\'', 'Do you really want to drop the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1592,6 +1660,12 @@ Ext.application({
                     db     : db,
                     query  : this.getAPIS().getQuery('DROP_DATABASE', db),
                     success: function(config, response) {
+
+                        var tree = this.getSelectedTree(),
+                            root = tree.getRootNode();
+                            app.reloadTree(root);
+
+                        app.fireEvent('after_drop_database');
 
                         if (callback) {
 
@@ -1611,7 +1685,7 @@ Ext.application({
 
             if (btn == 'yes') {
 
-                var queries = [], messages = [];
+                var tunnelings = [], messages = [];
 
                 app.tunneling({
                     db     : db,
@@ -1621,33 +1695,34 @@ Ext.application({
                         Ext.Array.each(response.records, function(row, idx) {
 
                             var table = row[0];
-                            queries.push(app.getAPIS().getQuery('DROP_TABLE', db, table, ''));
+                            tunnelings.push({
+                                db     : db,
+                                query  : app.getAPIS().getQuery('DROP_TABLE', db, table, ''),
+                                failure: function(config, response) {
+
+                                    messages.push(app.generateQueryErrorMsg(config.query, response.message));
+                                }
+                            });
                         });
 
-                        this.tunnelings(db, queries, {
-                            prevAllQueries : function(queries) {
+                        app.tunnelings(tunnelings, {
+                            start  : function() {
 
                                 app.setLoading(true);
                             },
-                            failureQuery   : function(idx, query, config, response) {
-
-                                messages.push(app.generateQueryErrorMsg(query, response.message));
-                            },
-                            afterAllQueries: function(queries, results) {
+                            success: function() {
 
                                 app.setLoading(false);
 
-                                if (messages.length > 0) {
+                                if (callback) {
 
-                                    app.openMessage(messages);
+                                    callback();
                                 }
-                                else {
+                            },
+                            failure: function() {
 
-                                    if (callback) {
-
-                                        callback(queries, results);
-                                    }
-                                }
+                                app.setLoading(false);
+                                app.openMessage(messages);
                             }
                         });
                     }
@@ -1679,6 +1754,7 @@ Ext.application({
 
     renameTable: function(db, table, callback) {
 
+        var app = this;
         Ext.Msg.prompt('Rename Table \'' + table + '\' in \'' + db + '\'', 'Please enter new table name:', function(btn, text) {
 
             if (btn == 'ok') {
@@ -1687,6 +1763,9 @@ Ext.application({
                     db     : db,
                     query  : this.getAPIS().getQuery('RENAME_TABLE', db, table, db, text),
                     success: function(config, response) {
+
+                        app.fireEvent('after_rename_table');
+                        app.reloadTablesNode(db);
 
                         if (callback) {
 
@@ -1721,6 +1800,7 @@ Ext.application({
 
     dropTable: function(db, table, callback) {
 
+        var app = this;
         Ext.Msg.confirm('Drop Table \'' + table + '\' in \'' + db + '\'', 'Do you really want to drop the table?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
@@ -1730,6 +1810,10 @@ Ext.application({
                     query  : 'DROP TABLE `' + db + '`.`' + table + '`',
                     success: function(config, response) {
 
+                        app.fireEvent('after_drop_table');
+                        app.openMessage(app.generateSuccessMsg(config.query, table + ' table was been removed successfully.'));
+                        app.reloadTablesNode(db);
+
                         if (callback) {
 
                             callback(config, response);
@@ -1737,7 +1821,7 @@ Ext.application({
                     }
                 });
             }
-        }, this);
+        }, this)
     },
 
     duplicateTable: function(db, table, callback) {
@@ -1748,36 +1832,47 @@ Ext.application({
 
             if (btn == 'ok') {
 
-                var queries = [
-                        app.getAPIS().getQuery('COPY_TABLE_STRUCTURE', db, table, db, name),
-                        app.getAPIS().getQuery('COPY_TABLE_DATA', db, table, db, name)
-                    ],
-                    messages = [];
+                var messages = [],
+                    tunnelings = [{
+                        db     : db,
+                        query  : app.getAPIS().getQuery('COPY_TABLE_STRUCTURE', db, table, db, name),
+                        failure: function(idx, query, config, response) {
 
-                this.tunnelings(db, queries, {
-                    failureQuery   : function(idx, query, config, response) {
+                            messages.push(app.generateQueryErrorMsg(query, response.message));
+                        }
+                    }, {
+                        db     : db,
+                        query  : app.getAPIS().getQuery('COPY_TABLE_DATA', db, table, db, name),
+                        failure: function(idx, query, config, response) {
 
-                        messages.push(app.generateQueryErrorMsg(query, response.message));
+                            messages.push(app.generateQueryErrorMsg(query, response.message));
+                        }
+                    }];
+
+                app.tunnelings(tunnelings, {
+                    start  : function() {
+
+                        app.setLoading(true);
                     },
-                    afterAllQueries: function(queries, results) {
+                    success: function() {
 
                         app.setLoading(false);
 
-                        if (messages.length > 0) {
+                        app.fireEvent('after_duplicate_table');
 
-                            app.openMessage(messages);
+                        if (callback) {
+
+                            callback();
                         }
-                        else {
+                    },
+                    failure: function() {
 
-                            if (callback) {
-
-                                callback(queries, results);
-                            }
-                        }
+                        app.setLoading(false);
+                        app.openMessage(messages);
                     }
                 });
             }
-        }, this);
+        });
     },
 
     setActiveEditorValue: function(v) {
@@ -2182,17 +2277,15 @@ Ext.application({
     loadQuickCommands: function(tab) {
 
         var app = this,
-            api = app.getAPIS(),
-            tree = app.getSelectedTree(),
-            root = tree.getRootNode(),
-            children = root.childNodes;
-
-        var queries = [],
-            messages = [],
-            dbs = [];
+            api = tab.getAPIS(),
+            tree = tab.child('schema-tree'),
+            tunnelings = [],
+            messages = [];
 
         app.onTask = true;
         app.updateTaskMessage('Start quick command indexing');
+
+        tab.quickCommand.init();
 
         tab.quickCommand.append({
             icon  : 'execute-query',
@@ -2248,26 +2341,44 @@ Ext.application({
             value : 0,
             method: app.openFlushPanel
         });
+        tab.quickCommand.append({
+            icon  : 'stop',
+            name  : 'Stop operation',
+            value : 0,
+            method: app.stopOperation
+        });
 
         var withoutIndexing = Planche.config.withoutIndexing || [];
+
         app.tunneling({
-            query  : app.getAPIS().getQuery('SHOW_DATABASE'),
-            success: function(config, response) {
+            connection: tab,
+            db        : '',
+            query     : api.getQuery('SHOW_DATABASE'),
+            success   : function(config, response) {
+
+                var total = response.records.length,
+                    jobIdx = 1;
 
                 Ext.Array.each(response.records, function(row) {
 
                     var db = row[0];
                     if (withoutIndexing.indexOf(db) > -1) {
 
+                        jobIdx++;
                         return;
                     }
 
-                    queries.push(api.getQuery('SHOW_ALL_TABLE_STATUS', db));
-                    dbs.push(db);
+                    tab.quickCommand.append({
+                        icon  : 'table',
+                        name  : 'Create ' + db + '\'s table',
+                        value : 0,
+                        method: app.openCreateTableWindow,
+                        params: [db]
+                    });
 
                     tab.quickCommand.append({
                         icon  : 'database',
-                        name  : 'Drop database ' + db,
+                        name  : 'Drop ' + db + ' database',
                         value : 0,
                         method: app.dropDatabase,
                         params: [db]
@@ -2275,7 +2386,7 @@ Ext.application({
 
                     tab.quickCommand.append({
                         icon  : 'database',
-                        name  : 'Alter database ' + db,
+                        name  : 'Edit ' + db + ' database',
                         value : 0,
                         method: app.alterDatabase,
                         params: [db]
@@ -2283,7 +2394,7 @@ Ext.application({
 
                     tab.quickCommand.append({
                         icon  : 'database',
-                        name  : 'Truncate database ' + db,
+                        name  : 'Truncate ' + db + ' database',
                         value : 0,
                         method: app.truncateDatabase,
                         params: [db]
@@ -2291,10 +2402,117 @@ Ext.application({
 
                     tab.quickCommand.append({
                         icon  : 'database',
-                        name  : 'Empty database ' + db,
+                        name  : 'Empty ' + db + ' database',
                         value : 0,
                         method: app.emptyDatabase,
                         params: [db]
+                    });
+
+                    tunnelings.push({
+                        connection: tab,
+                        db        : db,
+                        query     : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
+                        success   : function(config, response) {
+
+                            Ext.Array.each(response.records, function(row, idx) {
+
+                                var table = row[0];
+
+                                app.updateTaskMessage('Indexing `' + db + '`.`' + table + '`');
+
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Open ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.openTable,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Count ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.countTable,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'sql',
+                                    name  : 'Paste SQL: Select ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.pasteSQLStatement,
+                                    params: [db, table, 'select']
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'sql',
+                                    name  : 'Paste SQL: Update ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.pasteSQLStatement,
+                                    params: [db, table, 'update']
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'sql',
+                                    name  : 'Paste SQL: Delete ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.pasteSQLStatement,
+                                    params: [db, table, 'delete']
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'sql',
+                                    name  : 'Paste SQL: Insert ' + table + ' in ' + db,
+                                    value : 0,
+                                    method: app.pasteSQLStatement,
+                                    params: [db, table, 'insert']
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Edit ' + table + ' table in ' + db,
+                                    value : 0,
+                                    method: app.openAlterTableWindow,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Rename ' + table + ' table in ' + db,
+                                    value : 0,
+                                    method: app.renameTable,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Truncate ' + table + ' table in ' + db,
+                                    value : 0,
+                                    method: app.truncateTable,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Drop ' + table + ' table in ' + db,
+                                    value : 0,
+                                    method: app.dropTable,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'Reorder ' + table + ' table column(s) in ' + db,
+                                    value : 0,
+                                    method: app.openReorderColumns,
+                                    params: [db, table]
+                                });
+                                tab.quickCommand.append({
+                                    icon  : 'table',
+                                    name  : 'View ' + table + ' table advanced properties in ' + db,
+                                    value : 0,
+                                    method: app.openAdvancedProperties,
+                                    params: [db, table]
+                                });
+                            });
+
+                            app.updateTaskProgressBar(jobIdx / total);
+                            jobIdx++;
+                        },
+                        failure   : function(config, response) {
+
+                            messages.push(app.generateQueryErrorMsg(query, response.message));
+                        }
                     });
                 });
 
@@ -2304,119 +2522,13 @@ Ext.application({
                     return;
                 }
 
-                var total = queries.length,
-                    jobIdx = 1;
-                this.tunnelings('', queries, {
-                    failureQuery   : function(idx, query, config, response) {
+                app.tunnelings(tunnelings, {
+                    success: function() {
 
-                        messages.push(app.generateQueryErrorMsg(query, response.message));
+                        app.updateTaskMessage('Indexing completed');
+                        app.onTask = false;
                     },
-                    successQuery   : function(idx, query, config, response) {
-
-                        var db = dbs[jobIdx - 1];
-                        Ext.Array.each(response.records, function(row, idx) {
-
-                            var table = row[0];
-
-                            app.updateTaskMessage('Indexing `' + db + '`.`' + table + '`');
-
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Open ' + table,
-                                value : 0,
-                                method: app.openTable,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Count ' + table,
-                                value : 0,
-                                method: app.countTable,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'sql',
-                                name  : 'Paste SQL: Select ' + table,
-                                value : 0,
-                                method: app.pasteSQLStatement,
-                                params: [db, table, 'select']
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'sql',
-                                name  : 'Paste SQL: Update ' + table,
-                                value : 0,
-                                method: app.pasteSQLStatement,
-                                params: [db, table, 'update']
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'sql',
-                                name  : 'Paste SQL: Delete ' + table,
-                                value : 0,
-                                method: app.pasteSQLStatement,
-                                params: [db, table, 'delete']
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'sql',
-                                name  : 'Paste SQL: Insert ' + table,
-                                value : 0,
-                                method: app.pasteSQLStatement,
-                                params: [db, table, 'insert']
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Alter Table ' + table,
-                                value : 0,
-                                method: app.openAlterTableWindow,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Rename Table ' + table,
-                                value : 0,
-                                method: app.renameTable,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Truncate Table ' + table,
-                                value : 0,
-                                method: app.truncateTable,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Drop Table From Database ' + table,
-                                value : 0,
-                                method: app.dropTable,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'Reorder Column(s) ' + table,
-                                value : 0,
-                                method: app.openReorderColumns,
-                                params: [db, table]
-                            });
-                            tab.quickCommand.append({
-                                icon  : 'table',
-                                name  : 'View Advanced Properties ' + table,
-                                value : 0,
-                                method: app.openAdvancedProperties,
-                                params: [db, table]
-                            });
-                        });
-
-                        app.updateTaskProgressBar(jobIdx / total);
-                        jobIdx++;
-                    },
-                    afterAllQueries: function() {
-
-                        if (messages.length == 0) {
-
-                            app.updateTaskMessage('Indexing completed');
-                            app.onTask = false;
-                            return;
-                        }
+                    failure: function() {
 
                         app.updateTaskMessage('Indexing Error');
                         app.openMessage(messages);
@@ -2424,7 +2536,7 @@ Ext.application({
                     }
                 });
             },
-            failure: function(config, response) {
+            failure   : function(config, response) {
 
                 app.updateTaskMessage(response.message);
                 app.onTask = false;
@@ -2453,5 +2565,24 @@ Ext.application({
 
             Ext.Msg.alert('info', 'This browser is not support fullscreen mode');
         }
+    },
+
+    detectCRUDEvent: function() {
+
+        var app = this,
+            runTask = function() {
+
+                var tab = app.getActiveConnectTab();
+                app.addTask(app.loadQuickCommands, [tab]);
+            };
+
+        app.on('after_create_table', runTask);
+        app.on('after_alter_table', runTask);
+        app.on('after_rename_table', runTask);
+        app.on('after_drop_table', runTask);
+        app.on('after_create_database', runTask);
+        app.on('after_alter_database', runTask);
+        app.on('after_rename_database', runTask);
+        app.on('after_drop_database', runTask);
     }
 });

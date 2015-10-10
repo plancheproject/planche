@@ -48,7 +48,7 @@ Ext.define('Planche.controller.user.Grant', {
                 click: this.close
             },
             'grant-priv-list'                        : {
-                selectionchange : this.selectPrivList
+                selectionchange: this.selectPrivList
             },
             'grant-user-list'                        : {
                 select: this.selectUserList
@@ -97,17 +97,14 @@ Ext.define('Planche.controller.user.Grant', {
             userList = this.getUserList();
 
         userList.setLoading(true);
-
         userList.selModel.deselectAll();
 
         app.tunneling({
-            db     : '',
             query  : app.getAPIS().getQuery('SELECT_ALL_USER'),
             success: function(config, response) {
 
                 var records = Planche.DBUtil.getAssocArray(response.fields, response.records);
                 userList.store.loadData(records);
-
                 userList.setLoading(false);
             }
         });
@@ -150,9 +147,8 @@ Ext.define('Planche.controller.user.Grant', {
             }
 
             app.tunneling({
-                db     : '',
                 query  : app.getAPIS().getQuery('DELETE_USER', record.data.User, record.data.Host),
-                success: function(config, response) {
+                success: function() {
 
                     me.initUserList();
                 }
@@ -179,7 +175,7 @@ Ext.define('Planche.controller.user.Grant', {
             api = app.getAPIS(),
             me = this,
             user = this.getSelectedUser(),
-            queries = [],
+            tunnelings = [],
             messages = [],
             newPrivs = user.get('priv'),
             oldPrivs = user.get('old_priv');
@@ -199,8 +195,7 @@ Ext.define('Planche.controller.user.Grant', {
                 return;
             }
 
-            var privileges = [],
-                on = "",
+            var on = "",
                 option = "",
                 path = path.split("`"),
                 type = path[0],
@@ -249,24 +244,35 @@ Ext.define('Planche.controller.user.Grant', {
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
+
                 case "table" :
 
                     on = "`" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
+
+                case "view" :
+
+                    on = "`" + path[1] + "`.`" + path[2] + "`";
+                    grantPriv = grantPriv.join(",");
+                    revokePriv = revokePriv.join(",");
+                    break;
+
                 case "column" :
 
                     on = "`" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.length > 0 ? (path[2] + "(" + grantPriv.join(")," + path[2] + "(") + ")") : "";
                     revokePriv = revokePriv.length > 0 ? (path[2] + "(" + revokePriv.join(")," + path[2] + "(") + ")") : "";
                     break;
+
                 case "procedure" :
 
                     on = "PROCEDURE `" + path[1] + "`.`" + path[2] + "`";
                     grantPriv = grantPriv.join(",");
                     revokePriv = revokePriv.join(",");
                     break;
+
                 case "function" :
 
                     on = "FUNCTION `" + path[1] + "`.`" + path[2] + "`";
@@ -277,46 +283,52 @@ Ext.define('Planche.controller.user.Grant', {
 
             if (grantPriv) {
 
-                queries.push(api.getQuery('GRANT', grantPriv, user.get('User'), user.get('Host'), on, option));
+                tunnelings.push({
+                    query  : api.getQuery('GRANT', grantPriv, user.get('User'), user.get('Host'), on, option),
+                    failure: function(config, response) {
+
+                        messages.push(app.generateError(config.query, response.message));
+                    }
+                });
             }
 
             if (revokePriv) {
 
-                queries.push(api.getQuery('REVOKE', revokePriv, user.get('User'), user.get('Host'), on, option));
+                tunnelings.push({
+                    query  : api.getQuery('REVOKE', revokePriv, user.get('User'), user.get('Host'), on, option),
+                    failure: function(config, response) {
+
+                        messages.push(app.generateError(config.query, response.message));
+                    }
+                });
             }
 
 
         }, this);
 
-        if (queries.length == 0) {
+        if (tunnelings.length == 0) {
 
-            win.setDisabled(false);
             Ext.Msg.alert('info', 'Grants has no changes');
             return;
         }
 
-        app.tunnelings('', queries, {
-            prevAllQueries : function(queries) {
+        app.tunnelings(tunnelings, {
+            start  : function() {
 
                 win.setDisabled(true);
             },
-            failureQuery   : function(idx, query, config, response) {
-
-                messages.push(app.generateError(query, response.message));
-            },
-            afterAllQueries: function(queries, results) {
-
-                win.setDisabled(false);
+            success: function() {
 
                 me.initPrivList();
                 me.initSchemaTree();
 
                 Ext.Msg.alert('info', 'Successfully apply the permissions.');
+                win.setDisabled(false);
+            },
+            failure: function() {
 
-                if (messages.length > 0) {
-
-                    app.openMessage(messages);
-                }
+                app.openMessage(messages);
+                win.setDisabled(false);
             }
         });
     },
@@ -333,7 +345,7 @@ Ext.define('Planche.controller.user.Grant', {
         btn.up("window").destroy();
     },
 
-    selectUserList: function(grid, selModel, rowIndex) {
+    selectUserList: function() {
 
         var me = this,
             app = me.getApplication(),
@@ -342,8 +354,7 @@ Ext.define('Planche.controller.user.Grant', {
             user = this.getSelectedUser(),
             userList = this.getUserList(),
             privList = this.getPrivList(),
-            messages = [],
-            queries = [];
+            viewList = {};
 
         if (user.get('old_priv') && user.get('priv')) {
 
@@ -352,53 +363,20 @@ Ext.define('Planche.controller.user.Grant', {
             return;
         }
 
-        tree.setLoading(true);
         userList.setLoading(true);
+        tree.setDisabled(true);
         privList.setDisabled(true);
 
-        queries.push(api.getQuery('USER_PRIV', user.get('User'), user.get('Host')));
-        queries.push(api.getQuery('USER_DATABASE_PRIV', user.get('User'), user.get('Host')));
-        queries.push(api.getQuery('USER_TABLE_PRIV', user.get('User'), user.get('Host')));
-        queries.push(api.getQuery('USER_COLUMN_PRIV', user.get('User'), user.get('Host')));
-        queries.push(api.getQuery('USER_PROC_PRIV', user.get('User'), user.get('Host')));
-
         var settings = {},
-            records = [],
-            path = "";
+            messages = [],
+            tunnelings = [{
+                query  : api.getQuery('USER_PRIV', user.get('User'), user.get('Host')),
+                success: function(config, response) {
 
-        app.tunnelings('', queries, {
-            prevAllQueries : function(queries) {
-
-                tree.setDisabled(false);
-            },
-            failureQuery   : function(idx, query, config, response) {
-
-                messages.push(app.generateError(query, response.message));
-            },
-            afterAllQueries: function(queries, results) {
-
-                records = Planche.DBUtil.getAssocArray(results[0].response.fields, results[0].response.records, true)[0];
-                path = 'global';
-                settings[path] = settings[path] || [];
-                Ext.Object.each(records, function(key, val) {
-
-                    var idx = key.indexOf('_PRIV');
-                    if (idx > -1) {
-
-                        if (val == 'Y') {
-
-                            settings[path].push(key.substring(0, idx));
-                        }
-                    }
-                });
-
-                records = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records, true);
-                Ext.Array.each(records, function(row, idx) {
-
-                    path = ['database', row.DB].join("`");
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true)[0],
+                        path = 'global';
                     settings[path] = settings[path] || [];
-
-                    Ext.Object.each(row, function(key, val) {
+                    Ext.Object.each(records, function(key, val) {
 
                         var idx = key.indexOf('_PRIV');
                         if (idx > -1) {
@@ -409,60 +387,181 @@ Ext.define('Planche.controller.user.Grant', {
                             }
                         }
                     });
-                });
+                },
+                failure: function(config, response) {
 
-                records = Planche.DBUtil.getAssocArray(results[2].response.fields, results[2].response.records, true);
-                Ext.Array.each(records, function(row, idx) {
-
-                    if (!row.TABLE_PRIV) {
-
-                        return;
-                    }
-
-                    path = ['table', row.DB, row.TABLE_NAME].join("`");
-                    settings[path] = settings[path] || [];
-                    settings[path] = row.TABLE_PRIV.toUpperCase().split(",");
-                });
-
-                records = Planche.DBUtil.getAssocArray(results[3].response.fields, results[3].response.records, true);
-                Ext.Array.each(records, function(row, idx) {
-
-                    if (!row.COLUMN_PRIV) {
-
-                        return;
-                    }
-
-                    path = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join("`");
-                    settings[path] = settings[path] || [];
-                    settings[path] = row.COLUMN_PRIV.toUpperCase().split(",");
-                });
-
-                records = Planche.DBUtil.getAssocArray(results[4].response.fields, results[4].response.records, true);
-                Ext.Array.each(records, function(row, idx) {
-
-                    if (!row.PROC_PRIV) {
-
-                        return;
-                    }
-
-                    path = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join("`");
-                    settings[path] = settings[path] || [];
-                    settings[path] = row.PROC_PRIV.toUpperCase().split(",");
-                });
-
-                user.set('old_priv', Ext.clone(settings));
-                user.set('priv', Ext.clone(settings));
-
-                me.initPrivList();
-                me.initSchemaTree();
-
-                userList.setLoading(false);
-                tree.setLoading(false);
-
-                if (messages.length > 0) {
-
-                    app.openMessage(messages);
+                    messages.push(app.generateError(config.query, response.message));
                 }
+            }, {
+                query  : api.getQuery('USER_DATABASE_PRIV', user.get('User'), user.get('Host')),
+                success: function(config, response) {
+
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true),
+                        path = '';
+                    Ext.Array.each(records, function(row) {
+
+                        path = ['database', row.DB].join("`");
+                        settings[path] = settings[path] || [];
+
+                        Ext.Object.each(row, function(key, val) {
+
+                            var idx = key.indexOf('_PRIV');
+                            if (idx > -1) {
+
+                                if (val == 'Y') {
+
+                                    settings[path].push(key.substring(0, idx));
+                                }
+                            }
+                        });
+                    });
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            }, {
+                query  : api.getQuery('USER_TABLE_PRIV', user.get('User'), user.get('Host')),
+                success: function(config, response) {
+
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true),
+                        path = '',
+                        type = '';
+                    Ext.Array.each(records, function(row) {
+
+                        if (!row.TABLE_PRIV) {
+
+                            return;
+                        }
+
+                        type = viewList[row.DB].indexOf(row.TABLE_NAME) > -1 ? 'view' : 'table';
+
+                        path = [type, row.DB, row.TABLE_NAME].join("`");
+                        settings[path] = settings[path] || [];
+                        settings[path] = row.TABLE_PRIV.toUpperCase().split(",");
+                    });
+
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            }, {
+                query  : api.getQuery('USER_COLUMN_PRIV', user.get('User'), user.get('Host')),
+                success: function(config, response) {
+
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true),
+                        path = '';
+                    Ext.Array.each(records, function(row) {
+
+                        if (!row.COLUMN_PRIV) {
+
+                            return;
+                        }
+
+                        path = ['column', row.DB, row.TABLE_NAME, row.COLUMN_NAME].join("`");
+                        settings[path] = settings[path] || [];
+                        settings[path] = row.COLUMN_PRIV.toUpperCase().split(",");
+                    });
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            }, {
+                query  : api.getQuery('USER_PROC_PRIV', user.get('User'), user.get('Host')),
+                success: function(config, response) {
+
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true),
+                        path = '';
+                    Ext.Array.each(records, function(row) {
+
+                        if (!row.PROC_PRIV) {
+
+                            return;
+                        }
+
+                        path = [row.ROUTINE_TYPE, row.DB, row.ROUTINE_NAME].join("`").toLowerCase();
+                        settings[path] = settings[path] || [];
+                        settings[path] = row.PROC_PRIV.toUpperCase().split(",");
+                    });
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            }];
+
+        app.tunneling({
+            query  : api.getQuery('SHOW_DATABASES'),
+            success: function(config, response) {
+
+                var records = Planche.DBUtil.getAssocArray(response.fields, response.records, true),
+                    viewTunnelings = [];
+
+                Ext.Array.each(records, function(row) {
+
+                    var db = row.DATABASE;
+
+                    viewList[db] = viewList[db] || [];
+
+                    viewTunnelings.push({
+                        query  : api.getQuery('SHOW_DATABASE_VIEWS', db),
+                        success: function(config, response) {
+
+                            Ext.Array.each(response.records, function(row2) {
+
+                                viewList[db].push(row2[0]);
+                            });
+                        },
+                        failure: function(config, response) {
+
+                            messages.push(app.generateError(config.query, response.message));
+                        }
+                    });
+                });
+
+                app.tunnelings(viewTunnelings, {
+                    start  : function() {
+
+                        userList.setLoading(true);
+                        tree.setDisabled(true);
+                    },
+                    success : function(){
+
+                        app.tunnelings(tunnelings, {
+                            success: function() {
+
+                                user.set('old_priv', Ext.clone(settings));
+                                user.set('priv', Ext.clone(settings));
+
+                                me.initPrivList();
+                                me.initSchemaTree();
+
+                                userList.setLoading(false);
+                                tree.setDisabled(false);
+                            },
+                            failure: function() {
+
+                                app.openMessage(messages);
+
+                                userList.setLoading(false);
+                                tree.setDisabled(false);
+                            }
+                        });
+                    },
+                    failure: function() {
+
+                        app.openMessage(messages);
+
+                        userList.setLoading(false);
+                        tree.setDisabled(false);
+                    }
+                })
+            },
+            failure: function(config, response) {
+
+                messages.push(app.generateError(config.query, response.message));
             }
         });
     },
@@ -476,6 +575,7 @@ Ext.define('Planche.controller.user.Grant', {
 
                 return model.get('priv');
             }),
+
             settings = user.get('priv');
 
         settings[selTree[0].raw.path] = selectedPrivs;
@@ -521,6 +621,7 @@ Ext.define('Planche.controller.user.Grant', {
             priv = [];
         }
 
+
         privList.store.loadData(records);
 
         var selModel = privList.selModel;
@@ -551,7 +652,7 @@ Ext.define('Planche.controller.user.Grant', {
         return this.getUserList().selModel.getSelection();
     },
 
-    getSchemaTree : function(){
+    getSchemaTree: function() {
 
         return Ext.getCmp('grant-schema-tree');
     },
@@ -646,7 +747,7 @@ Ext.define('Planche.controller.user.Grant', {
         return {
             'ALTER'      : 'ALTER',
             'CREATE'     : 'CREATE',
-            'CREATE_VIEW': 'CREATE VIEW',
+            'CREATE VIEW': 'CREATE VIEW',
             'DELETE'     : 'DELETE',
             'DROP'       : 'DROP',
             'GRANT'      : 'GRANT OPTION',
@@ -675,7 +776,7 @@ Ext.define('Planche.controller.user.Grant', {
         return {
             'ALTER'      : 'ALTER',
             'CREATE'     : 'CREATE',
-            'CREATE_VIEW': 'CREATE VIEW',
+            'CREATE VIEW': 'CREATE VIEW',
             'DELETE'     : 'DELETE',
             'DROP'       : 'DROP',
             'GRANT'      : 'GRANT OPTION',
@@ -683,7 +784,7 @@ Ext.define('Planche.controller.user.Grant', {
             'INSERT'     : 'INSERT',
             'REFERENCES' : 'REFERENCES',
             'SELECT'     : 'SELECT',
-            'SHOW_VIEW'  : 'SHOW VIEW',
+            'SHOW VIEW'  : 'SHOW VIEW',
             'TRIGGER'    : 'TRIGGER',
             'UPDATE'     : 'UPDATE'
         };
@@ -692,7 +793,7 @@ Ext.define('Planche.controller.user.Grant', {
     getProcedurePrivItems: function() {
 
         return {
-            'ALTER_ROUTINE': 'ALTER ROUTINE',
+            'ALTER ROUTINE': 'ALTER ROUTINE',
             'EXECUTE'      : 'EXECUTE',
             'GRANT'        : 'GRANT OPTION'
         };
@@ -701,7 +802,7 @@ Ext.define('Planche.controller.user.Grant', {
     getFunctionPrivItems: function() {
 
         return {
-            'ALTER_ROUTINE': 'ALTER ROUTINE',
+            'ALTER ROUTINE': 'ALTER ROUTINE',
             'EXECUTE'      : 'EXECUTE',
             'GRANT'        : 'GRANT OPTION'
         };

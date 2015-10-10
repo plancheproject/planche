@@ -1,6 +1,11 @@
 Ext.define('Planche.lib.QuickCommand', {
     constructor: function() {
 
+        this.init();
+    },
+
+    init : function(){
+
         this.commands = [];
     },
 

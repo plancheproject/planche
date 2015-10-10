@@ -589,6 +589,9 @@ Ext.define('Planche.controller.database.CopyDatabaseWindow', {
                 btnCopy.setDisabled(false);
 
                 progress.updateProgress(1, 'Successfully completed');
+
+                app.fireEvent('after_copy_tables');
+
                 setTimeout(function() {
 
                     progress.close();

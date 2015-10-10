@@ -8,29 +8,38 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         'table.TableSQLTab',
         'table.TableInfoTab'
     ],
-    init : function () {
+    init  : function() {
 
         this.control({
-            '#edit-schema-btn-close' : {
-                'click' : this.cancel
+            '#edit-schema-btn-close': {
+                'click': this.cancel
             }
         });
     },
 
-    initWindow : function (db, tb) {
+    initWindow: function(db, tb) {
 
         var title = (tb ? 'Alter Table \'' + tb + '\' in \'' + db + '\'' : 'Create new table');
         Ext.create('Planche.view.table.EditSchemaWindow', {
-            title: title,
-            items: this.initTabPanel(db, tb)
+            title    : title,
+            items    : this.initTabPanel(db, tb),
+            listeners: {
+                boxready: function(win) {
+
+                    if (!tb) {
+
+                        Ext.invoke(win.query('table-properties-tab, table-indexes-tab, table-sql-tab, table-info-tab'), 'setDisabled', true);
+                    }
+                }
+            }
         });
     },
 
-    initTabPanel : function (db, tb) {
+    initTabPanel: function(db, tb) {
 
         return {
-            xtype : 'tabpanel',
-            items : [
+            xtype: 'tabpanel',
+            items: [
                 this.initTableSchemaTab(db, tb),
                 this.initTablePropertiesTab(db, tb),
                 this.initTableIndexexTab(db, tb),
@@ -40,7 +49,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    initTableSchemaTab : function (db, tb) {
+    initTableSchemaTab: function(db, tb) {
 
         return {
             xtype      : 'table-schema-tab',
@@ -50,7 +59,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    initTablePropertiesTab : function (db, tb) {
+    initTablePropertiesTab: function(db, tb) {
 
         return {
             xtype      : 'table-properties-tab',
@@ -60,7 +69,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    initTableIndexexTab : function (db, tb) {
+    initTableIndexexTab: function(db, tb) {
 
         return {
             xtype      : 'table-indexes-tab',
@@ -70,7 +79,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    initTableSQLTab : function (db, tb) {
+    initTableSQLTab: function(db, tb) {
 
         return {
             xtype      : 'table-sql-tab',
@@ -80,7 +89,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    initTableInfoTab : function (db, tb) {
+    initTableInfoTab: function(db, tb) {
 
         return {
             xtype      : 'table-info-tab',
@@ -90,12 +99,12 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         }
     },
 
-    cancel : function (btn) {
+    cancel: function(btn) {
 
         var tab = Ext.getCmp('table-schema-tab');
-        if(tab.getEdited()) {
+        if (tab.getEdited()) {
 
-            Ext.Msg.confirm('Cancel', 'You will lose all changes. Do you want to quit?', function (btn, text) {
+            Ext.Msg.confirm('Cancel', 'You will lose all changes. Do you want to quit?', function(btn, text) {
 
                 if (btn == 'yes') {
 

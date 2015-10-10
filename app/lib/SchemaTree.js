@@ -114,7 +114,16 @@ Ext.define('Planche.lib.SchemaTree', {
                         text    : row[0],
                         icon    : 'resources/images/icon_database.png',
                         leaf    : false,
-                        children: me.getDatabasesChildren()
+                        children: (function(){
+
+                            var subNode = Ext.clone(me.getDatabasesChildren());
+                            Ext.Array.each(subNode, function(child){
+
+                                child.path = [child.type, row[0], child.text].join("`");
+                            });
+
+                            return subNode;
+                        })()
                     }, nodeConfig));
                 });
 
@@ -163,7 +172,16 @@ Ext.define('Planche.lib.SchemaTree', {
                         text    : row[0],
                         icon    : 'resources/images/icon_table.png',
                         leaf    : false,
-                        children: me.getTablesChildren()
+                        children: (function(){
+
+                            var subNode = Ext.clone(me.getTablesChildren());
+                            Ext.Array.each(subNode, function(child){
+
+                                child.path = [child.type, db, row[0], child.text].join("`");
+                            });
+
+                            return subNode;
+                        })()
                     }, nodeConfig));
                 });
 

@@ -19,9 +19,12 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
         config.tab = config.tab === true || true;
 
-        var app = this.getApplication(),
+        var me = this,
+            app = me.getApplication(),
             schema = response.fields, records = response.records,
-            columns = [], fields = [], grid,
+            columns = [], fields = [], plugins = [{
+                ptype: 'bufferedrenderer'
+            }], grid,
 
             loadGridRecord = function(cmd) {
 
@@ -84,7 +87,10 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 menuDisabled: true,
                 draggable   : false,
                 groupable   : false,
-                renderer    : 'htmlEncode'
+                renderer    : 'htmlEncode',
+                editor      : {
+                    xtype: 'textfield'
+                }
             });
 
             columns.push(colObjs[col.name]);
@@ -107,7 +113,8 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
         };
 
         var orderColumn = null,
-            orderColumnDir = 'ASC';
+            orderColumnDir = 'ASC',
+            isEditable = false;
 
         if (config.openTable) {
 
@@ -136,10 +143,16 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                     loadGridRecord();
                 }
             });
+
+            plugins.push({
+                ptype       : 'cellediting',
+                clicksToEdit: 1
+            });
+
+            isEditable = true;
         }
 
-        var grid = Ext.create('Ext.grid.Panel', Ext.Object.merge({
-            xtype      : 'grid',
+        var grid = this.grid = Ext.create('Ext.grid.Panel', Ext.Object.merge({
             border     : true,
             flex       : 1,
             columnLines: true,
@@ -149,30 +162,54 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             viewConfig : {
                 emptyText: 'There are no items to show in this view.'
             },
-            plugins    : {
-                ptype: 'bufferedrenderer'
-            },
+            plugins    : plugins,
             tbar       : [{
-                xtype: 'button', text: 'Add', disabled: true, cls: 'btn', handler: function(btn) {
+                xtype   : 'button',
+                text    : 'Add',
+                icon    : 'resources/images/icon_add_row16x16.png',
+                disabled: !isEditable,
+                cls     : 'btn',
+                handler : function(){
 
+                    me.addRecord(db, config.openTable);
                 }
             }, {
-                xtype: 'button', text: 'Save', disabled: true, cls: 'btn', handler: function(btn) {
+                xtype   : 'button',
+                text    : 'Save',
+                icon    : 'resources/images/icon_save_row16x16.png',
+                disabled: !isEditable,
+                cls     : 'btn',
+                handler : function(){
 
+                    me.saveChanges(db, config.openTable);
                 }
             }, {
-                xtype: 'button', text: 'Del', disabled: true, cls: 'btn', handler: function(btn) {
+                xtype   : 'button',
+                text    : 'Del',
+                icon    : 'resources/images/icon_del_row16x16.png',
+                disabled: !isEditable,
+                cls     : 'btn',
+                handler : function(){
 
+                    me.delRecord(db, config.openTable);
                 }
             }, {
-                xtype: 'tbseparator', margin: '0 5 0 5'
+                xtype : 'tbseparator',
+                margin: '0 5 0 5'
             }, {
-                xtype: 'button', text: 'Previous', cls: 'btn', disalbed: true, handler: function(btn) {
+                xtype   : 'button',
+                text    : 'Previous',
+                icon    : 'resources/images/icon_prev16x16.png',
+                cls     : 'btn',
+                disalbed: true,
+                handler : function(btn) {
 
                     loadGridRecord('PrevRecordSet');
                 }
             }, {
-                xtype: 'textfield', value: query.start, listeners: {
+                xtype    : 'textfield',
+                value    : query.start,
+                listeners: {
                     specialkey: function(field, el) {
 
                         if (el.getKey() == Ext.EventObject.ENTER) {
@@ -183,14 +220,25 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                     }
                 }
             }, {
-                xtype: 'button', text: 'Next', cls: 'btn', disalbed: true, handler: function(btn) {
+                xtype   : 'button',
+                text    : 'Next',
+                icon    : 'resources/images/icon_next16x16.png',
+                cls     : 'btn',
+                disalbed: true,
+                handler : function(btn) {
 
                     loadGridRecord('NextRecordSet');
                 }
             }, {
-                xtype: 'text', text: 'Size', margin: '0 0 0 5'
+                xtype : 'text',
+                text  : 'Size',
+                margin: '0 0 0 5'
             }, {
-                xtype: 'textfield', value: query.end, width: 80, margin: '0 0 0 5', listeners: {
+                xtype    : 'textfield',
+                value    : query.end,
+                width    : 80,
+                margin   : '0 0 0 5',
+                listeners: {
                     specialkey: function(field, el) {
 
                         if (el.getKey() == Ext.EventObject.ENTER) {
@@ -201,11 +249,17 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                     }
                 }
             }, {
-                xtype: 'tbseparator', margin: '0 5 0 5'
+                xtype : 'tbseparator',
+                margin: '0 5 0 5'
             }, {
-                xtype: 'text', text: 'Refresh Per Sec'
+                xtype: 'text',
+                text : 'Refresh Per Sec'
             }, {
-                xtype: 'textfield', value: 0, width: 40, margin: '0 0 0 5', listeners: {
+                xtype    : 'textfield',
+                value    : 0,
+                width    : 40,
+                margin   : '0 0 0 5',
+                listeners: {
                     specialkey: function(field, el) {
 
                         if (el.getKey() == Ext.EventObject.ENTER) {
@@ -215,21 +269,35 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                     }
                 }
             }, {
-                xtype: 'button', text: 'Refresh', cls: 'btn', margin: '0 0 0 5', handler: function(btn) {
+                xtype  : 'button',
+                text   : 'Refresh',
+                icon   : 'resources/images/icon_refresh16x16.png',
+                cls    : 'btn',
+                margin : '0 0 0 5',
+                handler: function(btn) {
 
                     loadGridRecord();
                 }
             }, {
-                xtype: 'button', text: 'Stop', cls: 'btn', margin: '0 0 0 5', handler: function(btn) {
+                xtype  : 'button',
+                text   : 'Stop',
+                icon   : 'resources/images/icon_stop16x16.png',
+                cls    : 'btn',
+                margin : '0 0 0 5',
+                handler: function(btn) {
 
                     var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
 
                     textRefreshPerSec.setValue(0);
                 }
             }, {
-                xtype: 'tbseparator', margin: '0 5 0 5'
+                xtype : 'tbseparator',
+                margin: '0 5 0 5'
             }, {
-                xtype: 'button', text: 'Tokens', cls: 'btn', handler: function(btn) {
+                xtype  : 'button',
+                text   : 'Tokens',
+                cls    : 'btn',
+                handler: function(btn) {
 
                     app.openTokenPanel(query.getTokens());
                 }
@@ -292,5 +360,170 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             resultTabPanel.add(grid);
             resultTabPanel.setActiveTab(grid);
         }
+    },
+
+    addRecord: function(btn) {
+
+        var grid = this.grid,
+            store = grid.store;
+
+        store.add({});
+        grid.scrollByDeltaY(999999);
+    },
+
+    saveChanges: function(db, table) {
+
+        var me = this,
+            app = me.getApplication(),
+            api = app.getAPIS(),
+            grid = this.grid,
+            store = grid.store,
+            selModel = grid.getSelectionModel(),
+            selection = selModel.getSelection();
+
+        if (selection.length == 0) {
+
+            Ext.Msg.alert('info', 'Please, select one more rows to delete');
+            return;
+        }
+
+        var tunnelings = [],
+            messages = [];
+
+        Ext.Array.each(store.getNewRecords(), function(record) {
+
+            var fields = [],
+                values = [];
+            Ext.Object.each(record.data, function(key, value) {
+
+                fields.push(key);
+                values.push('"' + value + '"');
+            });
+
+            tunnelings.push({
+                db     : db,
+                query  : api.getQuery('INSERT_TABLE', db, table, fields.join(", "), values.join(", ")),
+                success: function(config) {
+
+                    messages.push(app.generateSuccessMsg(config.query, 'Records was successfully added'));
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
+        });
+
+        Ext.Array.each(store.getUpdatedRecords(), function(record) {
+
+            var where = [],
+                changes = [];
+            Ext.Object.each(record.raw, function(key, value) {
+
+                where.push(key + '="' + value + '"');
+
+                if (record.data[key] != value) {
+
+                    changes.push(key + '="' + record.data[key] + '"');
+                }
+            });
+
+            tunnelings.push({
+                db     : db,
+                query  : api.getQuery('UPDATE_TABLE', db, table, changes.join(", "), where.join(' AND ')),
+                success: function(config) {
+
+                    messages.push(app.generateSuccessMsg(config.query, 'Records was successfully updated'));
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
+        });
+
+        if (tunnelings.length == 0) {
+
+            Ext.Msg.alert('info', 'There\'s no changes');
+            return;
+        }
+
+        app.tunnelings(tunnelings, {
+            start  : function() {
+
+                app.setLoading(true);
+            },
+            success: function() {
+
+                app.setLoading(false);
+                store.sync();
+            },
+
+            failure: function() {
+
+                app.openMessage(messages);
+                app.setLoading(false);
+            }
+        });
+    },
+
+    delRecord: function(db, table) {
+
+        var me = this,
+            app = me.getApplication(),
+            api = app.getAPIS(),
+            grid = this.grid,
+            store = grid.store,
+            selModel = grid.getSelectionModel(),
+            selection = selModel.getSelection();
+
+        if (selection.length == 0) {
+
+            Ext.Msg.alert('info', 'Please, select one more rows to delete');
+            return;
+        }
+
+        var tunnelings = [],
+            messages = [];
+        Ext.Array.each(selection, function(record) {
+
+            var where = [];
+            Ext.Object.each(record.raw, function(key, value) {
+
+                where.push(key + '="' + value + '"');
+            });
+
+            tunnelings.push({
+                db     : db,
+                query  : api.getQuery('DELETE_TABLE', db, table, where.join(' AND ')),
+                success: function(config) {
+
+                    messages.push(app.generateSuccessMsg(config.query, 'Records was successfully removed'));
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
+        });
+
+        app.tunnelings(tunnelings, {
+            start  : function() {
+
+                app.setLoading(true);
+            },
+            success: function() {
+
+                app.setLoading(false);
+                store.remove(selection);
+                store.sync();
+            },
+
+            failure: function() {
+
+                app.openMessage(messages);
+                app.setLoading(false);
+            }
+        });
     }
 });

@@ -61,23 +61,31 @@ Ext.define('Planche.controller.user.UserAdd', {
         var app = this.getApplication(),
             win = btn.up("window"),
             api = app.getAPIS(),
-            queries = [],
+            tunnelings = [],
             user = Ext.getCmp('user-add-user-name').getValue(),
             host = Ext.getCmp('user-add-host').getValue(),
             pass = Ext.getCmp('user-add-password').getValue(),
             repass = Ext.getCmp('user-add-retype-password').getValue(),
             isEdit = true,
             operOption = [],
-            option = [];
+            option = [],
+            messages = [];
 
         if (!win.getUser() && !win.getHost()) {
 
-            if (this.checkPassword(pass, repass) == -1) {
+            if (this.checkPassword(pass, repass) === -1) {
 
                 return;
             }
 
-            queries.push(api.getQuery('CREATE_USER', user, host, pass));
+            tunnelings.push({
+                db     : '',
+                query  : api.getQuery('CREATE_USER', user, host, pass),
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
 
             isEdit = false;
         }
@@ -85,7 +93,7 @@ Ext.define('Planche.controller.user.UserAdd', {
 
             var result = this.checkPassword(pass, repass);
 
-            if (result == -1) {
+            if (result === -1) {
 
                 return;
             }
@@ -102,7 +110,14 @@ Ext.define('Planche.controller.user.UserAdd', {
         //If input name is different from the old user name. It will be changing
         if (isEdit && (user != win.getUser() || host != win.getHost())) {
 
-            queries.push(api.getQuery('RENAME_USER', win.getUser(), win.getHost(), user, host));
+            tunnelings.push({
+                db     : '',
+                query  : api.getQuery('RENAME_USER', win.getUser(), win.getHost(), user, host),
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
         }
 
 
@@ -141,30 +156,31 @@ Ext.define('Planche.controller.user.UserAdd', {
 
         if (option.length > 0) {
 
-            queries.push(api.getQuery('GRANT', 'USAGE', user, host, "*.*", option.join(" ")));
+            tunnelings.push({
+                db     : '',
+                query  : api.getQuery('GRANT', 'USAGE', user, host, "*.*", option.join(" ")),
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
         }
 
-        win.setLoading(true);
+        app.tunnelings(tunnelings, {
+            start : function(){
 
-        var messages = [];
-        app.tunnelings(null, queries, {
-            failureQuery   : function(idx, query, config, response) {
-
-                messages.push(app.generateError(query, response.message));
+                win.setLoading(true);
             },
-            afterAllQueries: function(queries, results) {
-
-                win.setLoading(false);
-
-                if (messages.length > 0) {
-
-                    app.showMessage(messages);
-                    return;
-                }
-
-                win.destroy();
+            success: function() {
 
                 app.fireEvent('after_save_user');
+                win.setLoading(false);
+                win.destroy();
+            },
+            failure: function() {
+
+                app.showMessage(messages);
+                win.setLoading(false);
             }
         });
     },

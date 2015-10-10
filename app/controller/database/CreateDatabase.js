@@ -1,20 +1,20 @@
 Ext.define('Planche.controller.database.CreateDatabase', {
-    extend: 'Ext.app.Controller',
-    initWindow : function (db) {
+    extend    : 'Ext.app.Controller',
+    initWindow: function(db) {
 
         this.isAlter = db ? true : false;
         this.loadData(db);
     },
 
-    loadData : function (db) {
+    loadData: function(db) {
 
         var app = this.getApplication(),
             me = this,
             queries = [
-                { key : 'collation', str : app.getAPIS().getQuery('SHOW_COLLATION') },
-                { key : 'charset',   str : app.getAPIS().getQuery('SHOW_CHARSET') },
-                { key : 'collation_val', str : app.getAPIS().getQuery('COLLATION_DATABASE') },
-                { key : 'charset_val', str : app.getAPIS().getQuery('CHARSET_DATABASE') }
+                {key: 'collation', str: app.getAPIS().getQuery('SHOW_COLLATION')},
+                {key: 'charset', str: app.getAPIS().getQuery('SHOW_CHARSET')},
+                {key: 'collation_val', str: app.getAPIS().getQuery('COLLATION_DATABASE')},
+                {key: 'charset_val', str: app.getAPIS().getQuery('CHARSET_DATABASE')}
             ],
             tunneling,
             messages = [];
@@ -24,25 +24,25 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         me.comboData = {};
         me.comboValue = {};
 
-        (tunneling = Ext.Function.bind(function () {
+        (tunneling = Ext.Function.bind(function() {
 
             var query = queries.shift();
 
-            if(query) {
+            if (query) {
 
                 app.tunneling({
-                    db : db,
-                    query : query.str,
-                    success : function (config, response) {
+                    db     : db,
+                    query  : query.str,
+                    success: function(config, response) {
 
-                        if(query.key == 'collation' || query.key == 'charset') {
+                        if (query.key == 'collation' || query.key == 'charset') {
 
                             var tmp = [];
-                            Ext.Array.each(response.records, function (row, idx) {
+                            Ext.Array.each(response.records, function(row, idx) {
 
                                 tmp.push({
-                                    id : row[0],
-                                    text : row[0]
+                                    id  : row[0],
+                                    text: row[0]
                                 });
                             });
 
@@ -55,7 +55,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                         tunneling();
                     },
-                    failure : function (config, response) {
+                    failure: function(config, response) {
 
                         messages.push(app.generateErrorMessage(query.str, response.message));
 
@@ -67,86 +67,86 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                 app.getActiveConnectTab().setLoading(false);
 
-                if(messages.length == 0) {
+                if (messages.length == 0) {
 
                     this.initCreateWindow(db);
                 }
                 else {
 
-                    app.openMessage(messages);                    
+                    app.openMessage(messages);
                 }
             }
 
         }, me))();
     },
 
-    initCreateWindow : function (db) {
+    initCreateWindow: function(db) {
 
         Ext.create('Planche.lib.Window', {
-            stateful: true,
-            title : this.isAlter ? 'Alter database \''+db+'\'' : 'Create new database',
-            layout : 'vbox',
-            bodyStyle:"background-color:#FFFFFF",
-            width : 300,
-            height: 200,
-            bodyPadding : '10px 10px 10px 10px',
-            overflowY: 'auto',
+            stateful   : true,
+            title      : this.isAlter ? 'Alter database \'' + db + '\'' : 'Create new database',
+            layout     : 'vbox',
+            bodyStyle  : "background-color:#FFFFFF",
+            width      : 300,
+            height     : 200,
+            bodyPadding: '10px 10px 10px 10px',
+            overflowY  : 'auto',
             autoScroll : true,
-            modal : true,
-            plain: true,
-            fixed : true,
-            shadow : false,
-            autoShow : true,
-            constrain : true,
-            items : [
+            modal      : true,
+            plain      : true,
+            fixed      : true,
+            shadow     : false,
+            autoShow   : true,
+            constrain  : true,
+            items      : [
                 this.initDatabaseName(db),
                 this.initDatabaseCharSet(),
                 this.initDatabaseCollation()
             ],
-            buttons : [{
-                text : this.isAlter ? 'Alter' : 'Create',
-                scope : this,
-                handler : this.isAlter ? this.alter : this.create
-            },{
-                text : 'Cancel',
-                scope : this,
-                handler : this.cancel
+            buttons    : [{
+                text   : this.isAlter ? 'Alter' : 'Create',
+                scope  : this,
+                handler: this.isAlter ? this.alter : this.create
+            }, {
+                text   : 'Cancel',
+                scope  : this,
+                handler: this.cancel
             }]
         });
     },
 
-    initDatabaseName : function (database) {
+    initDatabaseName: function(database) {
 
         return {
-            id : 'database-name',
-            xtype : 'textfield',
-            width : '100%',
+            id        : 'database-name',
+            xtype     : 'textfield',
+            width     : '100%',
             allowBlank: false,
             emptyText : 'Enter new database name..',
-            disabled : this.isAlter,
-            value : this.isAlter ? database : ''
+            disabled  : this.isAlter,
+            value     : this.isAlter ? database : ''
         };
     },
-    
-    initDatabaseCollation : function () {
+
+    initDatabaseCollation: function() {
 
         this.comboData.collation.unshift({
-            id : '', text : 'Database Collation'
+            id: '', text: 'Database Collation'
         });
 
         this.comboCollation = this.initComboBox(
-            'database-collation', 
-            this.comboData.collation, 
+            'database-collation',
+            this.comboData.collation,
             this.comboValue.collation_val
         );
 
         return this.comboCollation;
     },
 
-    initDatabaseCharSet : function () {
+    initDatabaseCharSet: function() {
 
         this.comboData.charset.unshift({
-            id : '', text : 'Database Charset'
+            id: '', text: 'Database Charset'
         });
 
         this.comboCharset = this.initComboBox(
@@ -158,116 +158,97 @@ Ext.define('Planche.controller.database.CreateDatabase', {
         return this.comboCharset;
     },
 
-    initComboBox : function (id, data, value) {
+    initComboBox: function(id, data, value) {
 
         var store = new Ext.data.Store({
-            fields: ['id','text'],
-            data : data
-        }),
+                fields: ['id', 'text'],
+                data  : data
+            }),
 
-        // Simple ComboBox using the data store
-        combo = Ext.create('Ext.form.ComboBox', {
-            width : '100%',
-            id : id,
-            emptyText : 'default',
-            value: value,
-            displayField : 'text',
-            valueField: 'id',
-            labelWidth: 80,
-            editable : true,
-            store: store,
-            typeAhead: true
-        });
+            // Simple ComboBox using the data store
+            combo = Ext.create('Ext.form.ComboBox', {
+                width       : '100%',
+                id          : id,
+                emptyText   : 'default',
+                value       : value,
+                displayField: 'text',
+                queryMode   : 'local',
+                valueField  : 'id',
+                labelWidth  : 80,
+                editable    : true,
+                store       : store,
+                typeAhead   : true,
+                anyMatch    : true
+            });
 
         return combo;
     },
 
-    create : function (btn) {
+    create: function(btn) {
 
         var textfield = btn.up('window').down('textfield'),
-            db        = textfield.getValue(),
-            app       = this.getApplication(),
-            node      = app.getSelectedNode(true),
+            db = textfield.getValue(),
+            app = this.getApplication(),
+            node = app.getSelectedNode(true),
             collation = Ext.getCmp('database-collation').getValue(),
-            charset   = Ext.getCmp('database-charset').getValue();
+            charset = Ext.getCmp('database-charset').getValue();
 
-        if(!db) {
+        if (!db) {
 
             textfield.validate();
             return;
         }
 
         app.tunneling({
-            query : app.getAPIS().getQuery('CREATE_DATABASE', db, charset, collation),
-            success : function (config, response) {
+            query  : app.getAPIS().getQuery('CREATE_DATABASE', db, charset, collation),
+            success: function(config, response) {
 
                 var tree = app.getSelectedTree(),
                     rootNode = tree.getRootNode();
 
-                rootNode.appendChild({
-                    type : 'database',
-                    text : db,
-                    icon : 'resources/images/icon_database.png',
-                    leaf : false,
-                    children : [{
-                        type : 'tables',
-                        text : 'Tables',
-                        leaf : false
-                    }, {
-                        type : 'views',
-                        text : 'Views',
-                        leaf : false
-                    }, {
-                        type : 'procedures',
-                        text : 'Procedures',
-                        leaf : false
-                    }, {
-                        type : 'functions',
-                        text : 'Functions',
-                        leaf : false
-                    }, {
-                        type : 'triggers',
-                        text : 'Triggers',
-                        leaf : false
-                    }, {
-                        type : 'events',
-                        text : 'Events',
-                        leaf : false
-                    }]
-                });
+                app.reloadTree(rootNode);
 
                 btn.up('window').destroy();
+
+                app.fireEvent('after_create_database');
             },
-            failure : function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
             }
         });
     },
 
-    alter : function (btn) {
-         
-        var app       = this.getApplication(),
-            node      = app.getSelectedNode(true),
-            db        = app.getParentNode(node),
+    alter: function(btn) {
+
+        var app = this.getApplication(),
+            node = app.getSelectedNode(true),
+            db = app.getParentNode(node),
             collation = Ext.getCmp('database-collation').getValue(),
-            charset   = Ext.getCmp('database-charset').getValue();
+            charset = Ext.getCmp('database-charset').getValue();
 
         app.tunneling({
-            db : db,
-            query : app.getAPIS().getQuery('ALTER_DATABASE', db, charset, collation),
-            success : function (config, response) {
-                
+            db     : db,
+            query  : app.getAPIS().getQuery('ALTER_DATABASE', db, charset, collation),
+            success: function(config, response) {
+
+                var tree = app.getSelectedTree(),
+                    rootNode = tree.getRootNode();
+
+                app.reloadTree(rootNode);
+
                 btn.up('window').destroy();
+
+                app.fireEvent('after_alter_database');
             },
-            failure : function (config, response) {
+            failure: function(config, response) {
 
                 Ext.Msg.alert('Error', response.message);
             }
         });
     },
 
-    cancel : function (btn) {
+    cancel: function(btn) {
 
         btn.up('window').destroy();
     }

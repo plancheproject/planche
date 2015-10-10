@@ -257,11 +257,7 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
                     var db = app.getSelectedDatabase(),
                         table = app.getSelectedTable();
 
-                    app.renameTable(db, table, function(config, response, text) {
-
-                        var node = app.getSelectedTable(true);
-                        node.set('text', text);
-                    });
+                    app.renameTable(db, table);
                 }
             }, {
                 text   : 'Truncate Table',
@@ -282,12 +278,7 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
                     var db = app.getSelectedDatabase(),
                         table = app.getSelectedTable();
 
-                    app.dropTable(db, table, function() {
-
-                        var node = app.getSelectedTable(true);
-                        app.getSelectedTree().getSelectionModel().select(node.parentNode);
-                        node.remove();
-                    });
+                    app.dropTable(db, table);
                 }
             }, {
                 text   : 'Reorder Column(s)',

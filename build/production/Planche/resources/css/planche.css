@@ -146,3 +146,8 @@ li.x-boundlist-item span.quick-icon.connection {
 
     background:url(../images/new_database.png);
 }
+
+li.x-boundlist-item span.quick-icon.stop {
+
+    background:url(../images/icon_stop24x24.png);
+}

@@ -98,8 +98,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
     create: function(btn) {
 
-        var
-            app = this.getApplication(),
+        var app = this.getApplication(),
             tab = Ext.getCmp("table-schema-tab"),
             textfield = btn.up('window').down('textfield'),
             table = textfield.getValue(),
@@ -111,8 +110,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
             return;
         }
 
-        var node = app.getSelectedNode(true),
-            db = app.getParentNode(node),
+        var db = tab.getDatabase(),
             query = '(',
             primaries = [], fields = [],
             store = tab.getStore();
@@ -155,24 +153,14 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
                 app.openMessage(app.generateSuccessMsg(config.query, 'This table has been created successfully.'));
 
-                var tablesNode = app.getParentNode(node, 2, true);
-                tablesNode.appendChild({
-                    type    : 'table',
-                    text    : table,
-                    icon    : 'resources/images/icon_table.png',
-                    leaf    : false,
-                    children: [{
-                        text: 'Columns',
-                        leaf: false
-                    }, {
-                        text: 'Indexes',
-                        leaf: false
-                    }]
-                });
+                app.reloadTablesNode(db);
 
                 me.syncProperties();
 
                 btn.up('window').destroy();
+
+                app.openAlterTableWindow(db, table);
+                app.fireEvent('after_create_table');
             },
             failure: function(config, response) {
 
@@ -198,8 +186,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
         var
             store = tab.getStore(),
-            node = app.getSelectedNode(true),
-            db = app.getParentNode(node),
+            db = tab.getDatabase(),
             query = '',
             add_primaries = [],
             del_primaries = [],
@@ -218,7 +205,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
             field += data.unsigned == true ? ' UNSIGNED' : '';
             field += data.zerofill == true ? ' ZEROFILL' : '';
             field += data.not_null == true ? ' NOT NULL' : '';
-            field += data['default'] ? ' DEFAULT ' + data['default'] : '';
+            field += data['default'] ? ' DEFAULT \'' + data['default'] + '\'' : '';
             field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
             field += data.comment ? ' COMMENT \'' + data.comment + '\'' : '';
             fields.push(field);
@@ -254,7 +241,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
             field += data.unsigned == true ? ' UNSIGNED' : '';
             field += data.zerofill == true ? ' ZEROFILL' : '';
             field += data.not_null == true ? ' NOT NULL' : '';
-            field += data['default'] ? ' DEFAULT ' + data['default'] : '';
+            field += data['default'] ? ' DEFAULT \'' + data['default'] + '\'' : '';
             field += data.auto_incr == true ? ' AUTO_INCREMENT' : '';
             field += data.comment ? ' COMMENT \'' + data.comment + '\'' : '';
             fields.push(field);
@@ -306,18 +293,14 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
                 app.openMessage(app.generateSuccessMsg(config.query, 'This table has been modified successfully.'));
 
-                Ext.Object.each(node.childNodes, Ext.Function.bind(function(idx, child) {
-
-                    if (child.childNodes.length > 0) {
-
-                        this.reloadTree(child);
-                    }
-                }, this));
+                app.reloadTablesNode(db);
 
                 btn.up('window').destroy();
 
                 me.syncProperties();
                 tab.setLoading(false);
+
+                app.fireEvent('after_alter_table');
             },
             failure: function(config, response) {
 
@@ -366,10 +349,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
         if (!tb) {
 
-            records.push({});
-            tab.getStore().load({
-                data: records
-            });
+            store.insert(store.getCount(), [{}]);
             return;
         }
 

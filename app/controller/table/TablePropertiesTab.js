@@ -30,11 +30,11 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
 
                     var tab = Ext.getCmp('table-properties-tab'),
                         db = tab.getDatabase(),
-                        tb = tab.getTable();
+                        table = tab.getTable();
 
                     app.tunneling({
                         db     : db,
-                        query  : app.getAPIS().getQuery('SHOW_COLLATION', db, tb),
+                        query  : app.getAPIS().getQuery('SHOW_COLLATION', db, table),
                         success: function(config, response) {
 
                             var tmp = [];
@@ -64,11 +64,11 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
 
                     var tab = Ext.getCmp('table-properties-tab'),
                         db = tab.getDatabase(),
-                        tb = tab.getTable();
+                        table = tab.getTable();
 
                     app.tunneling({
                         db     : db,
-                        query  : app.getAPIS().getQuery('SHOW_CHARSET', db, tb),
+                        query  : app.getAPIS().getQuery('SHOW_CHARSET', db, table),
                         success: function(config, response) {
 
                             var tmp = [];
@@ -93,84 +93,88 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
 
     initTab: function(tab) {
 
-        var
-            app = this.getApplication(),
+        var app = this.getApplication(),
             db = tab.getDatabase(),
-            tb = tab.getTable(),
-            me = this;
+            table = tab.getTable();
 
-        if (!tb) {
+        if (!table) {
 
             return;
         }
 
-        app.tunnelings(db, [
-            app.getAPIS().getQuery('SHOW_CREATE_TABLE', db, tb),
-            app.getAPIS().getQuery('SHOW_TABLE_STATUS', db, tb)
-        ], {
-            afterAllQueries: function(queries, results) {
+        var bindData,
+            tunnelings = [{
+                db     : db,
+                query  : app.getAPIS().getQuery('SHOW_CREATE_TABLE', db, table),
+                success: function(config, response) {
 
-                var def = results[0].response.records[0][1],
-                    getPropertie = function(field) {
+                    var def = response.records[0][1],
+                        getPropertie = function(field) {
 
-                        var regexp = new RegExp(field + '=([a-zA-Z0-9_]+)', 'i'),
-                            result = def.match(regexp);
+                            var regexp = new RegExp(field + '=([a-zA-Z0-9_]+)', 'i'),
+                                result = def.match(regexp);
 
-                        if (!result) {
+                            if (!result) {
 
-                            return null;
-                        }
+                                return null;
+                            }
 
-                        return result[1];
+                            return result[1];
+                        };
+
+                    bindData = {
+                        'properties-table-type'     : getPropertie('ENGINE'),
+                        'properties-charset'        : getPropertie('CHARSET'),
+                        'properties-checksum'       : getPropertie('CHECKSUM'),
+                        'properties-delay-key-write': getPropertie('DELAY_KEY_WRITE'),
+                        'properties-row-format'     : getPropertie('ROW_FORMAT'),
+                        'properties-auto-incr'      : getPropertie('AUTO_INCREMENT'),
+                        'properties-avg-row-len'    : getPropertie('AVG_ROW_LENGTH'),
+                        'properties-minimum-row'    : getPropertie('MIN_ROWS'),
+                        'properties-maximum-row'    : getPropertie('MAX_ROWS')
                     };
+                }
+            }, {
+                db     : db,
+                query  : app.getAPIS().getQuery('SHOW_TABLE_STATUS', db, table),
+                success: function(config, response) {
 
-                var bindData = {
-                    'properties-table-type'     : getPropertie('ENGINE'),
-                    'properties-charset'        : getPropertie('CHARSET'),
-                    'properties-checksum'       : getPropertie('CHECKSUM'),
-                    'properties-delay-key-write': getPropertie('DELAY_KEY_WRITE'),
-                    'properties-row-format'     : getPropertie('ROW_FORMAT'),
-                    'properties-auto-incr'      : getPropertie('AUTO_INCREMENT'),
-                    'properties-avg-row-len'    : getPropertie('AVG_ROW_LENGTH'),
-                    'properties-minimum-row'    : getPropertie('MIN_ROWS'),
-                    'properties-maximum-row'    : getPropertie('MAX_ROWS')
-                };
+                    var data = Planche.DBUtil.getAssocArray(response.fields, response.records)[0];
 
-                var data = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records)[0];
+                    if (data.Create_options) {
 
-                if (data.Create_options) {
+                        var arr = data.Create_options.split(" ");
+                        Ext.Array.each(arr, function(row) {
 
-                    var arr = data.Create_options.split(" ");
-                    Ext.Array.each(arr, function(row, idx) {
+                            row = row.split("=");
+                            data[row[0]] = row[1];
+                        });
+                    }
 
-                        row = row.split("=");
-                        data[row[0]] = row[1];
+                    Ext.applyIf(bindData, {
+                        'properties-table-type'     : data.Engine,
+                        'properties-charset'        : data.Charset,
+                        'properties-collation'      : data.Collation,
+                        'properties-checksum'       : data.checksum,
+                        'properties-delay-key-write': data.delay_key_write,
+                        'properties-row-format'     : data.row_format,
+                        'properties-auto-incr'      : data.Auto_increment,
+                        'properties-avg-row-len'    : data.avg_row_length,
+                        'properties-minimum-row'    : data.min_rows,
+                        'properties-maximum-row'    : data.max_rows,
+                        'properties-comment'        : data.Comment
                     });
                 }
+            }];
 
-                Ext.applyIf(bindData, {
-                    'properties-table-type'     : data.Engine,
-                    'properties-charset'        : data.Charset,
-                    'properties-collation'      : data.Collation,
-                    'properties-checksum'       : data.checksum,
-                    'properties-delay-key-write': data.delay_key_write,
-                    'properties-row-format'     : data.row_format,
-                    'properties-auto-incr'      : data.Auto_increment,
-                    'properties-avg-row-len'    : data.avg_row_length,
-                    'properties-minimum-row'    : data.min_rows,
-                    'properties-maximum-row'    : data.max_rows,
-                    'properties-comment'        : data.Comment
-                });
+        app.tunnelings(tunnelings, {
+            success: function() {
 
                 var form = Ext.getCmp('properties-form');
-
                 form.getForm().setValues(bindData);
-
                 tab.setProperties(bindData);
             }
         });
-
-
     },
 
     getTableProperties: function() {
@@ -188,8 +192,6 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
             properties = [],
             getNewValue = function(key) {
 
-                //console.log(newVals[key] == oldVals[key], newVals[key], oldVals[key]);
-
                 if (newVals[key] === '') {
 
                     return null;
@@ -203,8 +205,7 @@ Ext.define('Planche.controller.table.TablePropertiesTab', {
                 return newVals[key];
             };
 
-
-        create_options = [],
+        var create_options = [],
             newVal = null;
 
         newVal = getNewValue('properties-table-type');

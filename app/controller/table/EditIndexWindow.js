@@ -3,129 +3,141 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
     views : [
         'table.EditIndexWindow'
     ],
-    init : function () {
+    init  : function() {
 
         this.control({
             '#edit-index-btn-save' : {
-                'click' : this.save
+                'click': this.save
             },
-            '#edit-index-btn-close' : {
-                'click' : this.cancel
+            '#edit-index-btn-close': {
+                'click': this.cancel
             },
-            '#edit-index-grid' : {
+            '#edit-index-grid'     : {
                 'boxready' : this.initGrid,
-                'cellclick' : this.selectField
+                'cellclick': this.selectField
             }
         });
     },
 
-    initWindow : function (db, tb, index) {
+    initWindow: function(db, table, index) {
 
-        var title = (index ? 'Alter Index \''+index+'\' in `'+db+'`.`'+tb+'`' : 'Create new index');
+        var title = (index ? 'Alter Index \'' + index + '\' in `' + db + '`.`' + table + '`' : 'Create new index');
 
         Ext.create('Planche.view.table.EditIndexWindow', {
             title    : title,
             database : db,
-            table    : tb,
+            table    : table,
             indexName: index
         });
     },
 
-    initGrid : function (grid) {
+    initGrid: function(grid) {
 
-        var
-        app       = this.getApplication(),
-        win       = grid.up("window"),
-        index     = Ext.getCmp('edit-index-name'),
-        option    = Ext.getCmp('edit-index-option'),
-        indexName = win.getIndexName(),
-        db        = win.getDatabase(),
-        tb        = win.getTable(),
-        queries   = [],
-        editMode  = false,
-        me        = this,
-        optionVal  = '',
-        getMatch = function (str, pattern, idx) {
+        var app = this.getApplication(),
+            win = grid.up("window"),
+            index = Ext.getCmp('edit-index-name'),
+            option = Ext.getCmp('edit-index-option'),
+            indexName = win.getIndexName(),
+            db = win.getDatabase(),
+            table = win.getTable(),
+            me = this,
+            getMatch = function(str, pattern, idx) {
 
-            var r = str.match(pattern);
-            if (r) r = r[idx];
-            return r;
-        },
-        messages     = [];
+                var r = str.match(pattern);
+                if (r) r = r[idx];
+                return r;
+            };
 
-        if(!tb) {
+        if (!table) {
 
             return;
         }
 
-        queries.push(app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, tb));
+        var columns = {},
+            records = [],
+            messages = [],
+            tunnelings = [],
+            editMode = false;
 
-        if(indexName) {
+        tunnelings.push({
+            db     : db,
+            query  : app.getAPIS().getQuery('SHOW_FULL_FIELDS', db, table),
+            success: function(config, response) {
 
-            editMode = true;
-            index.setValue(indexName);
-            queries.push(app.getAPIS().getQuery('INDEX_KEYS_INFO', db, tb, indexName));
-        }
+                Ext.Object.each(response.records, function(idx, row) {
 
-        win.setLoading(true);
-
-        app.tunnelings(db, queries, {
-            failureQuery   : function (idx, query, config, response) {
-
-                messages.push(app.generateError(query, response.message));
-            },
-            afterAllQueries : function (queries, results) {
-
-                var columns = {};
-
-                if(editMode){
-
-                    var records = Planche.DBUtil.getAssocArray(results[1].response.fields, results[1].response.records);
-                    Ext.Array.each(records, function(obj, idx){
-
-                        if(obj.Non_unique == '0'){
-
-                            optionVal = 'UNIQUE';
-                        }
-
-                        if(obj.Index_type == 'FULLTEXT'){
-
-                            optionVal = 'FULLTEXT';
-                        }
-
-                        columns[obj.Column_name] = {
-                            len : obj.Sub_part
-                        };
-                    });
-
-                    option.setValue({'edit-index-option': optionVal});
-                }
-
-                var result  = results[0].response.records,
-                    records = [];
-                Ext.Object.each(result, function (idx, row) {
-
-                    var
-                        type     = getMatch(row[1], /[a-zA-Z]+/, 0),
-                        len      = getMatch(row[1], /\((.*)\)/, 1),
+                    var type = getMatch(row[1], /[a-zA-Z]+/, 0),
+                        len = getMatch(row[1], /\((.*)\)/, 1),
                         unsigned = getMatch(row[1], /unsigned/, 0),
                         zerofill = getMatch(row[1], /zerofill/, 0);
 
                     records.push({
-                        'field'    : row[0],
-                        'type'     : type,
-                        'comment'  : row[8],
-                        'use'      : false,
-                        'sort'     : null,
-                        'length'   : null
+                        'field'  : row[0],
+                        'type'   : type,
+                        'comment': row[8],
+                        'use'    : false,
+                        'sort'   : null,
+                        'length' : null
                     });
                 });
+            },
+            failure: function(config, response) {
 
-                if(editMode){
+                messages.push(app.generateError(config.query, response.message));
+            }
+        });
 
-                    Ext.Array.each(records, function(obj, idx){
+        if (indexName) {
 
-                        if(columns[obj.field]){
+            editMode = true;
+            index.setValue(indexName);
+
+            tunnelings.push({
+                db     : db,
+                query  : app.getAPIS().getQuery('INDEX_KEYS_INFO', db, table, indexName),
+                success: function(config, response) {
+
+                    var records = Planche.DBUtil.getAssocArray(response.fields, response.records),
+                        optionVal = '';
+
+                    Ext.Array.each(records, function(row, idx) {
+
+                        if (row.Non_unique == '0') {
+
+                            optionVal = 'UNIQUE';
+                        }
+
+                        if (row.Index_type == 'FULLTEXT') {
+
+                            optionVal = 'FULLTEXT';
+                        }
+
+                        columns[row.Column_name] = {
+                            len: row.Sub_part
+                        };
+                    });
+
+                    option.setValue({'edit-index-option': optionVal});
+                },
+                failure: function(config, response) {
+
+                    messages.push(app.generateError(config.query, response.message));
+                }
+            });
+        }
+
+        app.tunnelings(tunnelings, {
+            start  : function() {
+
+                win.setLoading(true);
+            },
+            success: function() {
+
+                if (editMode) {
+
+                    Ext.Array.each(records, function(obj, idx) {
+
+                        if (columns[obj.field]) {
 
                             records[idx].use = true;
                         }
@@ -133,19 +145,17 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
                 }
 
                 me.loadColumns(records);
+                win.setLoading(false);
+            },
+            failure: function() {
 
-                if(messages.length > 0) {
-
-                    app.showMessage(messages);
-                    return;
-                }
-
+                app.showMessage(messages);
                 win.setLoading(false);
             }
         });
     },
 
-    loadColumns : function (records) {
+    loadColumns: function(records) {
 
         var grid = Ext.getCmp('edit-index-grid');
 
@@ -153,56 +163,55 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
 
     },
 
-    selectField : function( grid, td, cellIndex, record, tr, rowIndex, e, eOpts ){
+    selectField: function(grid, td, cellIndex, record, tr, rowIndex, e, eOpts) {
 
-        if(cellIndex < 3) {
+        if (cellIndex < 3) {
 
             record.set('use', !record.get('use'));
         }
     },
 
-    save : function () {
+    save: function() {
 
-        var
-        app          = this.getApplication(),
-        index        = Ext.getCmp('edit-index-name'),
-        indexName    = index.getValue(),
-        win          = Ext.getCmp('edit-index-window'),
-        tab          = Ext.getCmp('table-indexes-tab'),
-        db           = win.getDatabase(),
-        tb           = win.getTable(),
-        oldIndexName = win.getIndexName(),
-        grid         = Ext.getCmp('edit-index-grid'),
-        store        = grid.getStore(),
-        list         = store.getRange(),
-        queries      = [],
-        option       = Ext.getCmp('edit-index-option'),
-        optionValue  = option.getValue()['edit-index-option'],
-        using        = Ext.getCmp('edit-index-using'),
-        usingValue   = using.getValue()['edit-index-using'],
-        columns      = [],
-        messages     = [];
+        var app = this.getApplication(),
+            win = Ext.getCmp('edit-index-window'),
+            tab = Ext.getCmp('table-indexes-tab'),
+            grid = Ext.getCmp('edit-index-grid'),
+            index = Ext.getCmp('edit-index-name'),
+            using = Ext.getCmp('edit-index-using'),
+            usingValue = using.getValue()['edit-index-using'],
+            option = Ext.getCmp('edit-index-option'),
+            optionValue = option.getValue()['edit-index-option'],
+            indexName = index.getValue(),
+            db = win.getDatabase(),
+            table = win.getTable(),
+            oldIndexName = win.getIndexName(),
+            store = grid.getStore(),
+            list = store.getRange(),
+            tunnelings = [],
+            columns = [],
+            messages = [];
 
-        if(!indexName) {
+        if (!indexName) {
 
             index.markInvalid('Please input index name');
             return;
         }
 
-        Ext.Array.each(list, function (obj, idx) {
+        Ext.Array.each(list, function(obj, idx) {
 
             var d = obj.data;
 
-            if(d.use) {
+            if (d.use) {
 
                 var column = d.field;
 
-                if(d.length) {
+                if (d.length) {
 
-                    column = column + '('+d.length+')';
+                    column = column + '(' + d.length + ')';
                 }
 
-                if(d.sort) {
+                if (d.sort) {
 
                     column = column + ' ' + d.sort;
                 }
@@ -211,53 +220,50 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
             }
         });
 
-        if(oldIndexName) {
+        if (oldIndexName) {
 
-            queries.push(app.getAPIS().getQuery('DROP_INDEX', db, tb, oldIndexName));
-        }
+            tunnelings.push({
+                db     : db,
+                query  : app.getAPIS().getQuery('DROP_INDEX', db, table, oldIndexName),
+                failure: function(config, response) {
 
-        if(optionValue != 'FULLTEXT'){
-
-            usingValue = "USING " + usingValue;
-        }
-        else {
-
-            usingValue = '';
-        }
-
-        var query = app.getAPIS().getQuery('ADD_INDEX', db, tb, indexName, optionValue, columns.join(","), usingValue);
-
-        queries.push(query);
-
-        win.setLoading(true);
-
-        app.tunnelings(db, queries, {
-            failureQuery   : function (idx, query, config, response) {
-
-                messages.push(app.generateError(query, response.message));
-            },
-            afterAllQueries : function (queries, results) { 
-
-                win.setLoading(false);
-
-                if(messages.length > 0) {
-
-                    app.showMessage(messages);
-                    return;
+                    messages.push(app.generateError(config.query, response.message));
                 }
+            });
+        }
 
-                
+        usingValue = optionValue != 'FULLTEXT' ? "USING " + usingValue : usingValue;
+        tunnelings.push({
+            db     : db,
+            query  : app.getAPIS().getQuery('ADD_INDEX', db, table, indexName, optionValue, columns.join(","), usingValue),
+            failure: function(config, response) {
+
+                messages.push(app.generateError(config.query, response.message));
+            }
+        });
+
+        app.tunnelings(tunnelings, {
+            start  : function() {
+
+                win.setLoading(true);
+            },
+            success: function() {
+
                 tab.fireEvent('reload', tab);
-
+                win.setLoading(false);
                 win.destroy();
+            },
+            failure: function() {
+
+                app.showMessage(messages);
+                win.setLoading(false);
             }
         });
     },
 
-    cancel : function (btn) {
+    cancel: function() {
 
         var win = Ext.getCmp('edit-index-window');
-
         win.destroy();
     }
 });

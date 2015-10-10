@@ -35,14 +35,13 @@ Ext.define('Planche.controller.command.Quick', {
                         fixed            : true,
                         store            : Ext.create('Ext.data.Store', {
                             fields: fields,
-                            data  : app.getActiveQuickCommands()
+                            data  : []
                         }),
                         listConfig : {
 
                             loadingText: 'Search..',
                             getInnerTpl: function() {
-                                console.log(arguments);
-                                ///baackround:url(resources/images/icon_database.png)
+
                                 return '<div class="quick-command"><span class="quick-icon {icon}"></span> {name}</div>';
                             }
                         },
@@ -70,6 +69,9 @@ Ext.define('Planche.controller.command.Quick', {
                     activate : function(win){
                         var combo = Ext.getCmp('quick-combo'),
                             task = new Ext.util.DelayedTask();
+
+                        combo.store.loadData(app.getActiveQuickCommands());
+
                         task.delay(100, function(combo) {
 
                             combo.focus();
@@ -81,6 +83,11 @@ Ext.define('Planche.controller.command.Quick', {
                             }, this, [combo]);
 
                         }, this, [combo]);
+                    },
+
+                    close : function(win){
+
+                        win.destroy();
                     }
                 }
             });
