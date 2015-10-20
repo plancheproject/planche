@@ -51,9 +51,8 @@ Ext.define('Planche.lib.SchemaUtil', {
                                     queries['Table Indexes - ' + row[0]] = api.getQuery('INDEX_KEYS_INFO', db, row[0]);
                                     keys.unshift('Table Indexes - ' + row[0]);
 
-                                    queries['Table Fields - ' + row[0]] = api.getQuery('TABLE_KEYS_INFO', db, row[0]);
+                                    queries['Table Fields - ' + row[0]] = api.getQuery('SHOW_COLUMNS', db, row[0]);
                                     keys.unshift('Table Fields - ' + row[0]);
-
                                 });
                             }
 

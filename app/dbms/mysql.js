@@ -77,6 +77,7 @@ Ext.define('Planche.dbms.mysql', function() {
         DROP_DATABASE           : 'DROP DATABASE `{0}`',
         SHOW_CHARSET            : 'SHOW CHARSET',
         SHOW_COLLATION          : 'SHOW COLLATION',
+        SHOW_COLUMNS            : 'SHOW FULL COLUMNS FROM `{0}`.`{1}`',
         CHARSET_DATABASE        : 'SHOW VARIABLES LIKE \'character_set_database\'',
         COLLATION_DATABASE      : 'SHOW VARIABLES LIKE \'collation_database\'',
         KILL_QUERY              : 'KILL {0}',
