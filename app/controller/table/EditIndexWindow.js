@@ -249,7 +249,11 @@ Ext.define('Planche.controller.table.EditIndexWindow', {
             },
             success: function() {
 
-                tab.fireEvent('reload', tab);
+                if(tab){
+
+                    tab.fireEvent('reload', tab);
+                }
+
                 win.setLoading(false);
                 win.destroy();
             },
