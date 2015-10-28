@@ -6,6 +6,8 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
         'layout.InfoTab',
         'layout.HistoryTab'
     ],
+
+    query : null,
     init  : function() {
 
         this.control({
@@ -15,9 +17,43 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
         });
     },
 
+    loadGridRecord : function(cmd, db, callback){
+
+        if (typeof cmd == 'undefined') { cmd = ''; }
+
+        var me = this,
+            app = me.getApplication();
+
+        app.setLoading(true);
+
+        app.tunneling({
+            db     : db,
+            query  : me.query['get' + cmd + 'SQL'](),
+            success: function(config, response) {
+
+                var data = app.makeRecords(response.fields, response.records),
+                    textRows = me.grid.down('text[text=Total]').next();
+
+                me.grid.store.loadData(data);
+                me.grid.store.sync();
+
+                textRows.setText(parseInt(response.affected_rows, 10));
+
+                app.setLoading(false);
+
+                if (callback) {
+
+                    callback(cmd, db);
+                }
+            }
+        });
+    },
+
     initQueryResult: function(config, db, query, response) {
 
         config.tab = config.tab === true || true;
+
+        this.query = query;
 
         var me = this,
             app = me.getApplication(),
@@ -26,40 +62,26 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 ptype: 'bufferedrenderer'
             }], grid,
 
-            loadGridRecord = function(cmd) {
+            loadGridRecord = function(cmd, db) {
 
-                if (typeof cmd == 'undefined') { cmd = ''; }
+                me.loadGridRecord(cmd, db, function(){
 
-                var textRows = grid.down('text[text=Total]').next(),
-                    textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next(),
-                    refreshPerSec = parseFloat(textRefreshPerSec.getValue());
+                    var textRefreshPerSec = me.grid.down('text[text=Refresh Per Sec]').next(),
+                        refreshPerSec = parseFloat(textRefreshPerSec.getValue());
 
-                textRows.setText('0');
+                    if (refreshPerSec > 0) {
 
-                app.setLoading(true);
-
-                app.tunneling({
-                    db     : db,
-                    query  : query['get' + cmd + 'SQL'](),
-                    success: function(config, response) {
-
-                        var data = app.makeRecords(schema, response.records);
-                        grid.store.loadData(data);
-                        app.setLoading(false);
-
-                        if (refreshPerSec > 0) {
-
-                            setTimeout(loadGridRecord, refreshPerSec * 1000);
-                        }
+                        setTimeout(loadGridRecord.bind(me, cmd, db), refreshPerSec * 1000);
                     }
                 });
-
             },
 
             updateToolbar = function() {
 
-                var textfield = grid.query('textfield'), btnPrev = grid.down('button[text=Previous]'),
-                    btnNext = grid.down('button[text=Next]'), textRows = grid.down('text[text=Total]').next();
+                var textfield = grid.query('textfield'),
+                    btnPrev = grid.down('button[text=Previous]'),
+                    btnNext = grid.down('button[text=Next]'),
+                    textRows = me.grid.down('text[text=Total]').next();
 
                 btnNext.setDisabled(grid.store.data.length < query.end);
                 btnPrev.setDisabled(1 > query.start);
@@ -87,7 +109,15 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 menuDisabled: true,
                 draggable   : false,
                 groupable   : false,
-                renderer    : 'htmlEncode',
+                renderer    : function(value){
+
+                    if(value === null){
+
+                        return '(NULL)';
+                    }
+
+                    return Ext.htmlEncode(value);
+                },
                 editor      : {
                     xtype: 'textfield'
                 }
@@ -420,7 +450,14 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 changes = [];
             Ext.Object.each(record.raw, function(key, value) {
 
-                where.push(key + '="' + value + '"');
+                if(value === null){
+
+                    where.push(key + ' IS NULL');
+                }
+                else {
+
+                    where.push(key + '="' + value + '"');
+                }
 
                 if (record.data[key] != value) {
 
@@ -455,10 +492,11 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             },
             success: function() {
 
-                app.setLoading(false);
-                store.sync();
-            },
+                //app.setLoading(false);
+                //store.sync();
 
+                me.loadGridRecord('', db);
+            },
             failure: function() {
 
                 app.openMessage(messages);
@@ -490,7 +528,14 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             var where = [];
             Ext.Object.each(record.raw, function(key, value) {
 
-                where.push(key + '="' + value + '"');
+                if(value === null){
+
+                    where.push(key + ' IS NULL');
+                }
+                else {
+
+                    where.push(key + '="' + value + '"');
+                }
             });
 
             tunnelings.push({
@@ -516,7 +561,12 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
                 app.setLoading(false);
                 store.remove(selection);
-                store.sync();
+                //store.sync();
+
+                me.loadGridRecord('', db, function(){
+
+                    app.setLoading(false);
+                });
             },
 
             failure: function() {
