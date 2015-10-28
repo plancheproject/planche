@@ -15,24 +15,6 @@ Ext.define('Planche.controller.menu.Edit', {
                 return false;
             }
         }, {
-            text        : 'Excute Query',
-            scope       : this.application,
-            handler     : function() {
-
-                this.executeQuery();
-            },
-            allowDisable: function(topBtn, menu) {
-
-                if (!this.getActiveEditor()) {
-
-                    return true;
-                }
-
-                return false;
-            }
-        },
-            '-'
-            , {
                 text        : 'SQL Formatter',
                 scope       : this.application,
                 handler     : function() {

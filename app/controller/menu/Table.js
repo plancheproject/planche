@@ -127,7 +127,25 @@ Ext.define('Planche.controller.menu.Table', {
                 var db = app.getSelectedDatabase(),
                     table = app.getSelectedTable();
 
-                app.openAlterTableWindow(db, table);
+                app.openAlterTableWindow(db, table, 'table-schema-tab');
+            }
+        }, {
+            text: 'Table Properties',
+            allowDisable: function(topBtn, menu) {
+
+                if (app.getSelectedTable()) {
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler     : function() {
+
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table, 'table-properties-tab');
             }
         }, {
             text: 'Manage Indexes',
@@ -145,7 +163,43 @@ Ext.define('Planche.controller.menu.Table', {
                 var db = app.getSelectedDatabase(),
                     table = app.getSelectedTable();
 
-                app.openAlterTableWindow(db, table);
+                app.openAlterTableWindow(db, table, 'table-indexes-tab');
+            }
+        }, {
+            text: 'View table\'s sql',
+            allowDisable: function(topBtn, menu) {
+
+                if (app.getSelectedTable()) {
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler     : function() {
+
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table, 'table-sql-tab');
+            }
+        }, {
+            text: 'View Table information',
+            allowDisable: function(topBtn, menu) {
+
+                if (app.getSelectedTable()) {
+
+                    return false;
+                }
+
+                return true;
+            },
+            handler     : function() {
+
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table, 'table-info-tab');
             }
         }, {
             text: 'More Table Operations',

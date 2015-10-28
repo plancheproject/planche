@@ -1,13 +1,29 @@
-Ext.define('Planche.controller.menu.Tools', {
+Ext.define('Planche.controller.menu.Query', {
     extend: 'Planche.lib.Menu',
     add   : function(topBtn) {
 
         topBtn.menu.add([{
-            text        : 'User Manager',
+            text        : 'Excute Query',
             scope       : this.application,
             handler     : function() {
 
-                this.openUserPanel();
+                this.executeQuery();
+            },
+            allowDisable: function(topBtn, menu) {
+
+                if (!this.getActiveEditor()) {
+
+                    return true;
+                }
+
+                return false;
+            }
+        }, '-', {
+            text        : 'New Query Editor',
+            scope       : this.application,
+            handler     : function() {
+
+                this.openQueryTab();
             },
             allowDisable: function(topBtn, menu) {
 
@@ -19,15 +35,21 @@ Ext.define('Planche.controller.menu.Tools', {
                 return false;
             }
         }, {
-            text        : 'Flush',
+            text        : 'Close Query Tab',
             scope       : this.application,
             handler     : function() {
 
-                this.openFlushPanel();
+                var actSubTab = this.getActiveQueryTab();
+                actSubTab.destroy();
             },
             allowDisable: function(topBtn, menu) {
 
-                if (!this.getActiveConnectTab()) {
+                if (this.getQueryTabPanel().child().length < 2) {
+
+                    return true;
+                }
+
+                if (!this.getActiveQueryTab()) {
 
                     return true;
                 }
@@ -35,63 +57,35 @@ Ext.define('Planche.controller.menu.Tools', {
                 return false;
             }
         }, {
-            text        : 'Open Quick Command',
+            text        : 'Close Other Query Tabs',
             scope       : this.application,
             handler     : function() {
 
-                this.openQuickPanel();
+                var tabPanel = this.getQueryTabPanel().query('tabpanel');
+                var actSubTab = this.getActiveQueryTab();
+
+                Ext.Array.each(tabPanel, function(tab, idx) {
+
+                    if (actSubTab != tab.up()) {
+
+                        tab.up().destroy();
+                    }
+                    else {
+
+                        tab.addClass('x-tab-strip-closable');
+                    }
+                });
             },
             allowDisable: function(topBtn, menu) {
 
-                if (!this.getActiveConnectTab()) {
+                if (!this.getActiveQueryTab()) {
 
                     return true;
                 }
 
-                return false;
-            }
-        }, {
-            text        : 'Show Process List',
-            scope       : this.application,
-            handler     : function() {
+                var tabPanel = this.getQueryTabPanel().query('tabpanel');
 
-                this.openProcessPanel();
-            },
-            allowDisable: function(topBtn, menu) {
-
-                if (!this.getActiveConnectTab()) {
-
-                    return true;
-                }
-
-                return false;
-            }
-        }, {
-            text        : 'Show Variables',
-            scope       : this.application,
-            handler     : function() {
-
-                this.openVariablesPanel();
-            },
-            allowDisable: function(topBtn, menu) {
-
-                if (!this.getActiveConnectTab()) {
-
-                    return true;
-                }
-
-                return false;
-            }
-        }, {
-            text        : 'Show Status',
-            scope       : this.application,
-            handler     : function() {
-
-                this.openStatusPanel();
-            },
-            allowDisable: function(topBtn, menu) {
-
-                if (!this.getActiveConnectTab()) {
+                if (tabPanel.length < 2) {
 
                     return true;
                 }

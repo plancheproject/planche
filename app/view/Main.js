@@ -35,7 +35,7 @@ Ext.define('Planche.view.Main', {
 
         //'Other'
         //'Favorites',
-        var menus = ['Connection', 'Edit', 'Database', 'Table', 'Tools'];
+        var menus = ['Connection', 'Query', 'Edit', 'Database', 'Table', 'Export', 'Tools'];
 
         return {
             xtype   : 'toolbar',
