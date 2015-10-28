@@ -355,7 +355,7 @@ class Control
                     writeResponse(",", $this->client);
                 }
 
-                writeResponse(json_encode(array_map(array($this, 'removeHTML'), array_values($row))), $this->client);
+                writeResponse(json_encode(array_map(array($this, 'pretreatment'), array_values($row))), $this->client);
                 $idx++;
             }
         }
@@ -380,10 +380,17 @@ class Control
         }
     }
 
-    public function removeHTML($value)
+    public function pretreatment($value)
     {
 
         $this->field_idx++;
+
+//        if(is_null($value) === true){
+//
+//            $value = '(NULL)';
+//        }
+//
+
 
         return $value;
     }
@@ -528,7 +535,7 @@ if ($isCLI) {
 
             socket_getpeername($client, $sClientIp, $nClientPort);
 
-            $sRequestHeader = socket_read($client, 1024);
+            $sRequestHeader = socket_read($client, 10000);
 
             $GET  = http_parse_headers($sRequestHeader, 'GET');
             $POST = http_parse_headers($sRequestHeader, 'POST');
