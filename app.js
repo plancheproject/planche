@@ -1575,14 +1575,24 @@ Ext.application({
         this.openWindow('command.Quick');
     },
 
-    openAlterTableWindow: function(db, table) {
+    openAlterTableWindow: function(db, table, openTab) {
 
-        this.openWindow('table.EditSchemaWindow', db, table);
+        this.openWindow('table.EditSchemaWindow', db, table, openTab);
     },
 
     openCreateTableWindow: function(db) {
 
         this.openWindow('table.EditSchemaWindow', db);
+    },
+
+    openAlterIndexWindow: function(db, table, index) {
+
+        this.openWindow('table.EditIndexWindow', db, table, index);
+    },
+
+    openCreateIndexWindow: function(db, table) {
+
+        this.openWindow('table.EditIndexWindow', db, table);
     },
 
     openCreateDatabaseWindow: function(db) {

@@ -393,6 +393,33 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
         }];
     },
 
+    loadIndexesContextMenu: function() {
+
+        var app = this.getApplication();
+
+        return [{
+            text   : 'Create index',
+            scope  : app,
+            handler: function() {
+
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openCreateIndexWindow(db, table);
+            }
+        }, {
+            text   : 'Manage index',
+            scope  : app,
+            handler: function() {
+
+                var db = app.getSelectedDatabase(),
+                    table = app.getSelectedTable();
+
+                app.openAlterTableWindow(db, table, 'table-indexes-tab');
+            }
+        }];
+    },
+
     loadViewsContextMenu: function() {
 
         var app = this.getApplication();

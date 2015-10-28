@@ -17,7 +17,7 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
         });
     },
 
-    initWindow: function(db, tb) {
+    initWindow: function(db, tb, openTab) {
 
         var title = (tb ? 'Alter Table \'' + tb + '\' in \'' + db + '\'' : 'Create new table');
         Ext.create('Planche.view.table.EditSchemaWindow', {
@@ -29,6 +29,12 @@ Ext.define('Planche.controller.table.EditSchemaWindow', {
                     if (!tb) {
 
                         Ext.invoke(win.query('table-properties-tab, table-indexes-tab, table-sql-tab, table-info-tab'), 'setDisabled', true);
+                    }
+
+                    if(openTab){
+
+                        var tab = win.down(openTab);
+                        tab.show();
                     }
                 }
             }
