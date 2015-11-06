@@ -75,7 +75,8 @@ Ext.define('Planche.lib.SchemaTree', {
 
     loadTree: function(node, nodeConfig) {
 
-        var loadFunc = this['load' + (node.raw.type == this.getRootType() ? 'Databases' : node.data.text.replace(/\s/gi, ''))];
+        //var loadFunc = this['load' + (node.raw.type == this.getRootType() ? 'Databases' : node.data.text.replace(/\s/gi, ''))];
+        var loadFunc = this['load' + (node.raw.type == this.getRootType() ? 'Databases' : node.raw.type.substring(0, 1).toUpperCase() + node.raw.type.substring(1))];
 
         if (loadFunc) {
 
