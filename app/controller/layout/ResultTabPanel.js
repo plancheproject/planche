@@ -6,7 +6,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
         'layout.InfoTab',
         'layout.HistoryTab'
     ],
-
+    timer : null,
     query : null,
     init  : function() {
 
@@ -71,7 +71,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
 
                     if (refreshPerSec > 0) {
 
-                        setTimeout(loadGridRecord.bind(me, cmd, db), refreshPerSec * 1000);
+                        me.timer = setTimeout(loadGridRecord.bind(me, cmd, db), refreshPerSec * 1000);
                     }
                 });
             },
@@ -306,6 +306,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 margin : '0 0 0 5',
                 handler: function(btn) {
 
+                    clearTimeout(me.timer);
                     loadGridRecord();
                 }
             }, {
@@ -316,8 +317,8 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
                 margin : '0 0 0 5',
                 handler: function(btn) {
 
+                    clearTimeout(me.timer);
                     var textRefreshPerSec = grid.down('text[text=Refresh Per Sec]').next();
-
                     textRefreshPerSec.setValue(0);
                 }
             }, {
@@ -427,7 +428,16 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             Ext.Object.each(record.data, function(key, value) {
 
                 fields.push(key);
-                values.push('"' + value + '"');
+
+                if(value){
+
+                    values.push('"' + value + '"');
+                }
+                else {
+
+                    values.push('NULL');
+                }
+
             });
 
             tunnelings.push({
