@@ -144,14 +144,17 @@ Ext.define('Planche.controller.menu.Database', {
                         });
                     });
                 }
-            }, {
-                text   : 'Empty Database',
-                handler: function() {
+            }
 
-                    var db = app.getSelectedDatabase();
-                    app.emptyDatabase(db);
-                }
-            }]
+            //    , {
+            //    text   : 'Empty Database',
+            //    handler: function() {
+            //
+            //        var db = app.getSelectedDatabase();
+            //        app.emptyDatabase(db);
+            //    }
+            //}
+            ]
         }]);
 
         this.added = true;

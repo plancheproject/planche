@@ -2,9 +2,15 @@ Ext.define('Planche.controller.menu.Edit', {
     extend: 'Planche.lib.Menu',
     add   : function(topBtn) {
 
+        var app = this.getApplication();
+
         topBtn.menu.add([{
             text        : 'Refresh Object Browser',
             scope       : this.application,
+            handler     : function() {
+
+                app.reloadTree();
+            },
             allowDisable: function(topBtn, menu) {
 
                 if (!this.getActiveConnectTab()) {
@@ -15,66 +21,64 @@ Ext.define('Planche.controller.menu.Edit', {
                 return false;
             }
         }, {
-                text        : 'SQL Formatter',
-                scope       : this.application,
-                handler     : function() {
+            text        : 'SQL Formatter',
+            scope       : this.application,
+            handler     : function() {
 
-                    this.formatQuery();
-                },
-                allowDisable: function(topBtn, menu) {
-
-                    if (!this.getActiveEditor()) {
-
-                        return true;
-                    }
-
-                    return false;
-                }
+                this.formatQuery();
             },
-            '-'
-            , {
-                text        : 'Undo',
-                scope       : this.application,
-                handler     : function() {
+            allowDisable: function(topBtn, menu) {
 
-                    this.getActiveEditor().undo();
-                },
-                allowDisable: function() {
+                if (!this.getActiveEditor()) {
 
-                    if (!this.getActiveEditor()) {
-
-                        return true;
-                    }
-
-                    if (this.getActiveEditor().historySize().undo < 1) {
-
-                        return true;
-                    }
-
-                    return false;
+                    return true;
                 }
-            }, {
-                text        : 'Redo',
-                scope       : this.application,
-                handler     : function() {
 
-                    this.getActiveEditor().redo();
-                },
-                allowDisable: function() {
-
-                    if (!this.getActiveEditor()) {
-
-                        return true;
-                    }
-
-                    if (this.getActiveEditor().historySize().redo < 1) {
-
-                        return true;
-                    }
-
-                    return false;
-                }
+                return false;
             }
+        }, '-', {
+            text        : 'Undo',
+            scope       : this.application,
+            handler     : function() {
+
+                this.getActiveEditor().undo();
+            },
+            allowDisable: function() {
+
+                if (!this.getActiveEditor()) {
+
+                    return true;
+                }
+
+                if (this.getActiveEditor().historySize().undo < 1) {
+
+                    return true;
+                }
+
+                return false;
+            }
+        }, {
+            text        : 'Redo',
+            scope       : this.application,
+            handler     : function() {
+
+                this.getActiveEditor().redo();
+            },
+            allowDisable: function() {
+
+                if (!this.getActiveEditor()) {
+
+                    return true;
+                }
+
+                if (this.getActiveEditor().historySize().redo < 1) {
+
+                    return true;
+                }
+
+                return false;
+            }
+        }
             // '-'
             // ,{
             //     text : 'Cut',
