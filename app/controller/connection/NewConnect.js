@@ -235,6 +235,11 @@ Ext.define('Planche.controller.connection.NewConnect', {
         app.setHostsInStorage(hosts);
 
         win.destroy();
+
+        Ext.getCmp('edit-conn-btn').setDisabled(true);
+        Ext.getCmp('del-conn-btn').setDisabled(true);
+        Ext.getCmp('conn-btn').setDisabled(true);
+        Ext.getCmp('test-conn-btn').setDisabled(true);
     },
 
     cancel: function(btn) {
