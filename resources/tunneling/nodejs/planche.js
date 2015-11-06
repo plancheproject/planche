@@ -115,12 +115,12 @@ Control.prototype = {
             return;
         }
 
-        var start = new Date().getTime(),
+        var start         = new Date().getTime(),
             affected_rows = 0,
-            insert_id = 0,
-            fields = [];
+            insert_id     = 0,
+            fields        = [];
 
-        var me = this,
+        var me     = this,
             result = this.query(query, function(err, results, fields) {
 
                 if (err) {
@@ -145,11 +145,11 @@ Control.prototype = {
 
     success: function(fetchFields, fetchRows, start, end) {
 
-        var insert_id = fetchRows.insertId || 0,
-            affected_rows = 0,
+        var insert_id       = fetchRows.insertId || 0,
+            affected_rows   = 0,
             is_result_query = false,
-            fields = [],
-            me = this;
+            fields          = [],
+            me              = this;
 
         if (fetchRows.affectedRows) {
 
@@ -180,9 +180,13 @@ Control.prototype = {
 
                 fields.push({
                     'name'      : name,
+                    'org_name'  : field.orgName,
                     'type'      : me.types[field.type],
                     'table'     : field.table,
-                    'max_length': field.length
+                    'org_table' : field.orgTable,
+                    'default'   : field.default,
+                    'max_length': field.length,
+                    'length'    : field.length
                 });
             });
         }
@@ -219,7 +223,7 @@ Control.prototype = {
 
         this.response.write('"is_result_query":' + (is_result_query ? 'true' : 'false') + ",");
 
-        var end = new Date().getTime(),
+        var end           = new Date().getTime(),
             transfer_time = end - start;
 
         this.response.write('"transfer_time":' + transfer_time + ',');
@@ -239,7 +243,7 @@ Control.prototype = {
 
     exportCSV: function(fetchFields, fetchRows, csv) {
 
-        var me = this,
+        var me  = this,
             csv = csv + '_';
 
         me.sendExportHeader(csv);
@@ -385,7 +389,7 @@ http.createServer(function(request, response) {
 
     if (request.method == 'GET') {
 
-        var parse = url.parse(request.url),
+        var parse  = url.parse(request.url),
             params = querystring.parse(parse.query);
 
         tunneling(params);

@@ -328,9 +328,13 @@ class Control
 
                 array_push($this->fields, array(
                     'name'       => $name,
+                    'org_name'   => $row->orgname,
                     'type'       => $this->types[$row->type],
                     'table'      => $row->table,
-                    'max_length' => $row->max_length
+                    'org_table'  => $row->orgtable,
+                    'default'    => $row->def,
+                    'max_length' => $row->max_length,
+                    'length'     => $row->length
                 ));
             }
 
