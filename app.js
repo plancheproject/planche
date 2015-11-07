@@ -542,7 +542,7 @@ Ext.application({
 
     getHosts: function() {
 
-        var hosts = [],
+        var hosts   = [],
             hostIdx = 0;
 
         Ext.Array.each(Planche.config.hosts, function(connInfo, index) {
@@ -636,7 +636,7 @@ Ext.application({
 
         var args = Ext.toArray(arguments),
             ctrl = this.getController(id),
-            cmp = Ext.getCmp('window-' + id);
+            cmp  = Ext.getCmp('window-' + id);
 
         args.shift();
 
@@ -653,7 +653,7 @@ Ext.application({
     initConnectTab: function(connInfo) {
 
         var main = this.getConnectTabPanel(),
-            tab = Ext.create('Planche.view.layout.ConnectTab', Ext.Object.merge({
+            tab  = Ext.create('Planche.view.layout.ConnectTab', Ext.Object.merge({
                 title       : connInfo.hostName,
                 quickCommand: Ext.create('Planche.lib.QuickCommand')
             }, connInfo));
@@ -768,7 +768,7 @@ Ext.application({
         Ext.Ajax.cors = true;
         Ext.Ajax.useDefaultXhrHeader = false;
 
-        var app = this,
+        var app        = this,
             connection = config.connection || app.getActiveConnectTab();
 
         Ext.applyIf(config, {
@@ -937,7 +937,7 @@ Ext.application({
      */
     tunnelings: function(tunnelings, options) {
 
-        var app = this.getApplication(),
+        var app     = this.getApplication(),
             options = options || {},
             execute;
 
@@ -997,8 +997,9 @@ Ext.application({
 
     pasteSQLStatement: function(db, table, mode) {
 
-        var a = [], b = [], c = [],
-            api = this.getAPIS(),
+        var a    = [], b = [], c = [],
+            app  = this,
+            api  = app.getAPIS(),
             func = {
                 'insert'          : function(records) {
 
@@ -1049,24 +1050,33 @@ Ext.application({
                 }
             };
 
-        this.tunneling({
+        app.setLoading(true);
+
+        app.tunneling({
             db     : db,
             query  : 'DESCRIBE `' + db + '`.`' + table + '`',
             success: function(config, response) {
 
-                query = this.alignmentQuery(func[mode](response.records));
-                this.setActiveEditorValue(query);
+                query = app.alignmentQuery(func[mode](response.records));
+                app.setActiveEditorValue(query);
+
+                app.setLoading(false);
             }
         });
     },
 
     changeTableToType: function(db, table, engine) {
 
+        var app = this;
+
+        app.setLoading(true);
+
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('CHANGE_TABLE_TYPE', db, table, engine),
             success: function(config, response) {
 
+                app.setLoading(false);
                 this.openMessage(this.generateQuerySuccessMsg(config.query, 'Table engine changed to ' + engine));
             }
         });
@@ -1074,44 +1084,58 @@ Ext.application({
 
     createView: function(db) {
 
+        var app = this;
+
         Ext.Msg.prompt('Create View', 'Please enter new view name:', function(btn, name) {
 
             if (btn == 'ok') {
 
-                this.openQueryTab();
+                app.openQueryTab();
 
-                var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_VIEW', db, name));
-                this.setActiveEditorValue(sql);
+                var sql = app.alignmentQuery(app.getAPIS().getQuery('CREATE_VIEW', db, name));
+                app.setActiveEditorValue(sql);
             }
         }, this);
     },
 
     alterView: function(db, view) {
 
+        var app = this;
+
+        app.setLoading(true);
+
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('SHOW_CREATE_VIEW', db, view),
             success: function(config, response) {
 
-                this.openQueryTab();
+                var body  = app.getAPIS().getQuery('ALTER_VIEW', db, view, response.records[0][1]),
+                    query = app.alignmentQuery(body);
 
-                var body = this.getAPIS().getQuery('ALTER_VIEW', db, view, response.records[0][1]),
-                    query = this.alignmentQuery(body);
-                this.setActiveEditorValue(query);
+                app.openQueryTab();
+
+                app.setActiveEditorValue(query);
+
+                app.setLoading(false);
             }
         });
     },
 
     dropView: function(db, view, callback) {
 
+        var app = this;
         Ext.Msg.confirm('Drop View \'' + view + '\'', 'Do you really want to drop the view?', function(btn, text) {
 
             if (btn == 'yes') {
 
+                app.setLoading(true);
+
                 this.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_VIEW', db, view),
+                    query  : this.getAPIS().getQuery('DROP_VIEW', db, view, ''),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1131,16 +1155,18 @@ Ext.application({
 
             if (btn == 'ok') {
 
+                app.setLoading(true);
+
                 var messages = [];
                 app.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_VIEW', db, view),
                     success: function(config, response) {
 
-                        var body = response.records[0][1],
+                        var body       = response.records[0][1],
                             tunnelings = [{
                                 db     : db,
-                                query  : app.getAPIS().getQuery('DROP_VIEW', db, view),
+                                query  : app.getAPIS().getQuery('DROP_VIEW', db, view, ''),
                                 failure: function(config, response) {
 
                                     messages.push(app.generateQueryErrorMsg(config.query, response.message));
@@ -1155,10 +1181,6 @@ Ext.application({
                             }];
 
                         app.tunnelings(tunnelings, {
-                            start  : function() {
-
-                                app.setLoading(true);
-                            },
                             success: function() {
 
                                 app.setLoading(false);
@@ -1171,6 +1193,8 @@ Ext.application({
                             failure: function() {
 
                                 app.openMessage(messages);
+
+                                app.setLoading(false);
                             }
                         });
                     }
@@ -1194,6 +1218,10 @@ Ext.application({
 
     alterProcedure: function(db, procedure) {
 
+        var app = this;
+
+        app.setLoading(true);
+
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('SHOW_CREATE_PROCEDURE', db, procedure),
@@ -1201,34 +1229,44 @@ Ext.application({
 
                 if (response.records.length == 0) {
 
+                    app.setLoading(false);
                     return;
                 }
 
                 if (!response.records[0][2]) {
 
                     Ext.Msg.alert('error', 'Unable to retrieve information. Please check your permission.');
+                    app.setLoading(false);
                     return;
                 }
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_PROCEDURE', db, procedure, response.records[0][2]),
+                var body  = this.getAPIS().getQuery('ALTER_PROCEDURE', db, procedure, response.records[0][2]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
+
+                app.setLoading(false);
             }
         });
     },
 
     dropProcedure: function(db, procedure, callback) {
 
-        Ext.Msg.confirm('Drop Procedure \'' + proc + '\'', 'Do you really want to drop the procedure?', function(btn, text) {
+        var app = this;
+
+        Ext.Msg.confirm('Drop Procedure \'' + procedure + '\'', 'Do you really want to drop the procedure?', function(btn, text) {
 
             if (btn == 'yes') {
 
+                app.setLoading(true);
+
                 this.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_PROCEDURE', db, procedure),
+                    query  : this.getAPIS().getQuery('DROP_PROCEDURE', db, procedure, ''),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1256,9 +1294,13 @@ Ext.application({
 
     alterFunction: function(db, func) {
 
+        var app = this;
+
+        app.setLoading(true);
+
         this.tunneling({
             db     : db,
-            query  : this.getAPIS().getQuery('SHOW_CREATE_FUNCTION', db, func),
+            query  : app.getAPIS().getQuery('SHOW_CREATE_FUNCTION', db, func),
             success: function(config, response) {
 
                 if (response.records.length == 0) {
@@ -1272,25 +1314,33 @@ Ext.application({
                     return;
                 }
 
-                this.openQueryTab();
+                app.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_FUNCTION', db, func, response.records[0][2]),
-                    query = this.alignmentQuery(body);
-                this.setActiveEditorValue(query);
+                var body  = app.getAPIS().getQuery('ALTER_FUNCTION', db, func, response.records[0][2]),
+                    query = app.alignmentQuery(body);
+                app.setActiveEditorValue(query);
+
+                app.setLoading(false);
             }
         });
     },
 
     dropFunction: function(db, func, callback) {
 
+        var app = this;
+
         Ext.Msg.confirm('Drop Function \'' + func + '\'', 'Do you really want to drop the function?', function(btn, text) {
 
             if (btn == 'yes') {
 
-                this.tunneling({
+                app.setLoading(true);
+
+                app.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_FUNCTION', db, func),
+                    query  : app.getAPIS().getQuery('DROP_FUNCTION', db, func, ''),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1299,7 +1349,7 @@ Ext.application({
                     }
                 });
             }
-        }, this);
+        });
     },
 
     createTrigger: function(db) {
@@ -1318,30 +1368,41 @@ Ext.application({
 
     alterTrigger: function(db, trigger) {
 
+        var app = this;
+
+        app.setLoading(true);
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('SHOW_CREATE_TRIGGER', db, trigger),
             success: function(config, response) {
 
-                this.openQueryTab();
+                app.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_TRIGGER', db, trigger, response.records[0][2]),
-                    query = this.alignmentQuery(body);
-                this.setActiveEditorValue(query);
+                var body  = app.getAPIS().getQuery('ALTER_TRIGGER', db, trigger, response.records[0][2]),
+                    query = app.alignmentQuery(body);
+                app.setActiveEditorValue(query);
+
+                app.setLoading(false);
             }
         });
     },
 
     dropTrigger: function(db, trigger, callback) {
 
+        var app = this;
+
         Ext.Msg.confirm('Drop Trigger \'' + trigger + '\'', 'Do you really want to drop the trigger?', function(btn, text) {
 
             if (btn == 'yes') {
 
-                this.tunneling({
+                app.setLoading(true);
+
+                app.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_TRIGGER', db, trigger),
+                    query  : app.getAPIS().getQuery('DROP_TRIGGER', db, trigger, ''),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1361,16 +1422,18 @@ Ext.application({
 
             if (btn == 'ok') {
 
+                app.setLoading(true);
+
                 var messages = [];
                 app.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_TRIGGER', db, trigger),
                     success: function(config, response) {
 
-                        var body = response.records[0][2],
+                        var body       = response.records[0][2],
                             tunnelings = [{
                                 db     : db,
-                                query  : app.getAPIS().getQuery('DROP_TRIGGER', db, trigger),
+                                query  : app.getAPIS().getQuery('DROP_TRIGGER', db, trigger, ''),
                                 failure: function(config, response) {
 
                                     messages.push(app.generateQueryErrorMsg(config.query, response.message));
@@ -1385,10 +1448,6 @@ Ext.application({
                             }];
 
                         app.tunnelings(tunnelings, {
-                            start  : function() {
-
-                                app.setLoading(true);
-                            },
                             success: function() {
 
                                 app.setLoading(false);
@@ -1433,7 +1492,7 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var body = this.getAPIS().getQuery('ALTER_EVENT', db, event, response.records[0][3]),
+                var body  = this.getAPIS().getQuery('ALTER_EVENT', db, event, response.records[0][3]),
                     query = this.alignmentQuery(body);
                 this.setActiveEditorValue(query);
             }
@@ -1442,14 +1501,20 @@ Ext.application({
 
     dropEvent: function(db, event, callback) {
 
+        var app = this;
+
         Ext.Msg.confirm('Drop Event \'' + event + '\'', 'Do you really want to drop the event?', function(btn, text) {
 
             if (btn == 'yes') {
 
-                this.tunneling({
+                app.setLoading(true);
+
+                app.tunneling({
                     db     : db,
-                    query  : this.getAPIS().getQuery('DROP_EVENT', db, event),
+                    query  : app.getAPIS().getQuery('DROP_EVENT', db, event, ''),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1458,7 +1523,7 @@ Ext.application({
                     }
                 });
             }
-        }, this);
+        });
     },
 
     renameEvent: function(db, event, callback) {
@@ -1469,16 +1534,18 @@ Ext.application({
 
             if (btn == 'ok') {
 
+                app.setLoading(true);
+
                 var messages = [];
-                this.tunneling({
+                app.tunneling({
                     db     : db,
                     query  : app.getAPIS().getQuery('SHOW_CREATE_EVENT', db, event),
                     success: function(config, response) {
 
-                        var body = response.records[0][3],
+                        var body       = response.records[0][3],
                             tunnelings = [{
                                 db     : db,
-                                query  : app.getAPIS().getQuery('DROP_EVENT', db, event),
+                                query  : app.getAPIS().getQuery('DROP_EVENT', db, event, ''),
                                 failure: function(config, response) {
 
                                     messages.push(app.generateQueryErrorMsg(config.query, response.message));
@@ -1493,10 +1560,6 @@ Ext.application({
                             }];
 
                         app.tunnelings(tunnelings, {
-                            start  : function() {
-
-                                app.setLoading(true);
-                            },
                             success: function() {
 
                                 app.setLoading(false);
@@ -1530,12 +1593,17 @@ Ext.application({
 
     openUserPanel: function() {
 
+        var app = this;
+
+        app.setLoading(true);
+
         this.tunneling({
             db     : 'mysql',
             query  : this.getAPIS().getQuery('SELECT_ALL_USER'),
             success: function() {
 
-                this.openWindow('user.Grant');
+                app.openWindow('user.Grant');
+                app.setLoading(false);
             }
         });
     },
@@ -1617,11 +1685,14 @@ Ext.application({
 
     openReorderColumns: function(db, table) {
 
+        var app = this;
+        app.setLoading(true);
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('SHOW_FULL_FIELDS', db, table),
             success: function(config, response) {
 
+                app.setLoading(false);
                 this.openWindow('table.ReorderColumns', db, table, response);
             }
         });
@@ -1629,11 +1700,15 @@ Ext.application({
 
     openAdvancedProperties: function(db, table) {
 
+        var app = this;
+
+        app.setLoading(true);
         this.tunneling({
             db     : db,
             query  : this.getAPIS().getQuery('SHOW_ADVANCED_PROPERTIES', db, table),
             success: function(config, response) {
 
+                app.setLoading(false);
                 this.openWindow('table.AdvancedProperties', db, table, response);
             }
         });
@@ -1666,6 +1741,8 @@ Ext.application({
 
             if (btn == 'yes') {
 
+                app.setLoading(true);
+
                 this.tunneling({
                     db     : db,
                     query  : this.getAPIS().getQuery('DROP_DATABASE', db),
@@ -1673,9 +1750,11 @@ Ext.application({
 
                         var tree = this.getSelectedTree(),
                             root = tree.getRootNode();
-                            app.reloadTree(root);
+                        app.reloadTree(root);
 
                         app.fireEvent('after_drop_database');
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1690,12 +1769,13 @@ Ext.application({
     truncateDatabase: function(db, callback) {
 
         var app = this;
-
         Ext.Msg.confirm('Truncate Database \'' + db + '\'', 'Do you really want to truncate the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
 
                 var tunnelings = [], messages = [];
+
+                app.setLoading(true);
 
                 app.tunneling({
                     db     : db,
@@ -1716,10 +1796,6 @@ Ext.application({
                         });
 
                         app.tunnelings(tunnelings, {
-                            start  : function() {
-
-                                app.setLoading(true);
-                            },
                             success: function() {
 
                                 app.setLoading(false);
@@ -1743,14 +1819,20 @@ Ext.application({
 
     emptyDatabase: function(db, callback) {
 
+        var app = this;
+
         Ext.Msg.confirm('Empty Database \'' + db + '\'', 'Do you really want to empty the database?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
+
+                app.setLoading(true);
 
                 this.tunneling({
                     db     : db,
                     query  : 'EMPTY DATABASE `' + db + '`',
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1769,6 +1851,8 @@ Ext.application({
 
             if (btn == 'ok') {
 
+                app.setLoading(true);
+
                 this.tunneling({
                     db     : db,
                     query  : this.getAPIS().getQuery('RENAME_TABLE', db, table, db, text),
@@ -1776,6 +1860,8 @@ Ext.application({
 
                         app.fireEvent('after_rename_table');
                         app.reloadTablesNode(db);
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1789,14 +1875,19 @@ Ext.application({
 
     truncateTable: function(db, table, callback) {
 
+        var app = this;
         Ext.Msg.confirm('Truncate Table \'' + table + '\' in \'' + db + '\'', 'Do you really want to truncate the table?\n\nWarning: You will lose all data!', function(btn, text) {
 
             if (btn == 'yes') {
+
+                app.setLoading(true);
 
                 this.tunneling({
                     db     : db,
                     query  : this.getAPIS().getQuery('TRUNCATE_TABLE', db, table),
                     success: function(config, response) {
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1815,6 +1906,8 @@ Ext.application({
 
             if (btn == 'yes') {
 
+                app.setLoading(true);
+
                 this.tunneling({
                     db     : db,
                     query  : 'DROP TABLE `' + db + '`.`' + table + '`',
@@ -1823,6 +1916,8 @@ Ext.application({
                         app.fireEvent('after_drop_table');
                         app.openMessage(app.generateSuccessMsg(config.query, table + ' table was been removed successfully.'));
                         app.reloadTablesNode(db);
+
+                        app.setLoading(false);
 
                         if (callback) {
 
@@ -1842,7 +1937,9 @@ Ext.application({
 
             if (btn == 'ok') {
 
-                var messages = [],
+                app.setLoading(true);
+
+                var messages   = [],
                     tunnelings = [{
                         db     : db,
                         query  : app.getAPIS().getQuery('COPY_TABLE_STRUCTURE', db, table, db, name),
@@ -1860,10 +1957,6 @@ Ext.application({
                     }];
 
                 app.tunnelings(tunnelings, {
-                    start  : function() {
-
-                        app.setLoading(true);
-                    },
                     success: function() {
 
                         app.setLoading(false);
@@ -1895,7 +1988,7 @@ Ext.application({
 
     parseQuery: function(query) {
 
-        var parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
+        var parser  = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
             queries = parser.parse(query);
 
         return queries;
@@ -1992,11 +2085,12 @@ Ext.application({
      */
     executeQuery: function() {
 
-        var queries = this.getParsedQuery();
+        var app     = this,
+            queries = app.getParsedQuery();
 
         if (queries.length == 0) {
 
-            this.openMessage(this.generateError(
+            app.openMessage(app.generateError(
                 'Query was empty',
                 'No query(s) were executed. Please enter a query in the SQL editor or place the cursor inside a query.'
             ));
@@ -2006,14 +2100,17 @@ Ext.application({
 
         this.removeResultTabPanel();
 
-        var panel = this.getActiveMessageTab(),
-            dom = Ext.get(panel.getEl().query("div[id$=innerCt]")),
-            db = this.getSelectedDatabase();
+        var panel = app.getActiveMessageTab(),
+            dom   = Ext.get(panel.getEl().query("div[id$=innerCt]")),
+            db    = app.getSelectedDatabase();
 
         dom.setHTML('');
 
         var tunneling;
         var messages = [];
+
+        app.setLoading(true);
+
         (tunneling = Ext.Function.bind(function() {
 
             var query = queries.shift();
@@ -2022,7 +2119,7 @@ Ext.application({
 
                 if (query.isDelimiter() == true) {
 
-                    messages.push(this.generateQuerySuccessMsg(
+                    messages.push(app.generateQuerySuccessMsg(
                         query.raw,
                         'Change Delimiter'
                     ));
@@ -2031,16 +2128,14 @@ Ext.application({
                     return;
                 }
 
-                this.setLoading(true);
-
-                this.tunneling({
+                app.tunneling({
                     db     : db,
                     query  : query.getSQL(),
                     success: function(config, response) {
 
                         if (response.is_result_query == true) {
 
-                            this.initQueryResult({
+                            app.initQueryResult({
                                 icon    : 'resources/images/icon_table.png',
                                 closable: true,
                                 title   : 'Result'
@@ -2052,18 +2147,16 @@ Ext.application({
                             msg += 'Execution Time : ' + response.exec_time + '<br/>';
                             msg += 'Transfer Time  : ' + response.transfer_time + '<br/>';
                             msg += 'Total Time     : ' + response.total_time;
-                            messages.push(this.generateQuerySuccessMsg(query.getSQL(), msg));
+                            messages.push(app.generateQuerySuccessMsg(query.getSQL(), msg));
                         }
-
-                        this.setLoading(false);
 
                         tunneling();
                     },
                     failure: function(config, response) {
 
-                        messages.push(this.generateError(query.getSQL(), response.message));
+                        messages.push(app.generateError(query.getSQL(), response.message));
 
-                        this.setLoading(false);
+                        app.setLoading(false);
 
                         tunneling();
                     }
@@ -2071,13 +2164,13 @@ Ext.application({
             }
             else {
 
-                this.setLoading(false);
+                app.setLoading(false);
 
-                this.afterExecuteQuery(messages);
-                this.reloadTree();
+                app.afterExecuteQuery(messages);
+                app.reloadTree();
             }
 
-        }, this))();
+        }))();
     },
 
     afterExecuteQuery: function(messages) {
@@ -2176,10 +2269,10 @@ Ext.application({
 
     openTable: function(db, table) {
 
-        var tab = this.getActiveTableDataTab(),
-            parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
+        var tab     = this.getActiveTableDataTab(),
+            parser  = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
             queries = parser.parse(this.getAPIS().getQuery('SELECT_TABLE', db, table, "*", '')),
-            query = queries[0];
+            query   = queries[0];
 
         this.openMode = 'select';
 
@@ -2204,10 +2297,10 @@ Ext.application({
 
     countTable: function(db, table) {
 
-        var tab = this.getActiveTableDataTab(),
-            parser = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
+        var tab     = this.getActiveTableDataTab(),
+            parser  = Ext.create('Planche.lib.QueryParser', this.getAPIS()),
             queries = parser.parse(this.getAPIS().getQuery('SELECT_COUNT', db, table, "*", '')),
-            query = queries[0];
+            query   = queries[0];
 
         this.openMode = 'count';
 
@@ -2286,13 +2379,14 @@ Ext.application({
 
     loadQuickCommands: function(tab) {
 
-        var app = this,
-            api = tab.getAPIS(),
-            tree = tab.child('schema-tree'),
+        var app        = this,
+            api        = tab.getAPIS(),
+            tree       = tab.child('schema-tree'),
             tunnelings = [],
-            messages = [];
+            messages   = [];
 
         app.onTask = true;
+
         app.updateTaskMessage('Start quick command indexing');
 
         tab.quickCommand.init();
@@ -2351,6 +2445,7 @@ Ext.application({
             value : 0,
             method: app.openFlushPanel
         });
+
         tab.quickCommand.append({
             icon  : 'stop',
             name  : 'Stop operation',
@@ -2366,7 +2461,7 @@ Ext.application({
             query     : api.getQuery('SHOW_DATABASE'),
             success   : function(config, response) {
 
-                var total = response.records.length,
+                var total  = response.records.length,
                     jobIdx = 1;
 
                 Ext.Array.each(response.records, function(row) {
@@ -2380,7 +2475,7 @@ Ext.application({
 
                     tab.quickCommand.append({
                         icon  : 'table',
-                        name  : 'Create ' + db + '\'s table',
+                        name  : 'Create table in ' + db,
                         value : 0,
                         method: app.openCreateTableWindow,
                         params: [db]
@@ -2579,7 +2674,7 @@ Ext.application({
 
     detectCRUDEvent: function() {
 
-        var app = this,
+        var app     = this,
             runTask = function() {
 
                 var tab = app.getActiveConnectTab();
