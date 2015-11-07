@@ -60,7 +60,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
             {
                 text   : 'Refresh Databases',
                 scope  : app,
-                handler: app.reloadTree
+                handler: function(){
+
+                    app.reloadTree();
+                }
             },
             {
                 text   : 'Create Database',
@@ -102,14 +105,16 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
                         });
                     });
                 }
-            }, {
-                text   : 'Empty Database',
-                handler: function() {
-
-                    var db = app.getSelectedDatabase();
-                    app.emptyDatabase(db);
-                }
             }
+
+            //,{
+            //    text   : 'Empty Database',
+            //    handler: function() {
+            //
+            //        var db = app.getSelectedDatabase();
+            //        app.emptyDatabase(db);
+            //    }
+            //}
         ];
     },
 
@@ -427,7 +432,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
         return [{
             text   : 'Refresh Views',
             scope  : app,
-            handler: app.reloadTree
+            handler: function(){
+
+                app.reloadTree();
+            }
         }, {
             text   : 'Create View',
             handler: function(){
@@ -469,7 +477,7 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
                 app.dropView(db, view, function(){
 
                     var node = app.getSelectedNode(true);
-                    this.getSelectedTree().getSelectionModel().select(node.parentNode);
+                    app.getSelectedTree().getSelectionModel().select(node.parentNode);
                     node.remove();
                 });
             }
@@ -514,7 +522,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
         return [{
             text   : 'Refresh Events',
             scope  : app,
-            handler: app.reloadTree
+            handler: function(){
+
+                app.reloadTree();
+            }
         }, {
             text   : 'Create Event',
             handler: function() {
@@ -585,7 +596,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
 
         return [{
             text   : 'Refresh Triggers',
-            handler: app.reloadTree
+            handler: function(){
+
+                app.reloadTree();
+            }
         }, {
             text   : 'Create Trigger',
             handler: function(){
@@ -629,7 +643,7 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
                 app.dropTrigger(db, trigger, function(){
 
                     var node = app.getSelectedNode(true);
-                    this.getSelectedTree().getSelectionModel().select(node.parentNode);
+                    app.getSelectedTree().getSelectionModel().select(node.parentNode);
                     node.remove();
                 });
             }
@@ -657,7 +671,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
         return [{
             text   : 'Refresh Functions',
             scope  : app,
-            handler: app.reloadTree
+            handler: function(){
+
+                app.reloadTree();
+            }
         }, {
             text   : 'Create Function',
             handler: function(){
@@ -715,7 +732,10 @@ Ext.define('Planche.controller.layout.SchemaTreeContextMenu', {
         return [{
             text   : 'Refresh Procedures',
             scope  : app,
-            handler: app.reloadTree
+            handler: function(){
+
+                app.reloadTree();
+            }
         }, {
             text   : 'Create Procedure',
             handler: function(){
