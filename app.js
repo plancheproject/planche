@@ -1092,7 +1092,7 @@ Ext.application({
 
                 app.openQueryTab();
 
-                var sql = app.alignmentQuery(app.getAPIS().getQuery('CREATE_VIEW', db, name));
+                var sql = app.getAPIS().getQuery('CREATE_VIEW', db, name);
                 app.setActiveEditorValue(sql);
             }
         }, this);
@@ -1109,8 +1109,7 @@ Ext.application({
             query  : this.getAPIS().getQuery('SHOW_CREATE_VIEW', db, view),
             success: function(config, response) {
 
-                var body  = app.getAPIS().getQuery('ALTER_VIEW', db, view, response.records[0][1]),
-                    query = app.alignmentQuery(body);
+                var query  = app.getAPIS().getQuery('ALTER_VIEW', db, view, response.records[0][1]);
 
                 app.openQueryTab();
 
@@ -1210,7 +1209,7 @@ Ext.application({
             if (btn == 'ok') {
 
                 this.openQueryTab();
-                var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_PROCEDURE', db, name));
+                var sql = this.getAPIS().getQuery('CREATE_PROCEDURE', db, name);
                 this.setActiveEditorValue(sql);
             }
         }, this);
@@ -1242,8 +1241,7 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var body  = this.getAPIS().getQuery('ALTER_PROCEDURE', db, procedure, response.records[0][2]),
-                    query = this.alignmentQuery(body);
+                var query  = this.getAPIS().getQuery('ALTER_PROCEDURE', db, procedure, response.records[0][2]);
                 this.setActiveEditorValue(query);
 
                 app.setLoading(false);
@@ -1286,7 +1284,7 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_FUNCTION', db, name));
+                var sql = this.getAPIS().getQuery('CREATE_FUNCTION', db, name);
                 this.setActiveEditorValue(sql);
             }
         }, this);
@@ -1316,8 +1314,7 @@ Ext.application({
 
                 app.openQueryTab();
 
-                var body  = app.getAPIS().getQuery('ALTER_FUNCTION', db, func, response.records[0][2]),
-                    query = app.alignmentQuery(body);
+                var query  = app.getAPIS().getQuery('ALTER_FUNCTION', db, func, response.records[0][2]);
                 app.setActiveEditorValue(query);
 
                 app.setLoading(false);
@@ -1360,7 +1357,7 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_TRIGGER', db, name));
+                var sql = this.getAPIS().getQuery('CREATE_TRIGGER', db, name);
                 this.setActiveEditorValue(sql);
             }
         }, this);
@@ -1378,8 +1375,7 @@ Ext.application({
 
                 app.openQueryTab();
 
-                var body  = app.getAPIS().getQuery('ALTER_TRIGGER', db, trigger, response.records[0][2]),
-                    query = app.alignmentQuery(body);
+                var query  = app.getAPIS().getQuery('ALTER_TRIGGER', db, trigger, response.records[0][2]);
                 app.setActiveEditorValue(query);
 
                 app.setLoading(false);
@@ -1477,8 +1473,8 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var sql = this.alignmentQuery(this.getAPIS().getQuery('CREATE_EVENT', db, name));
-                this.setActiveEditorValue(sql);
+                var query = this.getAPIS().getQuery('CREATE_EVENT', db, name);
+                this.setActiveEditorValue(query);
             }
         }, this);
     },
@@ -1492,8 +1488,7 @@ Ext.application({
 
                 this.openQueryTab();
 
-                var body  = this.getAPIS().getQuery('ALTER_EVENT', db, event, response.records[0][3]),
-                    query = this.alignmentQuery(body);
+                var query  = this.getAPIS().getQuery('ALTER_EVENT', db, event, response.records[0][3]);
                 this.setActiveEditorValue(query);
             }
         });
