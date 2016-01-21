@@ -878,6 +878,7 @@ Ext.ClassManager.addNameAlternateMappings({
   "Planche.controller.table.TableSchemaTab": [],
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
+  "Planche.dbms.maria": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.Base64": [
     "Planche.Base64"
@@ -1970,6 +1971,7 @@ Ext.ClassManager.addNameAliasMappings({
   "Planche.controller.table.TableSchemaTab": [],
   "Planche.controller.user.Grant": [],
   "Planche.controller.user.UserAdd": [],
+  "Planche.dbms.maria": [],
   "Planche.dbms.mysql": [],
   "Planche.lib.Base64": [],
   "Planche.lib.ContextMenu": [],
