@@ -1,6 +1,6 @@
 Ext.define('Planche.controller.connection.NewConnect', {
-    extend: 'Ext.app.Controller',
-    mode : 'add',
+    extend    : 'Ext.app.Controller',
+    mode      : 'add',
     initWindow: function(connInfo) {
 
         Ext.create('Planche.lib.Window', {
@@ -174,7 +174,7 @@ Ext.define('Planche.controller.connection.NewConnect', {
                     this.mode = 'edit';
 
                     var title = 'Save connection into local storage';
-                    if(connInfo.raw.into == 'hostfile'){
+                    if (connInfo.raw.into == 'hostfile') {
 
                         title = 'Add new connection into local storage';
                         this.mode = 'add';
@@ -183,7 +183,7 @@ Ext.define('Planche.controller.connection.NewConnect', {
                     Ext.getCmp('add-new-conn-btn').setText(title);
 
                     var values = {},
-                        form = this.getForm();
+                        form   = this.getForm();
 
                     Ext.Object.each(connInfo.raw, function(key, val) {
 
@@ -203,10 +203,10 @@ Ext.define('Planche.controller.connection.NewConnect', {
 
     save: function(btn) {
 
-        var form = this.getForm(),
+        var form   = this.getForm(),
             values = form.getValues(),
-            win = btn.up("window"),
-            app = this.getApplication();
+            win    = btn.up("window"),
+            app    = this.getApplication();
 
         if (typeof localStorage == 'undefined') {
 
@@ -214,7 +214,7 @@ Ext.define('Planche.controller.connection.NewConnect', {
             return;
         }
 
-        var hosts = app.getHostsInStorage(),
+        var hosts     = app.getHostsInStorage(),
             newValues = {};
 
         Ext.Object.each(values, function(key, val) {
@@ -222,12 +222,12 @@ Ext.define('Planche.controller.connection.NewConnect', {
             newValues[key.substring(9)] = val;
         });
 
-        if(this.mode == 'add'){
+        if (this.mode == 'add') {
 
-            newValues['index'] = hosts.length;
+            newValues['index'] = hosts.length + 1;
             hosts.push(newValues);
         }
-        else if(this.mode == 'edit'){
+        else if (this.mode == 'edit') {
 
             hosts[newValues['index']] = newValues;
         }
