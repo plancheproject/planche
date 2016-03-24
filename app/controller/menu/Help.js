@@ -8,7 +8,13 @@ Ext.define('Planche.controller.menu.Help', {
             text   : 'About Planche',
             handler : function(){
 
-                app.openWindow('help.AboutPlanche');
+                window.open('http://plancheproject.github.io/planche_for_wordpress/#about', 'about');
+            }
+        }, {
+            text   : 'Planche issues',
+            handler : function(){
+
+                window.open('https://github.com/plancheproject/planche_for_wordpress/issues', 'issue');
             }
         }]);
 
