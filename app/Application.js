@@ -71,7 +71,7 @@ Ext.define('Planche.Application', {
         'menu.Export',
         'menu.Tools',
         // 'menu.Favorites',
-        // 'menu.Help',
+        'menu.Help',
         // 'menu.Other',
         // 'menu.Powertools',
         // 'menu.Window'

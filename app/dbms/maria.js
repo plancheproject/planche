@@ -1,4 +1,4 @@
-Ext.define('Planche.dbms.mysql', function() {
+Ext.define('Planche.dbms.maria', function() {
 
     var queries = {
         SELECT_ALL_USER         : 'SELECT * FROM `mysql`.`user`',
