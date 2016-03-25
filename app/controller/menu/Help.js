@@ -4,6 +4,7 @@ Ext.define('Planche.controller.menu.Help', {
 
         var app = this.getApplication();
 
+        //Help Toolbar Setting
         topBtn.menu.add([{
             text   : 'About Planche',
             handler : function(){
