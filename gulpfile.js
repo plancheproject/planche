@@ -196,15 +196,16 @@ gulp.task('server', function() {
 gulp.task('watch', function() {
     livereload.listen();
 
-    gulp.watch(pkg.plancheSrc+'/controller/**/*', ['copy:source:controller']);
-    gulp.watch(pkg.plancheSrc+'/dbms/**/*', ['copy:source:dbms']);
-    gulp.watch(pkg.plancheSrc+'/lib/**/*', ['copy:source:lib']);
-    gulp.watch(pkg.plancheSrc+'/model/**/*', ['copy:source:model']);
-    gulp.watch(pkg.plancheSrc+'/overrides/**/*', ['copy:source:overrides']);
-    gulp.watch(pkg.plancheSrc+'/plugins/**/*', ['copy:source:plugins']);
-    gulp.watch(pkg.plancheSrc+'/store/**/*', ['copy:source:store']);
-    gulp.watch(pkg.plancheSrc+'/view/**/*', ['copy:source:view']);
-    gulp.watch(pkg.plancheSrc+'/Readme.md', ['copy:source:Readme.md']);
+    gulp.watch(pkg.plancheSrc+'controller/**/*', ['copy:source:controller']);
+    gulp.watch(pkg.plancheSrc+'dbms/**/*', ['copy:source:dbms']);
+    gulp.watch(pkg.plancheSrc+'lib/**/*', ['copy:source:lib']);
+    gulp.watch(pkg.plancheSrc+'model/**/*', ['copy:source:model']);
+    gulp.watch(pkg.plancheSrc+'overrides/**/*', ['copy:source:overrides']);
+    gulp.watch(pkg.plancheSrc+'plugins/**/*', ['copy:source:plugins']);
+    gulp.watch(pkg.plancheSrc+'store/**/*', ['copy:source:store']);
+    gulp.watch(pkg.plancheSrc+'view/**/*', ['copy:source:view']);
+    gulp.watch(pkg.plancheSrc+'Readme.md', ['copy:source:Readme.md']);
+    gulp.watch(pkg.plancheSrc+'resources/**/*', ['copy:resources']);
 });
 
 // gulp.task('default', ['build', 'watch']);

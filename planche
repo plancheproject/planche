@@ -8,7 +8,7 @@ message() {
 lang=$1
 addr=$2
 port=$3
-path="resources/tunneling/$lang"
+path="application/resources/tunneling/$lang"
 
 if [ $lang = 'nodejs' ]
 then
@@ -28,7 +28,7 @@ else
 fi
 
 if [ -e $file ]
-then 
+then
 
 	eval "$cmd $addr $port"
 
