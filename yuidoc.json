@@ -4,11 +4,11 @@
     "version": "0.0.1",
     "url": "github.com/jeongjuwon/planche",
     "options": {
-        "outdir": "./build/apidocs",
+        "outdir": "./apidocs",
         "ignorePaths": "build, ext, sass, node_modules, resources",
         "exclude": "build, ext, sass, node_modules, resources",
         "paths": [
-            "./app"
+            "./src"
         ]
     }
 }

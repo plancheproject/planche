@@ -1,26 +1,45 @@
 {
-    "author": "Jeong Ju Won <jjwcom@nate.com>",
-    "bugs": {
-        "url": "https://github.com/jeongjuwon/planche/issues"
-    },
-    "description": "MySQL GUI Client Tool",
-    "homepage": "https://github.com/jeongjuwon/planche",
-    "keywords": [
-        "MySQL",
-        "GUI",
-        "ExtJS"
-    ],
-    "license": "GPLv3",
-    "main": "index.html",
-    "name": "planche",
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/jeongjuwon/planche.git"
-    },
-    "scripts": {
-        "postinstall": "bower install",
-        "prestart": "npm install",
-        "start": "http-server -a localhost -p 8000 -c-1"
-    },
-     "version": "1.0.0"
+  "name": "planche",
+  "version": "1.0.0",
+  "description": "MySQL GUI Client Tool",
+  "keywords": [
+    "MySQL",
+    "GUI",
+    "ExtJS"
+  ],
+  "homepage": "https://github.com/jeongjuwon/planche",
+  "bugs": {
+    "url": "https://github.com/jeongjuwon/planche/issues"
+  },
+  "license": "GPLv3",
+  "author": "Jeong Ju Won <jjwcom@nate.com>",
+  "main": "index.html",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jeongjuwon/planche.git"
+  },
+  "scripts": {
+    "build": "gulp build"
+  },
+  "devDependencies": {
+    "del": "^2.2.0",
+    "gulp": "^3.9.1",
+    "gulp-concat": "^2.6.0",
+    "gulp-exec": "^2.1.2",
+    "gulp-livereload": "^3.8.1",
+    "gulp-replace": "^0.5.4",
+    "gulp-shell": "^0.5.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-webserver": "^0.9.1",
+    "run-sequence": "^1.1.5"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "private": true,
+  "plancheSrc": "src/",
+  "extjsSrc": "src/ext/",
+  "buildDir": "build/",
+  "appDir": "application/app/",
+  "theme": "gray"
 }

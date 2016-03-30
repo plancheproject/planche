@@ -22,7 +22,6 @@ The current version is under development. So it may not work properly. The proje
 1. Need php or nodejs environment for execute tunneling file.
 2. Apache Web Server(optional) -> Tunneling file has its own web server.
 
-
 ## Current features
 
 - Execute Query : like a desktop application
@@ -85,7 +84,7 @@ Run the "tunneling file" at CLI mode.
 
 - nodeJS Environment
 ```
-[user@localhost ~]$ ./planche nodejs [localhost] [port] 
+[user@localhost ~]$ ./planche nodejs [localhost] [port]
 ```
 
 ## Watch the video
