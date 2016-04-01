@@ -37,8 +37,8 @@
     "node": ">=0.10.0"
   },
   "private": true,
-  "plancheSrc": "src/",
-  "extjsSrc": "src/ext/",
+  "plancheSrc": "common_src/",
+  "extjsSrc": "common_src/ext/",
   "buildDir": "build/",
   "appDir": "application/app/",
   "theme": "gray"
