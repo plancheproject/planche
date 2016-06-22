@@ -2,8 +2,8 @@ var fs = require('fs');
 var path = require('path');
 var gulp = require('gulp');
 
-var plancheConfig = require('./src/config.json');
 var pkg = require('./package.json');
+var commonConfig = require("./"+pkg.plancheSrc+'config.json');
 
 var runSequence = require('run-sequence');
 
@@ -16,7 +16,7 @@ var del = require("del");
 var livereload = require('gulp-livereload');
 var webserver = require('gulp-webserver');
 
-var includeDirs = plancheConfig.includeDirs;
+var includeDirs = commonConfig.includeDirs;
 var buildDir = pkg.buildDir;
 var extjsSrc = pkg.extjsSrc;
 var appDir = pkg.appDir;
@@ -33,29 +33,29 @@ gulp.task('clean', function(done) {
 gulp.task('setting:Application.js', function() {
 
     return gulp.src(pkg.appDir + 'Application.js')
-        .pipe(replace(/requires\s+?:\s+?\[\]/g, "requires : " + JSON.stringify(plancheConfig.requires)))
-        .pipe(replace(/views\s+?:\s+?\[\]/g, "views : " + JSON.stringify(plancheConfig.views)))
-        .pipe(replace(/controllers\s+?:\s+?\[\]/g, "controllers : " + JSON.stringify(plancheConfig.controllers)))
-        .pipe(replace(/stores\s+?:\s+?\[\]/g, "stores : " + JSON.stringify(plancheConfig.stores)))
+        .pipe(replace(/requires\s+?:\s+?\[\]/g, "requires : " + JSON.stringify(commonConfig.requires)))
+        .pipe(replace(/views\s+?:\s+?\[\]/g, "views : " + JSON.stringify(commonConfig.views)))
+        .pipe(replace(/controllers\s+?:\s+?\[\]/g, "controllers : " + JSON.stringify(commonConfig.controllers)))
+        .pipe(replace(/stores\s+?:\s+?\[\]/g, "stores : " + JSON.stringify(commonConfig.stores)))
         .pipe(gulp.dest(appDir));
 });
 
 gulp.task('copy', [
-    'copy:source:controller',
-    'copy:source:dbms',
-    'copy:source:lib',
-    'copy:source:model',
-    'copy:source:overrides',
-    'copy:source:plugins',
-    'copy:source:store',
-    'copy:source:view',
-    'copy:source:Application.js',
-    'copy:source:Readme.md',
-    'copy:resources',
-    'copy:index.html'
+    'copy:common_src:controller',
+    'copy:common_src:dbms',
+    'copy:common_src:lib',
+    'copy:common_src:model',
+    'copy:common_src:overrides',
+    'copy:common_src:plugins',
+    'copy:common_src:store',
+    'copy:common_src:view',
+    'copy:common_src:Application.js',
+    'copy:common_src:Readme.md',
+    'copy:common_src:resources',
+    'copy:common_src:index.html'
 ]);
 
-gulp.task('copy:source:controller', function() {
+gulp.task('copy:common_src:controller', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'controller/**/*'
@@ -63,7 +63,7 @@ gulp.task('copy:source:controller', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:dbms', function() {
+gulp.task('copy:common_src:dbms', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'dbms/**/*'
@@ -71,7 +71,7 @@ gulp.task('copy:source:dbms', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:lib', function() {
+gulp.task('copy:common_src:lib', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'lib/**/*'
@@ -79,7 +79,7 @@ gulp.task('copy:source:lib', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:model', function() {
+gulp.task('copy:common_src:model', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'model/**/*'
@@ -87,7 +87,7 @@ gulp.task('copy:source:model', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:overrides', function() {
+gulp.task('copy:common_src:overrides', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'overrides/**/*'
@@ -95,7 +95,7 @@ gulp.task('copy:source:overrides', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:plugins', function() {
+gulp.task('copy:common_src:plugins', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'plugins/**/*'
@@ -103,7 +103,7 @@ gulp.task('copy:source:plugins', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:store', function() {
+gulp.task('copy:common_src:store', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'store/**/*'
@@ -111,7 +111,7 @@ gulp.task('copy:source:store', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:view', function() {
+gulp.task('copy:common_src:view', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'view/**/*'
@@ -119,7 +119,7 @@ gulp.task('copy:source:view', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:Application.js', function() {
+gulp.task('copy:common_src:Application.js', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'Application.js'
@@ -127,7 +127,7 @@ gulp.task('copy:source:Application.js', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:source:Readme.md', function() {
+gulp.task('copy:common_src:Readme.md', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'Readme.md'
@@ -135,7 +135,7 @@ gulp.task('copy:source:Readme.md', function() {
     .pipe(gulp.dest(appDir));
 });
 
-gulp.task('copy:index.html', function() {
+gulp.task('copy:common_src:index.html', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'index.html',
@@ -144,7 +144,7 @@ gulp.task('copy:index.html', function() {
     .pipe(gulp.dest(appDir + "../"));
 });
 
-gulp.task('copy:resources', function() {
+gulp.task('copy:common_src:resources', function() {
 
     return gulp.src([
         pkg.plancheSrc + 'resources/**/*'
@@ -161,27 +161,16 @@ gulp.task('build', function(done) {
         'clean',
         'copy',
         'setting:Application.js',
+        'build:sencha',
         done);
 });
 
 gulp.task('build:sencha', function (cb) {
 
-    del([
-        buildDir + "/*"
-    ])
-    .then(function() {
+    exec('./build.sh', function(err, stdout, stderr){
 
-        exec('cd application && sencha app build', function (err, stdout, stderr) {
-
-            // console.log(stdout);
-            // console.log(stderr);
-
-            exec('cp -rf application/build/production/planche/* build/', function (err, stdout, stderr) {
-
-                // console.log(stdout);
-                // console.log(stderr);
-            });
-        });
+        console.log(stdout);
+        console.log(stderr);
     });
 });
 
@@ -196,16 +185,16 @@ gulp.task('server', function() {
 gulp.task('watch', function() {
     livereload.listen();
 
-    gulp.watch(pkg.plancheSrc+'controller/**/*', ['copy:source:controller']);
-    gulp.watch(pkg.plancheSrc+'dbms/**/*', ['copy:source:dbms']);
-    gulp.watch(pkg.plancheSrc+'lib/**/*', ['copy:source:lib']);
-    gulp.watch(pkg.plancheSrc+'model/**/*', ['copy:source:model']);
-    gulp.watch(pkg.plancheSrc+'overrides/**/*', ['copy:source:overrides']);
-    gulp.watch(pkg.plancheSrc+'plugins/**/*', ['copy:source:plugins']);
-    gulp.watch(pkg.plancheSrc+'store/**/*', ['copy:source:store']);
-    gulp.watch(pkg.plancheSrc+'view/**/*', ['copy:source:view']);
-    gulp.watch(pkg.plancheSrc+'Readme.md', ['copy:source:Readme.md']);
-    gulp.watch(pkg.plancheSrc+'resources/**/*', ['copy:resources']);
+    gulp.watch(pkg.plancheSrc+'controller/**/*', ['copy:common_src:controller']);
+    gulp.watch(pkg.plancheSrc+'dbms/**/*', ['copy:common_src:dbms']);
+    gulp.watch(pkg.plancheSrc+'lib/**/*', ['copy:common_src:lib']);
+    gulp.watch(pkg.plancheSrc+'model/**/*', ['copy:common_src:model']);
+    gulp.watch(pkg.plancheSrc+'overrides/**/*', ['copy:common_src:overrides']);
+    gulp.watch(pkg.plancheSrc+'plugins/**/*', ['copy:common_src:plugins']);
+    gulp.watch(pkg.plancheSrc+'store/**/*', ['copy:common_src:store']);
+    gulp.watch(pkg.plancheSrc+'view/**/*', ['copy:common_src:view']);
+    gulp.watch(pkg.plancheSrc+'Readme.md', ['copy:common_src:Readme.md']);
+    gulp.watch(pkg.plancheSrc+'resources/**/*', ['copy:common_src:resources']);
 });
 
 // gulp.task('default', ['build', 'watch']);
