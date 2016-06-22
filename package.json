@@ -7,16 +7,16 @@
     "GUI",
     "ExtJS"
   ],
-  "homepage": "https://github.com/jeongjuwon/planche",
+  "homepage": "https://github.com/plancheproject/planche",
   "bugs": {
-    "url": "https://github.com/jeongjuwon/planche/issues"
+    "url": "https://github.com/plancheproject/planche/issues"
   },
   "license": "GPLv3",
   "author": "Jeong Ju Won <jjwcom@nate.com>",
   "main": "index.html",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jeongjuwon/planche.git"
+    "url": "https://github.com/plancheproject/planche.git"
   },
   "scripts": {
     "build": "gulp build"
