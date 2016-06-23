@@ -1,6 +1,6 @@
 # Planche
 
-![planche logo](http://www.makewebapp.net/planche-master/resources/images/logo.jpg)
+![planche logo](http://plancheproject.github.io/images/logo.jpeg)
 
 Javascript MySQL GUI Client Tool
 
@@ -10,7 +10,7 @@ The current version is under development. So it may not work properly. The proje
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
-![Planche Preview](http://extjs.makewebapp.net/wp-content/uploads/2015/01/01.png)
+![Planche Preview](http://plancheproject.github.io/images/intro.jpeg)
 
 ## Required environment
 
@@ -96,7 +96,14 @@ Planche.config = {
 
 ## Demo
 
-- [Planche Demo](http://www.makewebapp.net/planche-master)
+- [Planche Demo](http://www.planche.io/demo)
+
+## Other projects with planche
+- [Planche desktop](http://github.com/plancheproject/planche-desktop)
+- [Planche wordpress](http://github.com/plancheproject/planche-wp)
+
+
+![Planche Preview](http://plancheproject.github.io/images/intro2.jpeg)
 
 ## Watch the video
 
