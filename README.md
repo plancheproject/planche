@@ -10,7 +10,7 @@ The current version is under development. So it may not work properly. The proje
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
-![Planche Preview](http://plancheproject.github.io/images/intro.jpeg)
+![Planche Preview](http://plancheproject.github.io/images/intro.png)
 
 ## Required environment
 
@@ -103,7 +103,7 @@ Planche.config = {
 - [Planche wordpress](http://github.com/plancheproject/planche-wp)
 
 
-![Planche Preview](http://plancheproject.github.io/images/intro2.jpeg)
+![Planche Preview](http://plancheproject.github.io/images/intro2.png)
 
 ## Watch the video
 
