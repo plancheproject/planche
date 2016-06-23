@@ -69,7 +69,6 @@ Planche.config = {
         }
     ]
 }
-
 ```
 
 ## Current features
