@@ -4,6 +4,11 @@ module.exports = PoolNamespace;
 
 /**
  * PoolNamespace
+ * @constructor
+ * @param {PoolCluster} cluster The parent cluster for the namespace
+ * @param {string} pattern The selection pattern to use
+ * @param {string} selector The selector name to use
+ * @public
  */
 function PoolNamespace(cluster, pattern, selector) {
   this._cluster = cluster;
@@ -27,7 +32,8 @@ PoolNamespace.prototype.getConnection = function(cb) {
       err.code = 'POOL_NOEXIST';
     }
 
-    return cb(err);
+    cb(err);
+    return;
   }
 
   cluster._getConnection(clusterNode, function(err, connection) {
@@ -35,11 +41,13 @@ PoolNamespace.prototype.getConnection = function(cb) {
       && cluster._findNodeIds(namespace._pattern).length !== 0;
 
     if (retry) {
-      return namespace.getConnection(cb);
+      namespace.getConnection(cb);
+      return;
     }
 
     if (err) {
-      return cb(err);
+      cb(err);
+      return;
     }
 
     cb(null, connection);

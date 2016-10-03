@@ -1,5 +1,6 @@
-var BIT_16 = Math.pow(2, 16);
-var BIT_24 = Math.pow(2, 24);
+var BIT_16            = Math.pow(2, 16);
+var BIT_24            = Math.pow(2, 24);
+var BUFFER_ALLOC_SIZE = Math.pow(2, 8);
 // The maximum precision JS Numbers can hold precisely
 // Don't panic: Good enough to represent byte values up to 8192 TB
 var IEEE_754_BINARY_64_PRECISION = Math.pow(2, 53);
@@ -7,21 +8,27 @@ var MAX_PACKET_LENGTH            = Math.pow(2, 24) - 1;
 
 module.exports = PacketWriter;
 function PacketWriter() {
-  this._buffer = new Buffer(0);
+  this._buffer = null;
   this._offset = 0;
 }
 
-PacketWriter.prototype.toBuffer = function(parser) {
-  var packets  = Math.floor(this._buffer.length / MAX_PACKET_LENGTH) + 1;
-  var buffer   = this._buffer;
-  this._buffer = new Buffer(this._buffer.length + packets * 4);
+PacketWriter.prototype.toBuffer = function toBuffer(parser) {
+  if (!this._buffer) {
+    this._buffer = new Buffer(0);
+    this._offset = 0;
+  }
+
+  var buffer  = this._buffer;
+  var length  = this._offset;
+  var packets = Math.floor(length / MAX_PACKET_LENGTH) + 1;
+
+  this._buffer = new Buffer(length + packets * 4);
+  this._offset = 0;
 
   for (var packet = 0; packet < packets; packet++) {
-    this._offset = packet * (MAX_PACKET_LENGTH + 4);
-
     var isLast = (packet + 1 === packets);
     var packetLength = (isLast)
-      ? buffer.length % MAX_PACKET_LENGTH
+      ? length % MAX_PACKET_LENGTH
       : MAX_PACKET_LENGTH;
 
     var packetNumber = parser.incrementPacketNumber();
@@ -110,10 +117,10 @@ PacketWriter.prototype.writeLengthCodedNumber = function(value) {
   }
 
   if (value <= BIT_16) {
-    this._allocate(3)
+    this._allocate(3);
     this._buffer[this._offset++] = 252;
   } else if (value <= BIT_24) {
-    this._allocate(4)
+    this._allocate(4);
     this._buffer[this._offset++] = 253;
   } else {
     this._allocate(9);
@@ -179,9 +186,10 @@ PacketWriter.prototype.writeLengthCodedString = function(value) {
   this._offset += bytes;
 };
 
-PacketWriter.prototype._allocate = function(bytes) {
+PacketWriter.prototype._allocate = function _allocate(bytes) {
   if (!this._buffer) {
-    this._buffer = new Buffer(bytes);
+    this._buffer = new Buffer(Math.max(BUFFER_ALLOC_SIZE, bytes));
+    this._offset = 0;
     return;
   }
 
@@ -190,8 +198,9 @@ PacketWriter.prototype._allocate = function(bytes) {
     return;
   }
 
+  var newSize   = this._buffer.length + Math.max(BUFFER_ALLOC_SIZE, bytes);
   var oldBuffer = this._buffer;
 
-  this._buffer = new Buffer(oldBuffer.length + bytes);
+  this._buffer = new Buffer(newSize);
   oldBuffer.copy(this._buffer);
 };
