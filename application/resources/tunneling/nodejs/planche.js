@@ -15,7 +15,7 @@ function Control() {
 
 Control.prototype = {
 
-    connect: function(host, user, pass, db, response) {
+    connect: function(host, user, pass, db, response, callback) {
 
         this.response = response;
 
@@ -32,16 +32,18 @@ Control.prototype = {
 
             if (!err) {
 
-                console.log("Connect " + host + ":" + user + ", **************, " + db);
-                console.log("Connection Successful");
-                console.log("-----------------------------------------------------------------------");
+                callback({
+                    result : true,
+                    message : 'Connection Successful'
+                })
+
                 return;
             }
 
-            me.error('Connect Error (' + err.errno + ') ' + err.code);
-
-            console.log("ERROR : CONNECTION FAILED " + host + ":" + user + ", **************, " + db);
-            console.log("-----------------------------------------------------------------------");
+            callback({
+                result : false,
+                message : 'Connect Error (' + err.errno + ') ' + err.code
+            })
         });
     },
 
@@ -279,8 +281,6 @@ Control.prototype = {
 
             me.response.write("\n");
         });
-
-        me.response.end('\n');
     },
 
     failure: function(err) {
@@ -313,44 +313,40 @@ Control.prototype = {
             this.response.write(');');
         }
 
-        this.response.end('\n');
         return;
     }
 }
 
 var DEBUG   = true,
-    Planche = new Control(),
     addr    = process.argv[2] ? process.argv[2] : '127.0.0.1',
     port    = process.argv[3] ? process.argv[3] : 8888;
 
 
-console.log("-----------------------------------------------------------------------");
-console.log("Start Planche Tunneling Server");
-console.log("Mapping http://" + addr + ":" + port + "/ to ....");
-console.log("-----------------------------------------------------------------------");
-console.log("HTTP tunneling server is ready at : http://" + addr + ":" + port);
-console.log("-----------------------------------------------------------------------");
+var tunneling = function(params, response) {
 
-//Create Webserver
-http.createServer(function(request, response) {
+    var Planche = new Control();
 
-    var tunneling = function(params) {
+    console.log("Execute Query");
 
-        console.log("Execute Query");
+    if (params.callback) {
 
-        if (params.callback) {
+        console.log("JSON Callback : " + params.callback);
+        Planche.setCallback(params.callback);
+    }
 
-            console.log("JSON Callback : " + params.callback);
-            Planche.setCallback(params.callback);
+    var cmd = new Buffer(params.cmd, 'base64').toString('ascii'),
+        cmd = JSON.parse(cmd);
+
+    Planche.connect(cmd.host, cmd.user, cmd.pass, cmd.db, response, function(res){
+
+        if(!res.result){
+
+            Planche.error(res.message);
+            response.end('\n');
+            return;
         }
 
-        var cmd = new Buffer(params.cmd, 'base64').toString('ascii'),
-            cmd = JSON.parse(cmd);
-
-        Planche.connect(cmd.host, cmd.user, cmd.pass, cmd.db, response);
-
         console.log("The execution SQL is");
-
         console.log(cmd.query);
 
         Planche.setCharset(cmd.charset);
@@ -379,7 +375,18 @@ http.createServer(function(request, response) {
         Planche.close();
 
         console.log("-----------------------------------------------------------------------");
-    };
+    });
+};
+
+console.log("-----------------------------------------------------------------------");
+console.log("Start Planche Tunneling Server");
+console.log("Mapping http://" + addr + ":" + port + "/ to ....");
+console.log("-----------------------------------------------------------------------");
+console.log("HTTP tunneling server is ready at : http://" + addr + ":" + port);
+console.log("-----------------------------------------------------------------------");
+
+//Create Webserver
+http.createServer(function(request, response) {
 
     if (request.url == '/favicon.ico') {
 
@@ -392,20 +399,20 @@ http.createServer(function(request, response) {
         var parse  = url.parse(request.url),
             params = querystring.parse(parse.query);
 
-        tunneling(params);
+        tunneling(params, response);
+        return;
     }
-    else {
 
-        var body = '';
-        request.on('data', function(data) {
+    var body = '';
+    request.on('data', function(data) {
 
-            body += data;
-        });
-        request.on('end', function() {
+        body += data;
+    });
 
-            var params = querystring.parse(body);
-            tunneling(params);
-        });
-    }
+    request.on('end', function() {
+
+        var params = querystring.parse(body);
+        tunneling(params, response);
+    });
 
 }).listen(port, addr);

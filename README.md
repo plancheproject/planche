@@ -23,18 +23,18 @@
 
     - PHP를 이용한 터널링
     ```
-    [mypc:planche-master myaccount]$ ./planche php [localhost] [port]
+    [mypc:planche-master account]$ npm run php [localhost] [port]
     ```
 
     - 노드를 이용한 터널링
     ```
-    [mypc:planche-master myaccount]$ ./planche nodejs [localhost] [port]
+    [mypc:planche-master account]$ npm run node [localhost] [port]
     ```
     ![Planche Preview](http://plancheproject.github.io/images/tunneling.png)
 
 5. index.html 클릭하여 실행합니다.
 ```
-[mypc:planche-master myaccount]$ open build/index.html
+[mypc:planche-master account]$ open build/index.html
 ```
 
 ## Configure host information

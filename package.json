@@ -12,14 +12,16 @@
     "url": "https://github.com/plancheproject/planche/issues"
   },
   "license": "GPLv3",
-  "author": "Jeong Ju Won <jjwcom@nate.com>",
+  "author": "Jeong Ju Won <2jw0718@gmail.com>",
   "main": "index.html",
   "repository": {
     "type": "git",
     "url": "https://github.com/plancheproject/planche.git"
   },
   "scripts": {
-    "build": "gulp build"
+    "build": "gulp build",
+    "php": "php application/resources/tunneling/php/planche.php",
+    "node": "node application/resources/tunneling/nodejs/planche.js"
   },
   "devDependencies": {
     "del": "^2.2.0",
@@ -30,16 +32,25 @@
     "gulp-replace": "^0.5.4",
     "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^1.6.0",
+    "gulp-spawn": "^0.3.0",
     "gulp-webserver": "^0.9.1",
+    "mysql": "^2.11.1",
     "run-sequence": "^1.1.5"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "private": true,
-  "plancheSrc": "common_src/",
-  "extjsSrc": "common_src/ext/",
-  "buildDir": "build/",
-  "appDir": "application/app/",
-  "theme": "gray"
+  "planche": {
+    "plancheSrc": "common_src/",
+    "extjsSrc": "common_src/ext/",
+    "buildDir": "build/",
+    "appDir": "application/app/",
+    "theme": "gray",
+    "tunneling": {
+      "host": "127.0.0.1",
+      "port": "8888",
+      "path": "application/resources/tunneling/"
+    }
+  }
 }
