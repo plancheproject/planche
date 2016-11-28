@@ -1,3 +1,0 @@
-[submodule "common_src"]
-	path = common_src
-	url = https://github.com/plancheproject/common_src.git
