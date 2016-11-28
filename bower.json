@@ -1,21 +1,21 @@
 {
-    "authors": [
-        "Jeong Ju Won <jjwcom@nate.com>"
-    ],
-    "dependencies": {
-        "codemirror": "latest",
-        "jsencrypt" : "latest"
-    },
-    "description": "MySQL GUI Client Tool",
-    "homepage": "https://github.com/jeongjuwon/planche",
-    "keywords": [
-        "MySQL",
-        "GUI",
-        "ExtJS"
-    ],
-    "license": "GPLv3",
-    "main": "index.html",
-    "name": "planche",
-    "private": true,
-    "version": "1.0.0"
+  "authors": [
+    "Jeong Ju Won <2jw0718@gmail.com>"
+  ],
+  "dependencies": {
+    "codemirror": "latest",
+    "extjs": "v4.2.1-883"
+  },
+  "description": "MySQL GUI Client Tool",
+  "homepage": "https://github.com/planche-project/planche",
+  "keywords": [
+    "MySQL",
+    "GUI",
+    "ExtJS"
+  ],
+  "license": "GPLv3",
+  "main": "index.html",
+  "name": "planche",
+  "private": true,
+  "version": "1.0.0"
 }

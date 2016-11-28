@@ -1,242 +1,281 @@
-var fs = require('fs');
-var path = require('path');
 var gulp = require('gulp');
-
-var config = require('./package.json').planche;
-var commonConfig = require("./"+config.plancheSrc+'config.json');
-var tunnelingConfig = config.tunneling;
-
-var runSequence = require('run-sequence');
-
-var sourcemaps = require("gulp-sourcemaps");
-var concat = require("gulp-concat");
-var replace = require("gulp-replace");
-var exec = require('child_process').exec;
-var spawn = require('child_process').spawn;
-var shell = require('gulp-shell');
-var del = require("del");
+var webpack = require('webpack');
+var webpackStream = require('webpack-stream');
 var livereload = require('gulp-livereload');
 var webserver = require('gulp-webserver');
+var config = require('./package.json').planche;
+var concat = require('gulp-concat');
+var replace= require('gulp-replace');
+var path = require('path')
+var runSequence = require('run-sequence');
+var exec = require('child_process').exec;
 
-var includeDirs = commonConfig.includeDirs;
-var buildDir = config.buildDir;
-var extjsSrc = config.extjsSrc;
-var appDir = config.appDir;
+var arguments = {
+  platform : 'planche'
+};
 
-gulp.task('clean', function(done) {
-    del([
-        appDir
-    ]).then(function() {
+var args = process.argv.slice(2);
+for(var i in args) {
 
-        done();
-    });
+  var tmp = args[i].split("=");
+  arguments[tmp[0].slice(2)] = tmp[1];
+}
+
+var platform = arguments.platform;
+var tmp = platform.split("-");
+var Platform = '';
+
+if(tmp.length > 1){
+
+  Platform = tmp[0][0].toUpperCase() + tmp[0].slice(1) + '-' + tmp[1][0].toUpperCase() + tmp[1].slice(1);
+}
+else {
+
+  Platform = tmp[0][0].toUpperCase() + tmp[0].slice(1);
+}
+
+var PLATFORM = platform.toUpperCase();
+
+var entry = require('./build_modules/gulp-planche-make-entry');
+
+var getBuildTasks = function(){
+
+  var tasks = [
+    'build:make:entry',
+    'build:webpack',
+    'build:copy:index'
+  ];
+
+  if(platform == 'planche'){
+
+    tasks.push(
+      'build:copy:host',
+      'build:copy:tunneling:node',
+      'build:copy:tunneling:php'
+    );
+  }
+
+  if(platform == 'planche-desktop'){
+
+    tasks.push(
+      'build:copy:electron',
+      'build:copy:tunneling:node',
+      'build:copy:tunneling:php'
+    )
+  }
+
+  return tasks;
+};
+
+gulp.task('build:make:entry', function(){
+  gulp.src([
+    config.src + '/Application.json'
+  ])
+  .pipe(entry({
+    source : config.src,
+    Platform : Platform
+  }))
 });
 
-gulp.task('setting:Application.js', function() {
+gulp.task('build:webpack', function(){
 
-    return gulp.src(config.appDir + 'Application.js')
-        .pipe(replace(/requires\s+?:\s+?\[\]/g, "requires : " + JSON.stringify(commonConfig.requires)))
-        .pipe(replace(/views\s+?:\s+?\[\]/g, "views : " + JSON.stringify(commonConfig.views)))
-        .pipe(replace(/controllers\s+?:\s+?\[\]/g, "controllers : " + JSON.stringify(commonConfig.controllers)))
-        .pipe(replace(/stores\s+?:\s+?\[\]/g, "stores : " + JSON.stringify(commonConfig.stores)))
-        .pipe(gulp.dest(appDir));
+  return gulp.src(config.src + '/entry.js')
+    .pipe(webpackStream({
+        entry: path.resolve(__dirname, config.src) + "/entry.js",
+        output: {
+            path: path.resolve(__dirname, config.dist[platform]),
+            filename: "app.bundle.js",
+            sourceMapFilename : "[file].map"
+        },
+        plugins: [new webpack.optimize.UglifyJsPlugin()],
+        devtool: 'source-map'
+    }))
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
 
-gulp.task('copy', [
-    'copy:common_src:controller',
-    'copy:common_src:dbms',
-    'copy:common_src:lib',
-    'copy:common_src:model',
-    'copy:common_src:overrides',
-    'copy:common_src:plugins',
-    'copy:common_src:store',
-    'copy:common_src:view',
-    'copy:common_src:Application.js',
-    'copy:common_src:Readme.md',
-    'copy:common_src:resources',
-    'copy:common_src:index.html'
-]);
-
-gulp.task('copy:common_src:controller', function() {
+gulp.task('build:copy:resources', function() {
 
     return gulp.src([
-        config.plancheSrc + 'controller/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+        config.src + '/resources/**/*'
+    ], {base:config.src})
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
 
-gulp.task('copy:common_src:dbms', function() {
+gulp.task('build:copy:electron', function() {
 
     return gulp.src([
-        config.plancheSrc + 'dbms/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+        config.src + '/electron/**/*'
+    ])
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
 
-gulp.task('copy:common_src:lib', function() {
+gulp.task('build:copy:wordpress', function() {
 
     return gulp.src([
-        config.plancheSrc + 'lib/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+        config.src + '/wordpress/**/*'
+    ])
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
 
-gulp.task('copy:common_src:model', function() {
+gulp.task('build:copy:index', function() {
+
+  var scripts = '';
+  switch(platform){
+
+    case 'planche':
+
+      scripts = '<script type="text/javascript" src="config/host.js"><\/script>';
+      break;
+
+    case 'planche-wordpress':
+
+      scripts = '<script type="text/javascript" src="config/hosts.php"><\/script>';
+      break;
+  }
 
     return gulp.src([
-        config.plancheSrc + 'model/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+        config.src + '/index.html'
+    ])
+    .pipe(replace('{# scripts}', scripts))
+    .pipe(replace('{# platform}', platform))
+    .pipe(replace('{# Platform}', Platform))
+    .pipe(replace('{# PLATFORM}', PLATFORM))
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
 
-gulp.task('copy:common_src:overrides', function() {
+gulp.task('build:copy:host', function() {
 
     return gulp.src([
-        config.plancheSrc + 'overrides/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+        config.src + '/config/host.js'
+    ])
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/config'));
 });
 
-gulp.task('copy:common_src:plugins', function() {
+gulp.task('build:copy:tunneling:node', function(){
 
-    return gulp.src([
-        config.plancheSrc + 'plugins/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+  return gulp.src([
+      config.src + '/tunneling/nodejs/tunneling.js',
+      config.src + '/tunneling/nodejs/planche.js'
+  ])
+  .pipe(concat('planche.js'))
+  .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/tunneling'));
 });
 
-gulp.task('copy:common_src:store', function() {
+gulp.task('build:copy:tunneling:php', function(){
 
-    return gulp.src([
-        config.plancheSrc + 'store/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+  return gulp.src([
+      config.src + '/tunneling/php/planche.php'
+  ])
+  .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/tunneling'));
 });
 
-gulp.task('copy:common_src:view', function() {
+gulp.task('build', function(cb){
 
-    return gulp.src([
-        config.plancheSrc + 'view/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+  var tasks = getBuildTasks();
+  tasks.push(cb);
+  runSequence.apply(this, tasks);
 });
 
-gulp.task('copy:common_src:Application.js', function() {
+gulp.task('watch', function() {
 
-    return gulp.src([
-        config.plancheSrc + 'Application.js'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
+    var src = config.src;
+
+    setTimeout(function(){
+
+        livereload.listen();
+
+        gulp.watch([
+          src+'/**/*',
+          '!' + src + '/Application.js',
+          '!' + src + '/entry.js',
+          '!' + src + '/wordpress/**/*',
+          '!' + src + '/electron/**/*',
+          '!' + src + '/resources/**/*'
+        ], ['build', 'livereload']);
+
+        gulp.watch([
+          src + '/resources/**/*'
+        ], ['build:copy:resources']);
+
+        if(platform == 'planche-wordpress'){
+
+          gulp.watch([
+            src + '/wordpress/**/*'
+          ], ['build:copy:wordpress']);
+        }
+
+        if(platform == 'planche-desktop'){
+
+          gulp.watch([
+            src + '/electron/**/*'
+          ], ['build:copy:electron']);
+        }
+
+    }, 1000);
 });
 
-gulp.task('copy:common_src:Readme.md', function() {
-
-    return gulp.src([
-        config.plancheSrc + 'Readme.md'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir));
-});
-
-gulp.task('copy:common_src:index.html', function() {
-
-    return gulp.src([
-        config.plancheSrc + 'index.html',
-        config.plancheSrc + 'app.js'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir + "../"));
-});
-
-gulp.task('copy:common_src:resources', function() {
-
-    return gulp.src([
-        config.plancheSrc + 'resources/**/*'
-    ], {base:config.plancheSrc})
-    .pipe(gulp.dest(appDir+"../"));
-});
-
-// ---------------------------------------------------------------------
-// | Main tasks                                                        |
-// ---------------------------------------------------------------------
-
-gulp.task('build', function(done) {
-    runSequence(
-        'clean',
-        'copy',
-        'setting:Application.js',
-        'build:sencha',
-        done);
-});
-
-gulp.task('build:sencha', function (cb) {
-
-    exec('./build.sh', function(err, stdout, stderr){
-
-        console.log(stdout);
-        console.log(stderr);
-
-        cb(err);
-    });
-});
-
-gulp.task('run:php', function (cb) {
-
-    const task = spawn('php', [
-        tunnelingConfig.path + 'php/planche.php', tunnelingConfig.host, tunnelingConfig.port
-    ]);
-
-    task.stdout.on('data', (data) => {
-        console.log(data.toString());
-    });
-
-    task.stderr.on('data', (data) => {
-        console.log(data.toString());
-    });
-
-    return cb;
-});
-
-gulp.task('run:node', function (cb) {
-
-    const task = spawn('node', [
-        tunnelingConfig.path + 'nodejs/planche.js', tunnelingConfig.host, tunnelingConfig.port
-    ]);
-
-    task.stdout.on('data', (data) => {
-        console.log(data.toString());
-    });
-
-    task.stderr.on('data', (data) => {
-        console.log(data.toString());
-    });
-
-    return cb;
+gulp.task('livereload', function() {
+    return gulp.src([config.dist[platform] + '/*'])
+        .pipe(livereload());
 });
 
 // 웹서버를 localhost:8000 로 실행한다.
 gulp.task('server', function() {
-    return gulp.src(config.appDir + "../")
+    return gulp.src(path.resolve(__dirname, config.dist[platform]))
         .pipe(webserver({
             //host:'192.168.10.17'
         }));
 });
 
-gulp.task('watch', function() {
+gulp.task('open-electron', function(cb){
 
-    var src = config.plancheSrc;
+  exec('electron dist/planche-desktop', function (err, stdout, stderr) {
 
-    livereload.listen();
-
-    gulp.watch(src+'controller/**/*', ['copy:common_src:controller']);
-    gulp.watch(src+'dbms/**/*', ['copy:common_src:dbms']);
-    gulp.watch(src+'lib/**/*', ['copy:common_src:lib']);
-    gulp.watch(src+'model/**/*', ['copy:common_src:model']);
-    gulp.watch(src+'overrides/**/*', ['copy:common_src:overrides']);
-    gulp.watch(src+'plugins/**/*', ['copy:common_src:plugins']);
-    gulp.watch(src+'store/**/*', ['copy:common_src:store']);
-    gulp.watch(src+'view/**/*', ['copy:common_src:view']);
-    gulp.watch(src+'Readme.md', ['copy:common_src:Readme.md']);
-    gulp.watch(src+'resources/**/*', ['copy:common_src:resources']);
+    console.log(stdout);
+    console.log(stderr);
+    cb(err);
+  });
 });
 
-// gulp.task('default', ['build', 'watch']);
-gulp.task('default', ['build', 'server', 'watch']);
+gulp.task('open-browser', function(cb){
+
+  exec('open ./dist/planche/index.html', function (err, stdout, stderr) {
+
+    console.log(stdout);
+    console.log(stderr);
+    cb(err);
+  });
+});
+
+gulp.task('default', function(cb){
+
+  var tasks = [
+    'build', 'build:copy:resources'
+  ];
+
+  if(platform == 'planche-wordpress'){
+
+    tasks.push('build:copy:wordpress');
+  }
+
+  if(platform == 'planche-desktop'){
+
+    tasks.push('build:copy:electron');
+  }
+
+  tasks.push('server', 'watch');
+
+  if(platform == 'planche'){
+
+    tasks.push('open-browser');
+  }
+
+  if(platform == 'planche-desktop'){
+
+    tasks.push('open-electron');
+  }
+
+  tasks.push(cb);
+
+  runSequence.apply(this, tasks);
+});

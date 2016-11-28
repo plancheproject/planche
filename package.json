@@ -19,33 +19,41 @@
     "url": "https://github.com/plancheproject/planche.git"
   },
   "scripts": {
+    "desktop": "gulp --platform=planche-desktop",
+    "wordpress": "gulp --platform=planche-wordpress",
+    "start": "gulp",
     "build": "gulp build",
-    "php": "php application/resources/tunneling/php/planche.php",
-    "node": "node application/resources/tunneling/nodejs/planche.js"
+    "php": "php dist/planche/tunneling/planche.php",
+    "node": "node dist/planche/tunneling/planche.js"
+  },
+  "dependency": {
+    "mysql": "^2.11.1"
   },
   "devDependencies": {
-    "del": "^2.2.0",
+    "electron": "^1.4.1",
     "gulp": "^3.9.1",
-    "gulp-concat": "^2.6.0",
-    "gulp-exec": "^2.1.2",
+    "gulp-concat": "^2.6.1",
     "gulp-livereload": "^3.8.1",
     "gulp-replace": "^0.5.4",
-    "gulp-shell": "^0.5.2",
     "gulp-sourcemaps": "^1.6.0",
-    "gulp-spawn": "^0.3.0",
     "gulp-webserver": "^0.9.1",
-    "mysql": "^2.11.1",
-    "run-sequence": "^1.1.5"
+    "run-sequence": "^1.2.2",
+    "through": "^2.3.8",
+    "webpack": "^1.13.2",
+    "webpack-stream": "^3.2.0",
+    "webpack-uglify-js-plugin": "^1.1.9"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "private": true,
   "planche": {
-    "plancheSrc": "common_src/",
-    "extjsSrc": "common_src/ext/",
-    "buildDir": "build/",
-    "appDir": "application/app/",
+    "src": "src",
+    "dist": {
+      "planche-wordpress": "dist/planche-wordpress",
+      "planche-desktop": "dist/planche-desktop",
+      "planche": "dist/planche"
+    },
     "theme": "gray",
     "tunneling": {
       "host": "127.0.0.1",

@@ -1,0 +1,153 @@
+
+.CodeMirror {
+    line-height: 1.3;
+    font-family: consolas;
+}
+/*        .CodeMirror-selected {
+    border : 1px solid #000000;
+}*/
+/*        .CodeMirror-focused .CodeMirror-selected {
+    border : 1px solid #000000;
+}*/
+div.query_err{
+
+    padding:5px;
+    background-color : #FBEEEE;
+    border: dotted 2px #ff0000;
+}
+
+div.query_err span.message {
+
+    margin-top:10px;
+    display : block;
+    color : red;
+}
+
+div.query_success{
+
+    padding:5px;
+    background-color : #D1E9F8;
+    border: dotted 2px #779ECB;
+}
+
+div.query_success span.message {
+
+    margin-top:10px;
+    display : block;
+    color : blue;
+}
+
+div.info {
+
+    font-family: consolas;
+    font-size : 9pt;
+    padding : 5px;
+    border: dotted 1px #009AD7;
+    white-space: pre;
+}
+
+table.info {
+
+    font-family: consolas;
+    font-size : 9pt;
+}
+
+table.info th{
+
+    color : #009AD7;
+    border-top: dotted 1px #009AD7;
+}
+
+table.info td,
+table.info th{
+
+    padding : 2px;
+    border-bottom: dotted 1px #009AD7;
+    border-right: dotted 1px #009AD7;
+}
+
+table.info th:last-child,
+table.info td:last-child{
+
+    border-right: none;
+}
+
+.btn {
+  border-color: #9d9d9d;
+}
+#quick-combo-inputEl {
+    font-size:20px;
+}
+
+li.x-boundlist-item div.quick-command{
+    padding:10px 5px 10px 5px;
+    font-size:15px;
+    line-height: 24px;
+}
+
+li.x-boundlist-item:nth-child(odd){
+    background-color:#eeeeee;
+    color:#666666;
+}
+
+li.x-boundlist-item span.quick-icon {
+    display:inline-block;
+    width: 24px;
+    height: 24px;
+    vertical-align:middle;
+}
+
+li.x-boundlist-item span.quick-icon.execute-query {
+
+    background:url(../images/icon_play24x24.png);
+}
+li.x-boundlist-item span.quick-icon.fullscreen {
+
+    background:url(../images/icon_fullscreen24x24.png);
+}
+li.x-boundlist-item span.quick-icon.user {
+
+    background:url(../images/icon_user24x24.png);
+}
+li.x-boundlist-item span.quick-icon.manage {
+
+    background:url(../images/icon_manage24x24.png);
+}
+li.x-boundlist-item span.quick-icon.database {
+
+    background:url(../images/icon_database24x24.png);
+}
+li.x-boundlist-item span.quick-icon.table {
+
+    background:url(../images/icon_table24x24.png);
+}
+li.x-boundlist-item span.quick-icon.vars {
+
+    background:url(../images/icon_vars24x24.png);
+}
+li.x-boundlist-item span.quick-icon.status {
+
+    background:url(../images/icon_status24x24.png);
+}
+li.x-boundlist-item span.quick-icon.proc {
+
+     background:url(../images/icon_proc24x24.png);
+ }
+li.x-boundlist-item span.quick-icon.flush {
+
+    background:url(../images/icon_flush24x24.png);
+}
+li.x-boundlist-item span.quick-icon.sql {
+
+    background:url(../images/icon_sql24x24.png);
+}
+
+li.x-boundlist-item span.quick-icon.connection {
+
+    background:url(../images/new_database.png);
+}
+
+li.x-boundlist-item span.quick-icon.stop {
+
+    background:url(../images/icon_stop24x24.png);
+}
