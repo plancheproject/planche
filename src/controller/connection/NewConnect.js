@@ -221,7 +221,7 @@ Ext.define('Planche.controller.connection.NewConnect', {
 
             if (me.mode == 'add') {
 
-                newValues['index'] = hosts.length + 1;
+                newValues['index'] = hosts.length;
                 hosts.push(newValues);
             }
             else if (me.mode == 'edit') {

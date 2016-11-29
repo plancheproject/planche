@@ -1,13 +1,15 @@
 <?php
 
+defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
+
 /**
- * Plugin Name: Planche for WordPress - Dev
- * Plugin URI: https://github.com/plancheproject/planche-wp/
+ * Plugin Name: Planche for wordPress
+ * Plugin URI: https://github.com/plancheproject/planche/
  * Description: The MySQL GUI tool planche for wordpress
- * Version:  0.1.3
+ * Version:  1.0.0
  * Author: Jeong Ju Won(2jw0718@gmail.com)
  * Author URI: https://github.com/plancheproject/planche/
- * License:  GPL v3
+ * License:  GPLv2 or later.
  */
 
 define('PLANCHE_DEBUG', @file_get_contents(__DIR__."/.debug") == 'true');
@@ -117,8 +119,15 @@ function planche_view()
     </style>
     <div id="planche-wp-container">
         <div id="planche-wp-intro" style="width: 100%;height: 100%">
-            <img src="<?php echo plugin_dir_url(__FILE__)?>resources/images/logo.jpg"/><br/><br/>
-            <input type="button" id="btn-run-planche" class="button button-primary" value="Run planche"/>
+            <div><img src="<?php echo plugin_dir_url(__FILE__)?>resources/images/logo.jpg"/></div>
+            <div style="text-align:left;border:1px solid #000000;padding:10px;margin:20px">
+                <h1>Your tunneling URL is : </h1>
+                <h2><span class="dashicons dashicons-external"></span> Absolute</h2> <?php echo plugin_dir_url(__FILE__);?>tunneling/wordpress.php
+                <h2><span class="dashicons dashicons-external"></span> Relative</h2> tunneling/wordpress.php
+            </div>
+            <div>
+                <input type="button" id="btn-run-planche" class="button button-primary" value="Run planche"/>
+            </div>
         </div>
     </div>
     <script>

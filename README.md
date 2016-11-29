@@ -12,8 +12,8 @@
 
 ## 실행 환경
 
-1. PHP 또는 nodejs 개발 환경이 필요합니다.
-2. 별도의 웹서버가 꼭 필요한건 아닙니다(구성에 따른 옵션)
+1. nodejs 개발 환경이 필요합니다.
+2. 터널링 서버를 php로 실행할 경우 터널링 서버를 실행할 php 환경도 필요 합니다.
 
 ## 시작하기
 
@@ -21,25 +21,30 @@
 2. 압축을 해제합니다.
 3. 압축을 푼 디렉토리로 이동하여 터널링 서버를 실행합니다.
 
-    - PHP를 이용한 터널링
+    - 관련 모듈과 bower component 설치
     ```
-    [mypc:planche-master account]$ npm run php [localhost] [port]
+    $ bower install
+    $ npm install
     ```
 
-    - 노드를 이용한 터널링
+    - 터널링 서버 실행(php or node)
     ```
-    [mypc:planche-master account]$ npm run node [localhost] [port]
+    $ npm run php [localhost] [port]
+    $ npm run node [localhost] [port]
     ```
+
+    - 시작(web, desktop, wordpress(only build))
+    ```
+    $ npm run start
+    $ npm run wordpress
+    $ npm run desktop
+    ```
+
     ![Planche Preview](http://plancheproject.github.io/images/tunneling.png)
 
-5. index.html 클릭하여 실행합니다.
-```
-[mypc:planche-master account]$ open build/index.html
-```
+## Configure host information(Only web version)
 
-## Configure host information
-
-접속하자고자 하는 호스트 정보를 "build/resources/config/host.js" 파일에 JSON형식으로 추가합니다. 아래의 방법이 아니더라도 로컬스토리지에 저장이 가능하지만 권장하진 않습니다.
+접속하자고자 하는 호스트 정보를 "dist/planche/resources/config/host.js" 파일에 JSON형식으로 추가합니다. 아래의 방법이 아니더라도 로컬스토리지에 저장이 가능합니다.
 
 ```javascript
 Planche.config = {
