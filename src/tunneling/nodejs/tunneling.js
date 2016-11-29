@@ -51,6 +51,11 @@ Tunnel.prototype = {
 
     sendHeader: function() {
 
+        if(!this.response){
+
+            return;
+        }
+
         if (this.callback) {
 
             this.response.writeHead(200, {'Content-Type': 'application/javascript'});
@@ -99,6 +104,17 @@ Tunnel.prototype = {
 
             me.types[type] = type.toLowerCase();
         });
+    },
+
+    responseWrite: function(str){
+
+        if(this.response){
+
+            this.response.write(str);
+            return;
+        }
+
+        console.log(str);
     },
 
     query: function(query, callback) {
@@ -190,12 +206,12 @@ Tunnel.prototype = {
             });
         }
 
-        this.response.write('{"success":true,');
-        this.response.write('"exec_time":' + exec_time + ',');
-        this.response.write('"affected_rows":' + affected_rows + ',');
-        this.response.write('"insert_id":' + insert_id + ',');
-        this.response.write('"fields":' + JSON.stringify(fields) + ',');
-        this.response.write('"records":[');
+        this.responseWrite('{"success":true,');
+        this.responseWrite('"exec_time":' + exec_time + ',');
+        this.responseWrite('"affected_rows":' + affected_rows + ',');
+        this.responseWrite('"insert_id":' + insert_id + ',');
+        this.responseWrite('"fields":' + JSON.stringify(fields) + ',');
+        this.responseWrite('"records":[');
 
         if (fetchFields) {
 
@@ -204,7 +220,7 @@ Tunnel.prototype = {
 
                 if (idx > 0) {
 
-                    me.response.write(",");
+                    me.responseWrite(",");
                 }
 
                 var tmp = [];
@@ -213,31 +229,34 @@ Tunnel.prototype = {
                     tmp.push(row[p]);
                 }
 
-                me.response.write(JSON.stringify(tmp));
+                me.responseWrite(JSON.stringify(tmp));
                 idx++;
             });
         }
 
-        this.response.write("],");
+        this.responseWrite("],");
 
-        this.response.write('"is_result_query":' + (is_result_query ? 'true' : 'false') + ",");
+        this.responseWrite('"is_result_query":' + (is_result_query ? 'true' : 'false') + ",");
 
         var end           = new Date().getTime(),
             transfer_time = end - start;
 
-        this.response.write('"transfer_time":' + transfer_time + ',');
+        this.responseWrite('"transfer_time":' + transfer_time + ',');
 
         total_time = exec_time + transfer_time;
 
-        this.response.write('"total_time":' + total_time);
-        this.response.write("}");
+        this.responseWrite('"total_time":' + total_time);
+        this.responseWrite("}");
 
         if (this.callback !== null) {
 
-            this.response.write(');');
+            this.responseWrite(');');
         }
 
-        this.response.end('\n');
+        if(this.response) {
+
+            this.response.end('\n');
+        }
     },
 
     exportCSV: function(fetchFields, fetchRows, csv) {
@@ -300,10 +319,10 @@ Tunnel.prototype = {
 
         if (this.callback) {
 
-            this.response.write(this.callback + '(');
+            this.responseWrite(this.callback + '(');
         }
 
-        this.response.write(JSON.stringify(output));
+        this.responseWrite(JSON.stringify(output));
 
         if (this.callback) {
 
@@ -314,16 +333,23 @@ Tunnel.prototype = {
     }
 }
 
+function printLog(response, string){
+
+    if(response){
+
+        console.log(string);
+    }
+}
+
 function tunneling (params, response) {
 
-    console.log('sdfsf')
     var Tunneling = new Tunnel();
 
-    console.log("Execute Query");
+    printLog(response, "Execute Query");
 
     if (params.callback) {
 
-        console.log("JSON Callback : " + params.callback);
+        printLog(response, "JSON Callback : " + params.callback);
         Tunneling.setCallback(params.callback);
     }
 
@@ -335,12 +361,16 @@ function tunneling (params, response) {
         if(!res.result){
 
             Tunneling.error(res.message);
-            response.end('\n');
+
+            if(response) {
+
+                response.end('\n');
+            }
             return;
         }
 
-        console.log("The execution SQL is");
-        console.log(cmd.query);
+        printLog(response, "The execution SQL is");
+        printLog(response, cmd.query);
 
         Tunneling.setCharset(cmd.charset);
 
@@ -367,7 +397,7 @@ function tunneling (params, response) {
 
         Tunneling.close();
 
-        console.log("-----------------------------------------------------------------------");
+        printLog(response, "-----------------------------------------------------------------------");
     });
 }
 

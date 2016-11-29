@@ -3,45 +3,64 @@ var http        = require('http'),
     querystring = require('querystring'),
     tunneling   = tunneling || require('./tunneling');
 
+var args = process.argv.slice(2);
+var options = {};
+for(var i in args) {
+
+  var tmp = args[i].split("=");
+  options[tmp[0].slice(2)] = tmp[1];
+}
+
 var DEBUG   = true,
-    addr    = process.argv[2] ? process.argv[2] : '127.0.0.1',
-    port    = process.argv[3] ? process.argv[3] : 8888;
+    addr    = options.addr || '127.0.0.1',
+    port    = options.port || 8888,
+    cmd     = options.cmd || null,
+    mode    = options.mode || 'http';
 
-console.log("-----------------------------------------------------------------------");
-console.log("Start Planche Tunneling Server");
-console.log("Mapping http://" + addr + ":" + port + "/ to ....");
-console.log("-----------------------------------------------------------------------");
-console.log("HTTP tunneling server is ready at : http://" + addr + ":" + port);
-console.log("-----------------------------------------------------------------------");
+if(mode == 'cli'){
 
-//Create Webserver
-http.createServer(function(request, response) {
+  tunneling({
+    cmd : cmd
+  });
+}
+else if(mode == 'http'){
 
-    if (request.url == '/favicon.ico') {
+  console.log("-----------------------------------------------------------------------");
+  console.log("Start Planche Tunneling Server");
+  console.log("Mapping http://" + addr + ":" + port + "/ to ....");
+  console.log("-----------------------------------------------------------------------");
+  console.log("HTTP tunneling server is ready at : http://" + addr + ":" + port);
+  console.log("-----------------------------------------------------------------------");
 
-        response.end('\n');
-        return;
-    }
+  //Create Webserver
+  http.createServer(function(request, response) {
 
-    if (request.method == 'GET') {
+      if (request.url == '/favicon.ico') {
 
-        var parse  = url.parse(request.url),
-            params = querystring.parse(parse.query);
+          response.end('\n');
+          return;
+      }
 
-        tunneling(params, response);
-        return;
-    }
+      if (request.method == 'GET') {
 
-    var body = '';
-    request.on('data', function(data) {
+          var parse  = url.parse(request.url),
+              params = querystring.parse(parse.query);
 
-        body += data;
-    });
+          tunneling(params, response);
+          return;
+      }
 
-    request.on('end', function() {
+      var body = '';
+      request.on('data', function(data) {
 
-        var params = querystring.parse(body);
-        tunneling(params, response);
-    });
+          body += data;
+      });
 
-}).listen(port, addr);
+      request.on('end', function() {
+
+          var params = querystring.parse(body);
+          tunneling(params, response);
+      });
+
+  }).listen(port, addr);
+}

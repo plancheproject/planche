@@ -9,6 +9,7 @@ var replace= require('gulp-replace');
 var path = require('path')
 var runSequence = require('run-sequence');
 var exec = require('child_process').exec;
+var file = require('gulp-file');
 
 var arguments = {
   platform : 'planche'
@@ -43,7 +44,8 @@ var getBuildTasks = function(){
   var tasks = [
     'build:make:entry',
     'build:webpack',
-    'build:copy:index'
+    'build:copy:index',
+    'build:copy:package.json'
   ];
 
   if(platform == 'planche'){
@@ -188,6 +190,28 @@ gulp.task('build:copy:tunneling:php', function(){
   .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/tunneling'));
 });
 
+gulp.task('build:copy:package.json', function(cb) {
+
+  var json = require('./package.json');
+
+  delete json.planche;
+  delete json.devDependencies;
+  delete json.scripts;
+
+  json.scripts = {
+    start: 'npm update && open index.html',
+    php: 'php tunneling/planche.php',
+    node: 'npm update && node tunneling/planche.js'
+  }
+
+  if(platform == 'planche-desktop'){
+
+    json.main = config.main[platform];
+  }
+  return file('package.json', JSON.stringify(json, null, 4), { src: true })
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
+});
+
 gulp.task('build', function(cb){
 
   var tasks = getBuildTasks();
@@ -248,12 +272,18 @@ gulp.task('server', function() {
 
 gulp.task('open-electron', function(cb){
 
-  exec('electron dist/planche-desktop', function (err, stdout, stderr) {
+  exec(
+    'electron .',
+    {
+      cwd : path.resolve(__dirname, config.dist[platform])
+    },
+    function (err, stdout, stderr) {
 
-    console.log(stdout);
-    console.log(stderr);
-    cb(err);
-  });
+      console.log(stdout);
+      console.log(stderr);
+      cb(err);
+    }
+  );
 });
 
 gulp.task('open-browser', function(cb){

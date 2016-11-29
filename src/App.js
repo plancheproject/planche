@@ -906,7 +906,7 @@ Ext.application({
             return;
         }
 
-        if (!config.tunnelingURL) {
+        if (!config.tunnelingURL && Planche.platform != 'planche-desktop') {
 
             reqConfig.failure({
                 success: false,
@@ -916,17 +916,32 @@ Ext.application({
             return;
         }
 
-        if (reqType == 'jsonp') {
+        if(!config.tunnelingURL && Planche.platform == 'planche-desktop'){
 
-            Ext.apply(reqConfig, {
-                callbackKey: 'callback'
-            });
+            Planche.exec(
+                'node ./tunneling/planche.js --mode=cli --cmd=' + reqConfig.params.cmd,
+                (error, stdout, stderr) => {
 
-            Ext.data.JsonP.request(reqConfig);
+                    reqConfig.success({
+                        responseText : stdout
+                    });
+                }
+            );
         }
         else {
 
-            Ext.Ajax.request(reqConfig);
+            if (reqType == 'jsonp') {
+
+                Ext.apply(reqConfig, {
+                    callbackKey: 'callback'
+                });
+
+                Ext.data.JsonP.request(reqConfig);
+            }
+            else {
+
+                Ext.Ajax.request(reqConfig);
+            }
         }
     },
 
@@ -2181,7 +2196,11 @@ Ext.application({
     setLoading: function(loading) {
 
         var connTab = this.getActiveConnectTab();
-        connTab.setLoading(loading);
+
+        if(connTab){
+
+            connTab.setLoading(loading);
+        }
 
         var stopBtn = Ext.getCmp('toolbar-stop-operation');
 

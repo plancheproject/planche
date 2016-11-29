@@ -1,28 +1,33 @@
 Ext.define('Planche.lib.setting.Planche-Desktop', {
     singleton         : true,
     alternateClassName: ['Planche.lib.Setting'],
+
+    constructor: function (config) {
+
+        this.callSuper(arguments);
+    },
+
     setHosts : function(hosts, callback) {
 
-        localStorage.setItem('planche-hosts', Ext.JSON.encode(hosts));
+        Planche.db.findOne({}, function (err, config) {
 
-        if(callback){ callback(); }
+            config.hosts = hosts;
+
+            Planche.db.update({}, config, {}, function (err, numAffected) {
+
+                if(callback){ callback(); }
+            });
+        });
+
     },
 
     getHosts: function(callback) {
 
-        var hosts   = [],
-            hostIdx = 0;
+        var hosts   = [];
 
-        if (typeof(Storage) !== "undefined") {
+        Planche.db.findOne({}, function (err, config) {
 
-            try {
-
-                var savedLocalHosts = JSON.parse(localStorage.getItem('planche-hosts'));
-            }
-            catch (e) {
-
-                var savedLocalHosts = [];
-            }
+            var savedLocalHosts = config.hosts;
 
             Ext.Array.each(savedLocalHosts, function(connInfo, index) {
 
@@ -33,8 +38,16 @@ Ext.define('Planche.lib.setting.Planche-Desktop', {
 
                 hosts.push(connInfo);
             });
-        }
 
-        if(callback) callback(hosts)
+            if(callback) callback(hosts)
+        });
+    },
+
+    isEnableAutoLoadConnectionWindow : function(callback){
+
+        Planche.db.findOne({}, function (err, config) {
+            
+            if(callback){ callback(config.autoLoadConnectionWindow); }
+        });
     }
 });

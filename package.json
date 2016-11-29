@@ -12,7 +12,7 @@
     "url": "https://github.com/plancheproject/planche/issues"
   },
   "license": "GPLv3",
-  "author": "Jeong Ju Won <2jw0718@gmail.com>",
+  "author": "Jeong JuWon <2jw0718@gmail.com>",
   "main": "index.html",
   "repository": {
     "type": "git",
@@ -22,17 +22,21 @@
     "desktop": "gulp --platform=planche-desktop",
     "wordpress": "gulp --platform=planche-wordpress",
     "start": "gulp",
+    "build-desktop": "gulp build --platform=planche-desktop",
+    "build-wordpress": "gulp build --platform=planche-wordpress",
     "build": "gulp build",
-    "php": "php dist/planche/tunneling/planche.php",
-    "node": "node dist/planche/tunneling/planche.js"
+    "php": "php src/tunneling/php/planche.php",
+    "node": "node src/tunneling/nodejs/planche.js"
   },
-  "dependency": {
-    "mysql": "^2.11.1"
+  "dependencies": {
+    "mysql": "^2.11.1",
+    "nedb": "^1.8.0"
   },
   "devDependencies": {
     "electron": "^1.4.1",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
+    "gulp-file": "^0.3.0",
     "gulp-livereload": "^3.8.1",
     "gulp-replace": "^0.5.4",
     "gulp-sourcemaps": "^1.6.0",
@@ -53,6 +57,11 @@
       "planche-wordpress": "dist/planche-wordpress",
       "planche-desktop": "dist/planche-desktop",
       "planche": "dist/planche"
+    },
+    "main": {
+      "planche-wordpress": "planche-wordpress.php",
+      "planche-desktop": "main.js",
+      "planche": "index.html"
     },
     "theme": "gray",
     "tunneling": {

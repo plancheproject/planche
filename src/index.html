@@ -12,7 +12,6 @@
         <link rel="stylesheet" type="text/css" href="resources/bower_components/codemirror/lib/codemirror.css">
         <link rel="stylesheet" type="text/css" href="resources/bower_components/codemirror/addon/dialog/dialog.css">
         <link rel="stylesheet" type="text/css" href="resources/bower_components/codemirror/addon/search/matchesonscrollbar.css">
-
         <script type="text/javascript" src="resources/bower_components/codemirror/lib/codemirror.js"></script>
         <script type="text/javascript" src="resources/bower_components/codemirror/addon/dialog/dialog.js"></script>
         <script type="text/javascript" src="resources/bower_components/codemirror/addon/search/searchcursor.js"></script>
@@ -26,17 +25,17 @@
             Planche.platform = "{# platform}";
             Planche.Platform = "{# Platform}";
             Planche.PLATFORM = "{# PLATFORM}";
+
+            if(Planche.platform == 'planche-desktop'){
+
+                require('./renderer.js')
+            }
         </script>
         <script src="app.bundle.js"></script>
     </head>
     <body></body>
     <script>
-    if(typeof require != 'undefined'){
-
-        var mysql = require('mysql');
-        require('./renderer.js')
-    }
-    else {
+    if(Planche.platform != 'planche-desktop'){
 
         //Defense for backspace
         window.onbeforeunload = function() {
