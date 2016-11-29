@@ -57,8 +57,7 @@
     "theme": "gray",
     "tunneling": {
       "host": "127.0.0.1",
-      "port": "8888",
-      "path": "application/resources/tunneling/"
+      "port": "8888"
     }
   }
 }

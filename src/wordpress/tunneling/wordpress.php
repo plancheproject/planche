@@ -48,8 +48,8 @@ else {
     $db = $cmd->db;
 }
 
-$Planche->setDatabase($cmd->host, $cmd->user, $cmd->pass, $db);
-$Planche->conn->select($db);
+@$Planche->setDatabase($cmd->host, $cmd->user, $cmd->pass, $db);
+@$Planche->conn->select($db);
 
 // print_r($cmd->query);
 
@@ -57,28 +57,28 @@ if ($cmd->type === 'export') {
 
     if (is_array($cmd->query) == true) {
 
-        $Planche->export($cmd->query[0], $cmd->csv);
+        @$Planche->export($cmd->query[0], $cmd->csv);
     }
     else {
 
-        $Planche->export($cmd->query, $cmd->csv);
+        @$Planche->export($cmd->query, $cmd->csv);
     }
 }
 elseif ($cmd->type === 'bookmark') {
 
-    $Planche->bookmark($sql);
+    @$Planche->bookmark($sql);
 }
 elseif ($cmd->type === 'loadBookmark') {
 
-    $Planche->loadBookmark();
+    @$Planche->loadBookmark();
 }
 else {
 
     if ($cmd->type == 'copy') {
 
-        $Planche->query('SET foreign_key_checks = 0');
+        @$Planche->query('SET foreign_key_checks = 0');
     }
 
-    $Planche->execute($cmd->query);
+    @$Planche->execute($cmd->query);
 }
 ?>

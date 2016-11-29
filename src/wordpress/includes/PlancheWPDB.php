@@ -9,9 +9,13 @@ class PlancheWPDB extends wpdb
         parent::__construct($user, $pass, $db, $host);
     }
 
+    public function print_error( $str = '' ) {
+
+    }
+
     function isSelectQuery($query){
 
-        preg_match( '/INSERT|DELETE|UPDATE|REPLACE|GRANT/is', $query, $maybe );
+        preg_match( '/^(INSERT|DELETE|UPDATE|REPLACE|GRANT)/is', trim($query), $maybe );
 
         if( $maybe ){
 

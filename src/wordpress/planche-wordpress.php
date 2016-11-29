@@ -8,8 +8,7 @@ defined( 'ABSPATH' ) or die( 'No script kiddies please!' );
  * Description: The MySQL GUI tool planche for wordpress
  * Version:  1.0.0
  * Author: Jeong Ju Won(2jw0718@gmail.com)
- * Author URI: https://github.com/plancheproject/planche/
- * License:  GPLv2 or later.
+ * License:  GPLv2 or later
  */
 
 define('PLANCHE_DEBUG', @file_get_contents(__DIR__."/.debug") == 'true');
@@ -18,7 +17,7 @@ add_action('init', 'planche_wp_post_type', 0);
 
 add_action('admin_menu', 'planche_menu');
 add_action('admin_menu', 'planche_cors_option');
-add_action('admin_menu', 'planche_settings');
+// add_action('admin_menu', 'planche_settings');
 
 add_action('wp_ajax_planche_wp_tunneling', 'planche_wp_tunneling');
 add_action('wp_ajax_nopriv_planche_wp_tunneling', 'planche_wp_need_login');

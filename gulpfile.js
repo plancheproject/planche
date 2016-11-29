@@ -87,7 +87,7 @@ gulp.task('build:webpack', function(){
             filename: "app.bundle.js",
             sourceMapFilename : "[file].map"
         },
-        plugins: [new webpack.optimize.UglifyJsPlugin()],
+        // plugins: [new webpack.optimize.UglifyJsPlugin()],
         devtool: 'source-map'
     }))
     .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
@@ -96,7 +96,26 @@ gulp.task('build:webpack', function(){
 gulp.task('build:copy:resources', function() {
 
     return gulp.src([
-        config.src + '/resources/**/*'
+        config.src + '/resources/bower_components/codemirror',
+        config.src + '/resources/bower_components/extjs/resources/css/ext-all-gray.css',
+        config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/ext-theme-gray-all.css',
+        config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/images/**/*',
+        config.src + '/resources/bower_components/extjs/ext-all.js',
+        config.src + '/resources/bower_components/css/**/*',
+        config.src + '/resources/bower_components/images/**/*',
+        config.src + '/resources/bower_components/extjs/license.txt',
+        config.src + '/resources/bower_components/codemirror/addon/dialog/dialog.css',
+        config.src + '/resources/bower_components/codemirror/lib/codemirror.css',
+        config.src + '/resources/bower_components/codemirror/addon/search/matchesonscrollbar.css',
+        config.src + '/resources/bower_components/codemirror/lib/codemirror.js',
+        config.src + '/resources/bower_components/codemirror/addon/dialog/dialog.js',
+        config.src + '/resources/bower_components/codemirror/addon/search/searchcursor.js',
+        config.src + '/resources/bower_components/codemirror/addon/search/search.js',
+        config.src + '/resources/bower_components/codemirror/addon/scroll/annotatescrollbar.js',
+        config.src + '/resources/bower_components/codemirror/addon/search/matchesonscrollbar.js',
+        config.src + '/resources/bower_components/codemirror/mode/sql/sql.js',
+        config.src + '/resources/bower_components/codemirror/*.md',
+        config.src + '/resources/bower_components/codemirror/LICENSE'
     ], {base:config.src})
     .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });

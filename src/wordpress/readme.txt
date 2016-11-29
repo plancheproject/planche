@@ -1,7 +1,6 @@
 === Planche for wordpress ===
 Contributors: Jeong Juwon
 Tags: mysql, gui, admin, sql
-Donate link: a
 Tested up to: 4.5.4
 License: GPLv2 or later.
 License URI: https://www.gnu.org/licenses/gpl-2.0.en.html
