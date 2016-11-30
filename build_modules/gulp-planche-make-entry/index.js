@@ -67,7 +67,7 @@ module.exports = function (options) {
 			var tmp = className.split(".")
 			var word = tmp.pop();
 
-			if(word == "Planche-Wordpress" || word == "Planche-Desktop" || word == "Planche"){
+			if(word == "Planche-Wordpress" || word == "Planche-Desktop" || word == "Planche" || word == "Planche-Chrome"){
 
 				if(Platform == word){
 

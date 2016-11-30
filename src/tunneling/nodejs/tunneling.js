@@ -345,6 +345,18 @@ function tunneling (params, response) {
 
     var Tunneling = new Tunnel();
 
+    if(!params.cmd){
+
+        Tunneling.error('Command was empty');
+
+        if(response) {
+
+            response.end('\n');
+        }
+
+        return;
+    }
+
     printLog(response, "Execute Query");
 
     if (params.callback) {

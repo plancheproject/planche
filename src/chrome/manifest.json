@@ -1,0 +1,20 @@
+{
+  "name": "Planche",
+  "description": "MySQL GUI Client Tool",
+  "version": "0.1",
+  "manifest_version" : 2,
+  "browser_action" : {
+    "default_title": "Planche for chrome",
+    "default_icon" : "resources/images/icon-16.png"
+  },
+  "background": {
+    "scripts": ["main.js"]
+  },
+  "permissions": [
+    "storage",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "content_security_policy": "script-src 'self' 'unsafe-eval' https://www.google-analytics.com/analytics.js 'sha256-Bk73EiGjE3kBciL6duCQVW2VisvPzmVWODugom732f0=' 'sha256-Em4iUrYegKjhERBZTiWs+QZM4q26zccE/bzzVxhI4JY=' http://localhost:8888; object-src 'self'; connect-src '*'",
+  "icons": { "16": "resources/images/icon-16.png", "128": "resources/images/icon-128.png" }
+}

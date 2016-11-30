@@ -74,9 +74,16 @@ Ext.application({
 
             analayticsCode = 'UA-87997368-3';
         }
+        else if(Planche.platform == 'planche-chrome'){
 
-        ga('create', analayticsCode, 'auto');
-        ga('send', 'pageview');
+            analayticsCode = 'UA-87997368-4';
+        }
+
+        if(analayticsCode){
+
+            ga('create', analayticsCode, 'auto');
+            ga('send', 'pageview');
+        }
     },
 
     /**

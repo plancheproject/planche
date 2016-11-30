@@ -66,6 +66,13 @@ var getBuildTasks = function(){
     )
   }
 
+  if(platform == 'planche-chrome'){
+
+    tasks.push(
+      'build:copy:chrome'
+    )
+  }
+
   return tasks;
 };
 
@@ -103,8 +110,8 @@ gulp.task('build:copy:resources', function() {
         config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/ext-theme-gray-all.css',
         config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/images/**/*',
         config.src + '/resources/bower_components/extjs/ext-all.js',
-        config.src + '/resources/bower_components/css/**/*',
-        config.src + '/resources/bower_components/images/**/*',
+        config.src + '/resources/css/**/*',
+        config.src + '/resources/images/**/*',
         config.src + '/resources/bower_components/extjs/license.txt',
         config.src + '/resources/bower_components/codemirror/addon/dialog/dialog.css',
         config.src + '/resources/bower_components/codemirror/lib/codemirror.css',
@@ -126,6 +133,14 @@ gulp.task('build:copy:electron', function() {
 
     return gulp.src([
         config.src + '/electron/**/*'
+    ])
+    .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
+});
+
+gulp.task('build:copy:chrome', function() {
+
+    return gulp.src([
+        config.src + '/chrome/**/*'
     ])
     .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
@@ -208,6 +223,7 @@ gulp.task('build:copy:package.json', function(cb) {
 
     json.main = config.main[platform];
   }
+
   return file('package.json', JSON.stringify(json, null, 4), { src: true })
     .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });
@@ -245,6 +261,13 @@ gulp.task('watch', function() {
           gulp.watch([
             src + '/wordpress/**/*'
           ], ['build:copy:wordpress']);
+        }
+
+        if(platform == 'planche-chrome'){
+
+          gulp.watch([
+            src + '/chrome/**/*'
+          ], ['build:copy:chrome']);
         }
 
         if(platform == 'planche-desktop'){
@@ -310,6 +333,11 @@ gulp.task('default', function(cb){
   if(platform == 'planche-desktop'){
 
     tasks.push('build:copy:electron');
+  }
+
+  if(platform == 'planche-chrome'){
+
+    tasks.push('build:copy:chrome');
   }
 
   tasks.push('server', 'watch');

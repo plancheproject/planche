@@ -21,9 +21,11 @@
   "scripts": {
     "desktop": "gulp --platform=planche-desktop",
     "wordpress": "gulp --platform=planche-wordpress",
+    "chrome": "gulp --platform=planche-chrome",
     "start": "gulp",
     "build-desktop": "gulp build --platform=planche-desktop",
     "build-wordpress": "gulp build --platform=planche-wordpress",
+    "build-chrome": "gulp build --platform=planche-chrome",
     "build": "gulp build",
     "php": "php src/tunneling/php/planche.php",
     "node": "node src/tunneling/nodejs/planche.js"
@@ -56,11 +58,13 @@
     "dist": {
       "planche-wordpress": "dist/planche-wordpress",
       "planche-desktop": "dist/planche-desktop",
+      "planche-chrome": "dist/planche-chrome",
       "planche": "dist/planche"
     },
     "main": {
       "planche-wordpress": "planche-wordpress.php",
       "planche-desktop": "main.js",
+      "planche-chrome": "main.js",
       "planche": "index.html"
     },
     "theme": "gray",

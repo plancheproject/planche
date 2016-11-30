@@ -16,6 +16,7 @@
       "Planche.overrides.RadioGroup",
       "Planche.lib.setting.Planche-Wordpress",
       "Planche.lib.setting.Planche-Desktop",
+      "Planche.lib.setting.Planche-Chrome",
       "Planche.lib.setting.Planche"
     ],
     "views": [
@@ -76,6 +77,7 @@
       "Planche.controller.query.Token",
       "Planche.controller.menu.bookmark.Planche-Wordpress",
       "Planche.controller.menu.bookmark.Planche-Desktop",
+      "Planche.controller.menu.bookmark.Planche-Chrome",
       "Planche.controller.menu.bookmark.Planche",
       "Planche.controller.layout.SchemaTreeContextMenu",
       "Planche.controller.layout.SchemaTree",
