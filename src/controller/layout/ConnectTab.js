@@ -10,8 +10,6 @@ Ext.define('Planche.controller.layout.ConnectTab', {
             'connect-tab' : {
                 boxready : function (tab) {
 
-                    // main.setActiveTab(tab);
-                    //this.initQueryTab('Query', false);
                     this.getApplication().checkToolbar();
                 },
                 activate : function (tab) {

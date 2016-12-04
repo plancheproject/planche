@@ -1,416 +1,497 @@
-var mysql = require('mysql');
+var tunneling = (function (module){
 
-function Tunnel() {
+    var mysql = require('mysql');
+    var deferred = require('deferred');
+    var connections = {};
 
-    this.conn = null;
-    this.types = {};
-    this.callback = null;
-    this.response = null;
+    function Tunnel() {
 
-    this.loadDataTypes();
-}
+        this.conn = null;
+        this.mode = 'http';
+        this.types = {};
+        this.callback = null;
+        this.response = '';
+        this.contents = '';
+        this.loadDataTypes();
+    }
 
-Tunnel.prototype = {
+    Tunnel.prototype = {
 
-    connect: function(host, user, pass, db, response, callback) {
+        connect: function(host, user, pass, db) {
 
-        this.response = response;
+            var def = deferred();
 
-        this.conn = mysql.createConnection({
-            host    : host,
-            user    : user,
-            password: pass,
-            database: db
-        });
+            this.conn = mysql.createConnection({
+                host    : host,
+                user    : user,
+                password: pass,
+                database: db
+            });
 
-        var me = this;
+            var me = this;
 
-        this.conn.connect(function(err) {
+            this.conn.connect(function(err) {
 
-            if (!err) {
+                if (!err) {
 
-                callback({
-                    result : true,
-                    message : 'Connection Successful'
-                })
+                    def.resolve({
+                        result : true,
+                        message : 'Connection Successful'
+                    });
+                    return;
+                }
+
+                def.reject({
+                    result : false,
+                    message : 'Connect Error (' + err.errno + ') ' + err.code
+                });
+            });
+
+            return def.promise;
+        },
+
+        close: function() {
+
+            this.conn.end();
+        },
+
+        sendHeader: function() {
+
+            if(!this.response){
 
                 return;
             }
 
-            callback({
-                result : false,
-                message : 'Connect Error (' + err.errno + ') ' + err.code
-            })
-        });
-    },
+            if (this.callback) {
 
-    close: function() {
+                this.response.writeHead(200, {'Content-Type': 'application/javascript'});
 
-        this.conn.end();
-    },
+            } else {
 
-    sendHeader: function() {
+                this.response.writeHead(200, {
+                    'Access-Control-Allow-Origin': '*',
+                    'Content-Type'               : 'application/json'
+                });
+            }
+        },
 
-        if(!this.response){
+        sendExportHeader: function(name) {
 
-            return;
-        }
+            if(!this.response){
 
-        if (this.callback) {
-
-            this.response.writeHead(200, {'Content-Type': 'application/javascript'});
-
-        } else {
+                return;
+            }
 
             this.response.writeHead(200, {
-                'Access-Control-Allow-Origin': '*',
-                'Content-Type'               : 'application/json'
+                'Content-type'       : 'text/csv',
+                'Content-Disposition': 'attachment; filename=' + name + '.csv',
+                'Pragma'             : 'no-cache',
+                'Expires'            : '0'
             });
-        }
-    },
+        },
 
-    sendExportHeader: function(name) {
+        setCharset: function(charset) {
 
-        this.response.writeHead(200, {
-            'Content-type'       : 'text/csv',
-            'Content-Disposition': 'attachment; filename=' + name + '.csv',
-            'Pragma'             : 'no-cache',
-            'Expires'            : '0'
-        });
-    },
+            if (!charset) {
 
-    setCharset: function(charset) {
+                return;
+            }
 
-        if (!charset) {
+            var query = 'SET NAMES ' + charset;
 
-            return;
-        }
+            this.query(query);
+        },
 
-        var query = 'SET NAMES ' + charset;
+        setMode : function(mode){
 
-        this.query(query);
-    },
+            this.mode = mode;
+        },
 
-    setCallback: function(callback) {
+        setResponse : function(response) {
 
-        this.callback = callback;
-    },
+            this.response = response;
+        },
 
-    loadDataTypes: function() {
+        setCallback: function(callback) {
 
-        var types = ['TINYINT', 'SMALLINT', 'INT', 'MEDIUMINT', 'YEAR', 'FLOAT', 'DOUBLE', 'TIMESTAMP', 'DATE', 'DATETIME', 'TINYBLOB', 'MEDIUMBLOB', 'LONGBLOB', 'BLOB', 'BINARY', 'VARBINARY', 'BIT', 'CHAR', 'VARCHAR', 'TINYTEXT', 'MEDIUMTEXT', 'LONGTEXT', 'TEXT', 'ENUM', 'SET', 'DECIMAL', 'BIGINT', 'TIME', 'GEOMETRY'];
-        var me = this;
-        types.forEach(function(type, idx) {
+            this.callback = callback;
+        },
 
-            me.types[type] = type.toLowerCase();
-        });
-    },
+        loadDataTypes: function() {
 
-    responseWrite: function(str){
+            var types = ['TINYINT', 'SMALLINT', 'INT', 'MEDIUMINT', 'YEAR', 'FLOAT', 'DOUBLE', 'TIMESTAMP', 'DATE', 'DATETIME', 'TINYBLOB', 'MEDIUMBLOB', 'LONGBLOB', 'BLOB', 'BINARY', 'VARBINARY', 'BIT', 'CHAR', 'VARCHAR', 'TINYTEXT', 'MEDIUMTEXT', 'LONGTEXT', 'TEXT', 'ENUM', 'SET', 'DECIMAL', 'BIGINT', 'TIME', 'GEOMETRY'];
+            var me = this;
+            types.forEach(function(type, idx) {
 
-        if(this.response){
+                me.types[type] = type.toLowerCase();
+            });
+        },
 
-            this.response.write(str);
-            return;
-        }
+        write: function(str){
 
-        console.log(str);
-    },
+            if(this.mode == 'http'){
 
-    query: function(query, callback) {
+                this.response.write(str);
+            }
+            else if(this.mode == 'direct') {
 
-        return this.conn.query(query, callback);
-    },
+                this.contents += str;
+            }
+        },
 
-    execute: function(query, type, csv) {
+        query: function(query) {
 
-        if (!query) {
+            var def = deferred();
 
-            this.error('query was empty');
-            return;
-        }
-
-        var start         = new Date().getTime(),
-            affected_rows = 0,
-            insert_id     = 0,
-            fields        = [];
-
-        var me     = this,
-            result = this.query(query, function(err, results, fields) {
+            this.conn.query(query, function(err, results, fields){
 
                 if (err) {
 
-                    me.failure(err);
+                    def.reject(err.toString());
                     return;
                 }
 
-                var end = new Date().getTime();
-
-                if (type == 'export') {
-
-                    me.exportCSV(fields, results, csv);
-                }
-                else {
-
-                    me.success(fields, results, start, end);
-                }
-
+                def.resolve([ results, fields ]);
             });
-    },
 
-    success: function(fetchFields, fetchRows, start, end) {
+            return def.promise;
+        },
 
-        var insert_id       = fetchRows.insertId || 0,
-            affected_rows   = 0,
-            is_result_query = false,
-            fields          = [],
-            me              = this;
+        execute: function(query, type, csv) {
 
-        if (fetchRows.affectedRows) {
+            var def = deferred();
 
-            affected_rows = fetchRows.affectedRows;
-        }
+            if (!query) {
 
-        if (fetchRows.changedRows) {
+                def.reject('query_was_empty');
+                return def.promise;
+            }
 
-            affected_rows = fetchRows.changedRows;
-        }
+            var start         = new Date().getTime(),
+                affected_rows = 0,
+                insert_id     = 0,
+                fields        = [],
+                me            = this;
 
-        this.sendHeader();
+            this.contents = '';
 
-        if (this.callback !== null) {
+            me.query(query).then(
+                function(res){
 
-            this.response.write(this.callback + '(');
-        }
+                    var end = new Date().getTime(),
+                        results = res[0],
+                        fields = res[1];
 
-        exec_time = end - start;
+                    if (type == 'export') {
 
-        if (fetchFields) {
+                        me.exportCSV(fields, results, csv);
+                    }
+                    else {
 
-            is_result_query = true;
+                        me.success(fields, results, start, end);
+                    }
+
+                    def.resolve();
+                },
+                function(err){
+
+                    me.failure(err);
+
+                    def.reject();
+                }
+            );
+
+            return def.promise;
+        },
+
+        success: function(fetchFields, fetchRows, start, end) {
+
+            var insert_id       = fetchRows.insertId || 0,
+                affected_rows   = 0,
+                is_result_query = false,
+                fields          = [],
+                me              = this;
+
+            if (fetchRows.affectedRows) {
+
+                affected_rows = fetchRows.affectedRows;
+            }
+
+            if (fetchRows.changedRows) {
+
+                affected_rows = fetchRows.changedRows;
+            }
+
+            me.sendHeader();
+
+            if (me.callback !== null) {
+
+                me.write(me.callback + '(');
+            }
+
+            exec_time = end - start;
+
+            if (fetchFields) {
+
+                is_result_query = true;
+
+                fetchFields.forEach(function(field, idx) {
+
+                    var name = field.name;
+
+                    fields.push({
+                        'name'      : name,
+                        'org_name'  : field.orgName,
+                        'type'      : me.types[field.type],
+                        'table'     : field.table,
+                        'org_table' : field.orgTable,
+                        'default'   : field.default,
+                        'max_length': field.length,
+                        'length'    : field.length
+                    });
+                });
+            }
+
+            me.write('{"success":true,');
+            me.write('"exec_time":' + exec_time + ',');
+            me.write('"affected_rows":' + affected_rows + ',');
+            me.write('"insert_id":' + insert_id + ',');
+            me.write('"fields":' + JSON.stringify(fields) + ',');
+            me.write('"records":[');
+
+            if (fetchFields) {
+
+                idx = 0;
+                fetchRows.forEach(function(row) {
+
+                    if (idx > 0) {
+
+                        me.write(",");
+                    }
+
+                    var tmp = [];
+                    for (var p in row) {
+
+                        tmp.push(row[p]);
+                    }
+
+                    me.write(JSON.stringify(tmp));
+                    idx++;
+                });
+            }
+
+            me.write("],");
+
+            me.write('"is_result_query":' + (is_result_query ? 'true' : 'false') + ",");
+
+            var end           = new Date().getTime(),
+                transfer_time = end - start;
+
+            me.write('"transfer_time":' + transfer_time + ',');
+
+            total_time = exec_time + transfer_time;
+
+            me.write('"total_time":' + total_time);
+            me.write("}");
+
+            if (me.callback !== null) {
+
+                me.write(');');
+            }
+        },
+
+        exportCSV: function(fetchFields, fetchRows, csv) {
+
+            var me  = this,
+                csv = csv + '_';
+
+            me.sendExportHeader(csv);
 
             fetchFields.forEach(function(field, idx) {
 
-                var name = field.name;
+                if (idx > 0) {
 
-                fields.push({
-                    'name'      : name,
-                    'org_name'  : field.orgName,
-                    'type'      : me.types[field.type],
-                    'table'     : field.table,
-                    'org_table' : field.orgTable,
-                    'default'   : field.default,
-                    'max_length': field.length,
-                    'length'    : field.length
-                });
+                    me.write(",");
+                }
+
+                me.write(field.name);
             });
-        }
 
-        this.responseWrite('{"success":true,');
-        this.responseWrite('"exec_time":' + exec_time + ',');
-        this.responseWrite('"affected_rows":' + affected_rows + ',');
-        this.responseWrite('"insert_id":' + insert_id + ',');
-        this.responseWrite('"fields":' + JSON.stringify(fields) + ',');
-        this.responseWrite('"records":[');
+            if (fetchFields) {
 
-        if (fetchFields) {
+                me.write("\n");
+            }
 
-            idx = 0;
             fetchRows.forEach(function(row) {
 
-                if (idx > 0) {
-
-                    me.responseWrite(",");
-                }
-
-                var tmp = [];
+                var idx = 0;
                 for (var p in row) {
 
-                    tmp.push(row[p]);
+                    if (idx > 0) {
+
+                        me.write(",");
+                    }
+
+                    me.write('"' + row[p] + '"');
+                    idx++;
                 }
 
-                me.responseWrite(JSON.stringify(tmp));
-                idx++;
+                me.write("\n");
             });
-        }
+        },
 
-        this.responseWrite("],");
+        failure: function(error) {
 
-        this.responseWrite('"is_result_query":' + (is_result_query ? 'true' : 'false') + ",");
+            this.output({
+                'success': false,
+                'message': error
+            });
+        },
 
-        var end           = new Date().getTime(),
-            transfer_time = end - start;
+        output: function(output) {
 
-        this.responseWrite('"transfer_time":' + transfer_time + ',');
+            this.sendHeader();
 
-        total_time = exec_time + transfer_time;
+            if (this.callback) {
 
-        this.responseWrite('"total_time":' + total_time);
-        this.responseWrite("}");
-
-        if (this.callback !== null) {
-
-            this.responseWrite(');');
-        }
-
-        if(this.response) {
-
-            this.response.end('\n');
-        }
-    },
-
-    exportCSV: function(fetchFields, fetchRows, csv) {
-
-        var me  = this,
-            csv = csv + '_';
-
-        me.sendExportHeader(csv);
-
-        fetchFields.forEach(function(field, idx) {
-
-            if (idx > 0) {
-
-                me.response.write(",");
+                this.write(this.callback + '(');
             }
 
-            me.response.write(field.name);
-        });
+            this.write(JSON.stringify(output));
 
-        if (fetchFields) {
+            if (this.callback) {
 
-            me.response.write("\n");
-        }
-
-        fetchRows.forEach(function(row) {
-
-            var idx = 0;
-            for (var p in row) {
-
-                if (idx > 0) {
-
-                    me.response.write(",");
-                }
-
-                me.response.write('"' + row[p] + '"');
-                idx++;
+                this.write(');');
             }
-
-            me.response.write("\n");
-        });
-    },
-
-    failure: function(err) {
-
-        this.conn.end();
-        this.error(err.errno + ' : ' + err.code);
-    },
-
-    error: function(error) {
-
-        this.output({
-            'success': false,
-            'message': error
-        });
-    },
-
-    output: function(output) {
-
-        this.sendHeader();
-
-        if (this.callback) {
-
-            this.responseWrite(this.callback + '(');
         }
-
-        this.responseWrite(JSON.stringify(output));
-
-        if (this.callback) {
-
-            this.response.write(');');
-        }
-
-        return;
-    }
-}
-
-function printLog(response, string){
-
-    if(response){
-
-        console.log(string);
-    }
-}
-
-function tunneling (params, response) {
-
-    var Tunneling = new Tunnel();
-
-    if(!params.cmd){
-
-        Tunneling.error('Command was empty');
-
-        if(response) {
-
-            response.end('\n');
-        }
-
-        return;
     }
 
-    printLog(response, "Execute Query");
+    function printLog (response, string){
 
-    if (params.callback) {
+        if(response){
 
-        printLog(response, "JSON Callback : " + params.callback);
-        Tunneling.setCallback(params.callback);
+            console.log(string);
+        }
     }
 
-    var cmd = new Buffer(params.cmd, 'base64').toString('ascii'),
-        cmd = JSON.parse(cmd);
+    function execute (Tunneling, cmd){
 
-    Tunneling.connect(cmd.host, cmd.user, cmd.pass, cmd.db, response, function(res){
+        var def = deferred();
 
-        if(!res.result){
+        printLog(Tunneling.response, "The execution SQL is");
+        printLog(Tunneling.response, cmd.query);
 
-            Tunneling.error(res.message);
-
-            if(response) {
-
-                response.end('\n');
-            }
-            return;
-        }
-
-        printLog(response, "The execution SQL is");
-        printLog(response, cmd.query);
-
-        Tunneling.setCharset(cmd.charset);
+        var csv = cmd.csv || null,
+            query = cmd.query,
+            type = cmd.type;
 
         if (cmd.type === 'export') {
 
             if (typeof cmd.query == 'object') {
 
-                Tunneling.execute(cmd.query[0], cmd.type, cmd.csv);
+                query = cmd.query[0];
             }
-            else {
+        }
 
-                Tunneling.execute(cmd.query, cmd.type, cmd.csv);
+        Tunneling.execute(query, type, csv).then(
+            function (){
+
+                def.resolve(Tunneling.contents);
+            },
+            function (){
+
+                def.reject(Tunneling.contents);
             }
+        );
 
-        } else {
+        printLog(Tunneling.response, "-----------------------------------------------------------------------");
 
-            if (cmd.type == 'copy') {
+        return def.promise;
+    }
+
+    function tunneling (params, response) {
+
+        var def = deferred(),
+            cmd = params.cmd,
+            mode = params.mode,
+            callback = params.callback,
+            connectId = params.connectId || 'user@host';
+
+        var Tunneling = new Tunnel();
+        Tunneling.setResponse(response);
+        Tunneling.setMode(mode);
+
+        if(!cmd){
+
+            Tunneling.failure('Command was empty');
+            return;
+        }
+
+        printLog(response, "Execute Query");
+
+        if (callback) {
+
+            printLog(response, "JSON Callback : " + callback);
+            Tunneling.setCallback(callback);
+        }
+
+        var cmd = new Buffer(cmd, 'base64').toString('ascii'),
+            cmd = JSON.parse(cmd),
+            host = cmd.host,
+            user = cmd.user,
+            pass = cmd.pass,
+            db = cmd.db,
+            type = cmd.type,
+            charset = cmd.charset;
+
+        var _execute = function(res){
+
+            Tunneling.setCharset(charset);
+
+            if (type == 'copy') {
 
                 Tunneling.query("SET foreign_key_checks = 0");
             }
 
-            Tunneling.execute(cmd.query, cmd.type);
+            execute(Tunneling, cmd).then(
+                function(contents){
+
+                    def.resolve(contents);
+                },
+                function(err){
+
+                    def.reject(err);
+                }
+            );
+        };
+
+        if(connections[connectId]){
+
+            Tunneling.conn = connections[connectId];
+            _execute();
+        }
+        else {
+
+            var result = Tunneling.connect(host, user, pass, db);
+            result.then(
+                function(){
+
+                    connections[connectId] = Tunneling.conn;
+                    _execute();
+                },
+                function(res){
+
+                    Tunneling.failure(res.message);
+                    def.reject();
+                }
+            );
         }
 
-        Tunneling.close();
+        return def.promise;
+    }
 
-        printLog(response, "-----------------------------------------------------------------------");
-    });
-}
+    module.exports = tunneling;
 
-module.exports = tunneling;
+    return tunneling;
+
+})(module);

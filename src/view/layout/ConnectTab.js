@@ -2,7 +2,6 @@ Ext.define('Planche.view.layout.ConnectTab', {
     extend  : 'Ext.panel.Panel',
     alias   : 'widget.connect-tab',
     layout  : 'border',
-    // title   : config.host_name
     border  : false,
     closable: true,
     width   : '100%',

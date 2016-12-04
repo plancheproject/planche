@@ -27,15 +27,19 @@
     "build-wordpress": "gulp build --platform=planche-wordpress",
     "build-chrome": "gulp build --platform=planche-chrome",
     "build": "gulp build",
+    "packager": "cd dist/planche-desktop && npm update && cd ../../ && electron-packager ./dist/planche-desktop --all --out=dist/planche-desktop-out --overwrite",
     "php": "php src/tunneling/php/planche.php",
     "node": "node src/tunneling/nodejs/planche.js"
   },
   "dependencies": {
+    "deferred": "^0.7.5",
+    "express": "^4.14.0",
     "mysql": "^2.11.1",
     "nedb": "^1.8.0"
   },
   "devDependencies": {
     "electron": "^1.4.1",
+    "electron-packager": "^8.3.0",
     "gulp": "^3.9.1",
     "gulp-concat": "^2.6.1",
     "gulp-file": "^0.3.0",

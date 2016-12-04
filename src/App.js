@@ -744,6 +744,8 @@ Ext.application({
         var app        = this,
             connection = config.connection || app.getActiveConnectTab();
 
+            // debugger;
+
         Ext.applyIf(config, {
             db         : '',
             type       : 'query',
@@ -925,15 +927,26 @@ Ext.application({
 
         if(!config.tunnelingURL && Planche.platform == 'planche-desktop'){
 
-            Planche.exec(
-                'node ./tunneling/planche.js --mode=cli --cmd=' + reqConfig.params.cmd,
-                (error, stdout, stderr) => {
+            var result = Planche.tunneling({
+                connnectId : params.host + '@' + params.user,
+                mode       : 'direct',
+                cmd        : reqConfig.params.cmd
+            });
+
+            result.then(
+                function(contents){
 
                     reqConfig.success({
-                        responseText : stdout
+                        responseText : contents
+                    });
+                },
+                function(err){
+
+                    reqConfig.failure({
+                        responseText : err
                     });
                 }
-            );
+            )
         }
         else {
 
@@ -968,12 +981,9 @@ Ext.application({
 
         Ext.applyIf(options, {
             ignoreFailure: false,
-            start        : function() {
-            },
-            success      : function() {
-            },
-            failure      : function() {
-            }
+            start        : function() {},
+            success      : function() {},
+            failure      : function() {}
         });
 
         options['start'].apply(app);

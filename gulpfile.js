@@ -105,13 +105,12 @@ gulp.task('build:webpack', function(){
 gulp.task('build:copy:resources', function() {
 
     return gulp.src([
-        config.src + '/resources/bower_components/codemirror',
+        config.src + '/resources/css/**/*',
+        config.src + '/resources/images/**/*',
         config.src + '/resources/bower_components/extjs/resources/css/ext-all-gray.css',
         config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/ext-theme-gray-all.css',
         config.src + '/resources/bower_components/extjs/resources/ext-theme-gray/images/**/*',
         config.src + '/resources/bower_components/extjs/ext-all.js',
-        config.src + '/resources/css/**/*',
-        config.src + '/resources/images/**/*',
         config.src + '/resources/bower_components/extjs/license.txt',
         config.src + '/resources/bower_components/codemirror/addon/dialog/dialog.css',
         config.src + '/resources/bower_components/codemirror/lib/codemirror.css',
@@ -189,12 +188,19 @@ gulp.task('build:copy:host', function() {
 
 gulp.task('build:copy:tunneling:node', function(){
 
-  return gulp.src([
+  var result = gulp.src([
       config.src + '/tunneling/nodejs/tunneling.js',
       config.src + '/tunneling/nodejs/planche.js'
-  ])
-  .pipe(concat('planche.js'))
-  .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/tunneling'));
+  ]);
+
+  if(platform !== 'planche-desktop'){
+
+    result = result.pipe(concat('planche.js'));
+  }
+
+  result = result.pipe(gulp.dest(path.resolve(__dirname, config.dist[platform]) + '/tunneling'));
+
+  return result;
 });
 
 gulp.task('build:copy:tunneling:php', function(){
@@ -211,12 +217,33 @@ gulp.task('build:copy:package.json', function(cb) {
 
   delete json.planche;
   delete json.devDependencies;
+
+  if(platform == 'planche-desktop'){
+
+    json.devDependencies = {
+        "electron": "^1.4.1",
+        "electron-packager": "^8.3.0"
+    };
+  }
+
   delete json.scripts;
 
-  json.scripts = {
-    start: 'npm update && open index.html',
-    php: 'php tunneling/planche.php',
-    node: 'npm update && node tunneling/planche.js'
+  if(platform == 'planche-desktop'){
+
+    json.scripts = {
+      start: 'npm update && electron .',
+      php: 'php tunneling/planche.php',
+      node: 'npm update && node tunneling/planche.js',
+      packager: 'npm update && electron-packager . --all  --out=package --overwrite'
+    }
+  }
+  else {
+
+    json.scripts = {
+      start: 'npm update && open index.html',
+      php: 'php tunneling/planche.php',
+      node: 'npm update && node tunneling/planche.js'
+    }
   }
 
   if(platform == 'planche-desktop'){
