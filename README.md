@@ -1,50 +1,70 @@
 # Planche
 
-![planche logo](http://plancheproject.github.io/images/logo.jpeg)
+![Planche Preview](http://plancheproject.github.io/images/intro2.png)
 
-플란체는 자바스크립트 기반의 MySQL GUI 클라이언트 툴입니다. HTTP터널링 방식을 통해 동작합니다. 플란체는 기본적인 설치형 유료 MySQL 클라이언트 도구를 웹에서 가능한 비슷하게 구현하자는 목표를 담았습니다.
-웹상에서 설치형 클라이언트 도구의 모습을 흉내 내기위해 Sencha ExtJS Framework를 활용했습니다.
+Planche is a MySQL GUI Climent tool. It was developed by javascript. You can use it through the tunneling.
+
+It has the goal of implementing that is to be like a native application as closely as possible.
+
+Extjs framework is used for the reaonses mentioned above. Extjs is the best way for it.
 
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
 ![Planche Preview](http://plancheproject.github.io/images/intro.png)
 
-## 실행 환경
+## Install
 
-1. nodejs 개발 환경이 필요합니다.
-2. 터널링 서버를 php로 실행할 경우 터널링 서버를 실행할 php 환경도 필요 합니다.
+```
+$ git clone https://github.com/plancheproject/planche.git
+$ bower install
+$ npm install
+```
 
-## 시작하기
+## Run tunneling server
 
-1. 플란체를 다운로드 합니다.
-2. 압축을 해제합니다.
-3. 압축을 푼 디렉토리로 이동하여 터널링 서버를 실행합니다.
+```
+$ npm run php [localhost] [port]
+$ npm run node [localhost] [port]
+```
 
-    - 관련 모듈과 bower component 설치
-    ```
-    $ bower install
-    $ npm install
-    ```
+플란체는 자바스크립트 기반이므로 데이터베이스에 접근할 수 있는 별도의 Client API가 존재하지 않습니다. 그래서 서버사이드 언어를 이용한 터널링 방식을 사용합니다.
 
-    - 터널링 서버 실행(php or node)
-    ```
-    $ npm run php [localhost] [port]
-    $ npm run node [localhost] [port]
-    ```
+![Planche Preview](http://plancheproject.github.io/images/arch1.png)
 
-    - 시작(web, desktop, wordpress(only build))
-    ```
-    $ npm run start
-    $ npm run wordpress
-    $ npm run desktop
-    ```
+HTTP 터널링(Tunneling) 방식을 적용하여 터널링 파일만 올라가 있으면 내부(로컬)접속만 가능한 데이터베이스도 웹 서버에 설치된  터널링 파일을 통해 우회적인 접근이 가능합니다. Ajax 데이터 통신기술과 JSOP라는 방법을 선택적으로 사용하여 서버에 설치해 사용하거나 사용자의 PC에서 바로 실행하더라도 구동되도록 JSONP 통신방식을 채택하여 크로스 도메인 이슈에서도 벗어 날 수 있는 있도록 제작하였습니다.
 
-    ![Planche Preview](http://plancheproject.github.io/images/tunneling.png)
+![Planche Preview](http://plancheproject.github.io/images/arch2.png)
 
-## Configure host information(Only web version)
+![Planche Preview](http://plancheproject.github.io/images/tunneling.png)
 
-접속하자고자 하는 호스트 정보를 "dist/planche/resources/config/host.js" 파일에 JSON형식으로 추가합니다. 아래의 방법이 아니더라도 로컬스토리지에 저장이 가능합니다.
+## Build and Run
+
+- For web version
+```
+$ npm run start
+```
+
+- For desktop version
+```
+$ npm run desktop
+```
+
+- For wordpress version
+```
+$ npm run wordpress
+```
+
+- For chrome extension version
+```
+$ npm run chrome
+```
+
+## Configuration host(only web version)
+
+```
+$ vi dist/planche/resources/config/host.js
+```
 
 ```javascript
 Planche.config = {
@@ -64,28 +84,9 @@ Planche.config = {
 }
 ```
 
-## HTTP 터널링(Tunneling)
-
-플란체는 자바스크립트 기반이므로 데이터베이스에 접근할 수 있는 별도의 Client API가 존재하지 않습니다. 그래서 서버사이드 언어를 이용한 터널링 방식을 사용합니다.
-
-![Planche Preview](http://plancheproject.github.io/images/arch1.png)
-
-HTTP 터널링(Tunneling) 방식을 적용하여 터널링 파일만 올라가 있으면 내부(로컬)접속만 가능한 데이터베이스도 웹 서버에 설치된  터널링 파일을 통해 우회적인 접근이 가능합니다. Ajax 데이터 통신기술과 JSOP라는 방법을 선택적으로 사용하여 서버에 설치해 사용하거나 사용자의 PC에서 바로 실행하더라도 구동되도록 JSONP 통신방식을 채택하여 크로스 도메인 이슈에서도 벗어 날 수 있는 있도록 제작하였습니다.
-
-![Planche Preview](http://plancheproject.github.io/images/arch2.png)
-
-
-## 데모영상
+## Demo
 
 - [Planche Demo](http://www.planche.io/demo)
-
-## 플란체를 사용하는 다른 프로젝트들
-
-- [Planche desktop](http://github.com/plancheproject/planche-desktop) : 일렉트론 패키징을 통해 데스크탑용 버전으로 개발하려 합니다.
-- [Planche wordpress](http://github.com/plancheproject/planche-wp) : 워드프레스용 플러그인 패키지입니다.
-
-
-![Planche Preview](http://plancheproject.github.io/images/intro2.png)
 
 ## Watch the video
 
