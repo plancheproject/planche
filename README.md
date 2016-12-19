@@ -1,6 +1,6 @@
 # Planche
 
-![Planche Preview](http://plancheproject.github.io/images/intro2.png)
+![Planche Preview](http://planche.io/images/intro2.png)
 
 Planche is a MySQL GUI Climent tool. It was developed by javascript. You can use it through the tunneling.
 
@@ -11,7 +11,7 @@ Extjs framework is used for the reaonses mentioned above. Extjs is the best way 
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
-![Planche Preview](http://plancheproject.github.io/images/intro.png)
+![Planche Preview](http://planche.io/images/intro.png)
 
 ## Install
 
@@ -30,13 +30,13 @@ $ npm run node [localhost] [port]
 
 플란체는 자바스크립트 기반이므로 데이터베이스에 접근할 수 있는 별도의 Client API가 존재하지 않습니다. 그래서 서버사이드 언어를 이용한 터널링 방식을 사용합니다.
 
-![Planche Preview](http://plancheproject.github.io/images/arch1.png)
+![Planche Preview](http://planche.io/images/arch1.png)
 
 HTTP 터널링(Tunneling) 방식을 적용하여 터널링 파일만 올라가 있으면 내부(로컬)접속만 가능한 데이터베이스도 웹 서버에 설치된  터널링 파일을 통해 우회적인 접근이 가능합니다. Ajax 데이터 통신기술과 JSOP라는 방법을 선택적으로 사용하여 서버에 설치해 사용하거나 사용자의 PC에서 바로 실행하더라도 구동되도록 JSONP 통신방식을 채택하여 크로스 도메인 이슈에서도 벗어 날 수 있는 있도록 제작하였습니다.
 
-![Planche Preview](http://plancheproject.github.io/images/arch2.png)
+![Planche Preview](http://planche.io/images/arch2.png)
 
-![Planche Preview](http://plancheproject.github.io/images/tunneling.png)
+![Planche Preview](http://planche.io/images/tunneling.png)
 
 ## Build and Run
 
@@ -94,7 +94,7 @@ http://www.youtube.com/embed/WCnXJXDRlYs
 
 ## Official Website
 
-http://plancheproject.github.io
+http://planche.io
 
 ## License
 
