@@ -414,8 +414,7 @@ var tunneling = (function (module){
         var def = deferred(),
             cmd = params.cmd,
             mode = params.mode,
-            callback = params.callback,
-            connectId = params.connectId || 'user@host';
+            callback = params.callback;
 
         var Tunneling = new Tunnel();
         Tunneling.setResponse(response);
@@ -442,7 +441,8 @@ var tunneling = (function (module){
             pass = cmd.pass,
             db = cmd.db,
             type = cmd.type,
-            charset = cmd.charset;
+            charset = cmd.charset,
+            connectId = cmd.connectId;
 
         var _execute = function(res){
 

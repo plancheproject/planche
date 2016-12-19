@@ -591,6 +591,8 @@ Ext.application({
      */
     openWindow: function(id) {
 
+        console.log(id);
+        
         var args = Ext.toArray(arguments),
             ctrl = this.getController(id),
             cmp  = Ext.getCmp('window-' + id);
@@ -787,49 +789,20 @@ Ext.application({
         this._tunneling(config);
     },
 
-    _client : function(config){
-
-        var connection = mysql.createConnection({
-          host     : config.host,
-          user     : config.user,
-          password : config.pass,
-          database : config.db,
-          charset  : config.charset,
-          port     : config.port
-        });
-
-        connection.connect();
-
-        connection.query(config.query, function(err, rows, fields) {
-
-          if (err){
-
-              config.failure(config, {
-                  message : err
-              })
-          }
-          else {
-
-              config.success(config, rows)
-          }
-        });
-
-        connection.end();
-    },
-
     _tunneling : function(config){
 
         var app = this.getApplication();
 
         var params = Planche.Base64.encode(Ext.JSON.encode({
-            db     : config.db,
-            host   : config.host,
-            user   : config.user,
-            pass   : config.pass,
-            charset: config.charset,
-            port   : config.port,
-            query  : config.query,
-            type   : config.type
+            db        : config.db,
+            host      : config.host,
+            user      : config.user,
+            pass      : config.pass,
+            charset   : config.charset,
+            port      : config.port,
+            query     : config.query,
+            type      : config.type,
+            connectId : config.host + '@' + config.user + '/' + config.db
         }));
 
         var reqConfig = {
@@ -928,7 +901,6 @@ Ext.application({
         if(!config.tunnelingURL && Planche.platform == 'planche-desktop'){
 
             var result = Planche.tunneling({
-                connnectId : params.host + '@' + params.user,
                 mode       : 'direct',
                 cmd        : reqConfig.params.cmd
             });
