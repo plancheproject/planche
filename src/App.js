@@ -591,8 +591,8 @@ Ext.application({
      */
     openWindow: function(id) {
 
-        console.log(id);
-        
+        id = 'Planche.controller.'+id;
+
         var args = Ext.toArray(arguments),
             ctrl = this.getController(id),
             cmp  = Ext.getCmp('window-' + id);
@@ -774,7 +774,7 @@ Ext.application({
 
         if (connection) {
 
-            Ext.applyIf(config, {
+            Ext.apply(config, {
                 hostName    : connection.getHostName(),
                 host        : connection.getHost(),
                 user        : connection.getUser(),
@@ -2519,10 +2519,12 @@ Ext.application({
                         params: [db]
                     });
 
+                    var query = api.getQuery('SHOW_ALL_TABLE_STATUS', db);
+
                     tunnelings.push({
                         connection: tab,
                         db        : db,
-                        query     : api.getQuery('SHOW_ALL_TABLE_STATUS', db),
+                        query     : query,
                         success   : function(config, response) {
 
                             Ext.Array.each(response.records, function(row, idx) {
