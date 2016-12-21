@@ -27,7 +27,7 @@
     "build-wordpress": "gulp build --platform=planche-wordpress",
     "build-chrome": "gulp build --platform=planche-chrome",
     "build": "gulp build",
-    "packager": "cd dist/planche-desktop && npm update && cd ../../ && electron-packager ./dist/planche-desktop --all --out=dist/planche-desktop-out --overwrite",
+    "packager": "cd dist/planche-desktop && npm update && cd ../../ && electron-packager ./dist/planche-desktop --all --out=dist/planche-desktop-out --overwrite --icon=./dist/planche-desktop/resources/images/icon-planche.png.icns",
     "php": "php src/tunneling/php/planche.php",
     "node": "node src/tunneling/nodejs/planche.js"
   },
