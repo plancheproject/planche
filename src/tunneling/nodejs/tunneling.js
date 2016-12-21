@@ -17,7 +17,7 @@ var tunneling = (function (module){
 
     Tunnel.prototype = {
 
-        connect: function(host, user, pass, db) {
+        connect: function(host, user, pass, db, port) {
 
             var def = deferred();
 
@@ -25,7 +25,8 @@ var tunneling = (function (module){
                 host    : host,
                 user    : user,
                 password: pass,
-                database: db
+                database: db,
+                port : port
             });
 
             var me = this;
@@ -440,6 +441,7 @@ var tunneling = (function (module){
             user = cmd.user,
             pass = cmd.pass,
             db = cmd.db,
+            port = cmd.port,
             type = cmd.type,
             charset = cmd.charset,
             connectId = cmd.connectId;
@@ -472,7 +474,7 @@ var tunneling = (function (module){
         }
         else {
 
-            var result = Tunneling.connect(host, user, pass, db);
+            var result = Tunneling.connect(host, user, pass, db, port);
             result.then(
                 function(){
 
