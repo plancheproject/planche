@@ -108,7 +108,7 @@ Ext.define('Planche.controller.command.Flush', {
             node = node.nextNode();
         }
 
-        if(queries.length == 0) {
+        if(queries.length === 0) {
 
             Ext.Msg.alert('info', 'Must select any command');
             return;

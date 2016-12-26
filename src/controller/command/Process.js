@@ -22,7 +22,7 @@ Ext.define('Planche.controller.command.Process', {
 
                     var selected = this.grid.selModel.getSelection();
 
-                    if(selected.length == 0){
+                    if(selected.length === 0){
 
                         Ext.Msg.alert('info', 'Please select a process id');
                         return;

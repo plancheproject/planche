@@ -4,7 +4,8 @@
   ],
   "dependencies": {
     "codemirror": "latest",
-    "extjs": "v4.2.1-883"
+    "extjs": "v4.2.1-883",
+    "async": "^2.1.4"
   },
   "description": "MySQL GUI Client Tool",
   "homepage": "https://github.com/planche-project/planche",

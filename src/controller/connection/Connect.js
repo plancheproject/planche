@@ -248,7 +248,7 @@ Ext.define('Planche.controller.connection.Connect', {
         var grid = Ext.getCmp('connect-grid'),
             selGrid = grid.selModel.getSelection();
 
-        if (selGrid.length == 0) {
+        if (selGrid.length === 0) {
 
             return false;
         }

@@ -67,7 +67,7 @@ Ext.define('Planche.controller.database.CreateDatabase', {
 
                 app.getActiveConnectTab().setLoading(false);
 
-                if (messages.length == 0) {
+                if (messages.length === 0) {
 
                     this.initCreateWindow(db);
                 }

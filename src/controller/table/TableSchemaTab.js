@@ -79,7 +79,7 @@ Ext.define('Planche.controller.table.TableSchemaTab', {
 
         if (!selection) { return; }
         if (cnt == 1) { return; }
-        if (selModel.getCurrentPosition().row == 0) {
+        if (selModel.getCurrentPosition().row === 0) {
 
             selModel.move('down');
         }

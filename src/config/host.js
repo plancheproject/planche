@@ -16,5 +16,5 @@ Planche.config = {
         'performance_schema',
         'mysql'
     ],
-    autoLoadConnectionWindow: true
+    autoLoadConnectionWindow: false
 };

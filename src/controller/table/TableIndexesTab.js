@@ -41,7 +41,7 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
             selModel = tab.getSelectionModel(),
             selList  = selModel.getSelection();
 
-        if (selList.length == 0) {
+        if (selList.length === 0) {
 
             app.showMessage('Choose the index you want to edit.');
             return;
@@ -59,7 +59,7 @@ Ext.define('Planche.controller.table.TableIndexesTab', {
             selModel = tab.getSelectionModel(),
             selList  = selModel.getSelection();
 
-        if (selList.length == 0) {
+        if (selList.length === 0) {
 
             app.showMessage('Choose the index you want to delete.');
             return;

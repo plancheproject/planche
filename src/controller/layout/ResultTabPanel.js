@@ -412,7 +412,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             selModel = grid.getSelectionModel(),
             selection = selModel.getSelection();
 
-        if (selection.length == 0) {
+        if (selection.length === 0) {
 
             Ext.Msg.alert('info', 'Please, select one more rows to delete');
             return;
@@ -489,7 +489,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             });
         });
 
-        if (tunnelings.length == 0) {
+        if (tunnelings.length === 0) {
 
             Ext.Msg.alert('info', 'There\'s no changes');
             return;
@@ -525,7 +525,7 @@ Ext.define('Planche.controller.layout.ResultTabPanel', {
             selModel = grid.getSelectionModel(),
             selection = selModel.getSelection();
 
-        if (selection.length == 0) {
+        if (selection.length === 0) {
 
             Ext.Msg.alert('info', 'Please, select one more rows to delete');
             return;

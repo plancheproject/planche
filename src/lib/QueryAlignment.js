@@ -196,9 +196,9 @@ Ext.define('Planche.lib.QueryAlignment', function() {
                             return;
                         }
 
-                        if (countColumn % 5 == 0 && countColumn > 0) {
+                        if (countColumn % 5 === 0 && countColumn > 0) {
 
-                            //if (countColumn % 5 == 0){
+                            //if (countColumn % 5 === 0){
                             //
                             //    ((2 - 1) * 5) + 1
                             //}

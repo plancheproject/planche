@@ -49,7 +49,7 @@ module.exports = function (options) {
 			if(className.indexOf('Planche') > -1){
 
 				var file = className.slice('Planche'.length + 1).replace(/\./g, '/')
-				text += 'require("./' + file + '")\n';
+				text += 'require("./' + file + '");\n';
 			}
 		})
 
@@ -115,7 +115,7 @@ module.exports = function (options) {
 				getDependencies('views', contents)
 			)
 
-			if(dependencies.length == 0){
+			if(dependencies.length === 0){
 
 				temp.push([ className, 'Planche.Application' ])
 			}

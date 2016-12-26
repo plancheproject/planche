@@ -235,7 +235,7 @@ class Planche
 
         $fields = $this->conn->get_col_info();
 
-        if (count($fields) == 0) {
+        if (count($fields) === 0) {
 
             $this->error('query was not selectable');
 

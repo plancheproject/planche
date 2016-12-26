@@ -123,7 +123,9 @@ gulp.task('build:copy:resources', function() {
         config.src + '/resources/bower_components/codemirror/addon/search/matchesonscrollbar.js',
         config.src + '/resources/bower_components/codemirror/mode/sql/sql.js',
         config.src + '/resources/bower_components/codemirror/*.md',
-        config.src + '/resources/bower_components/codemirror/LICENSE'
+        config.src + '/resources/bower_components/codemirror/LICENSE',
+        config.src + '/resources/bower_components/async/dist/async.min.js',
+        config.src + '/resources/bower_components/async/dist/LICENSE'
     ], {base:config.src})
     .pipe(gulp.dest(path.resolve(__dirname, config.dist[platform])));
 });

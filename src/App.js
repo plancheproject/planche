@@ -464,7 +464,7 @@ Ext.application({
                 return return_node ? node : node.data.text;
             }
 
-            if (node.childNodes.length == 0) {
+            if (node.childNodes.length === 0) {
 
                 return null;
             }
@@ -990,7 +990,7 @@ Ext.application({
                             return;
                         }
 
-                        options['failure'].apply(app);
+                        options['failure'].apply(app, arguments);
                     }
                 }));
             }
@@ -1233,7 +1233,7 @@ Ext.application({
             query  : this.getAPIS().getQuery('SHOW_CREATE_PROCEDURE', db, procedure),
             success: function(config, response) {
 
-                if (response.records.length == 0) {
+                if (response.records.length === 0) {
 
                     app.setLoading(false);
                     return;
@@ -1308,7 +1308,7 @@ Ext.application({
             query  : app.getAPIS().getQuery('SHOW_CREATE_FUNCTION', db, func),
             success: function(config, response) {
 
-                if (response.records.length == 0) {
+                if (response.records.length === 0) {
 
                     return;
                 }
@@ -2002,7 +2002,7 @@ Ext.application({
 
             var queries = this.parseQuery(query);
 
-            if (queries.length == 0) {
+            if (queries.length === 0) {
 
                 return query;
             }
@@ -2046,7 +2046,7 @@ Ext.application({
         var parser = Ext.create('Planche.lib.QueryParser', this.getAPIS());
         queries = parser.parse(queries);
 
-        if (queries.length == 0) {
+        if (queries.length === 0) {
 
             return;
         }
@@ -2090,7 +2090,7 @@ Ext.application({
         var app     = this,
             queries = app.getParsedQuery();
 
-        if (queries.length == 0) {
+        if (queries.length === 0) {
 
             app.openMessage(app.generateError(
                 'Query was empty',
@@ -2177,7 +2177,7 @@ Ext.application({
 
     afterExecuteQuery: function(messages) {
 
-        if (messages.length == 0) { return; }
+        if (messages.length === 0) { return; }
 
         this.openMessage(messages);
     },
@@ -2629,7 +2629,7 @@ Ext.application({
                     });
                 });
 
-                if (response.records.length == 0) {
+                if (response.records.length === 0) {
 
                     app.onTask = false;
                     return;

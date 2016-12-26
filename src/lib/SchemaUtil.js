@@ -250,7 +250,7 @@ Ext.define('Planche.lib.SchemaUtil', {
 
                         if (key == 'Create Table DDL') {
 
-                            if (response.records.length == 0) {
+                            if (response.records.length === 0) {
 
                                 html.push(app.generateQueryErrorMsg(config.query, 'Empty'));
                             }

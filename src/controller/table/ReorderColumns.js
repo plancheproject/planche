@@ -141,7 +141,7 @@ Ext.define('Planche.controller.table.ReorderColumns', {
                 grid.store.getRange().map(function(row, idx) {
 
                     var field = row.raw.field,
-                        position = (idx == 0 ? "FIRST" : "AFTER " + prevField);
+                        position = (idx === 0 ? "FIRST" : "AFTER " + prevField);
                     columns.push("MODIFY COLUMN " + field + " " + fields["`"+field+"`"] + " " + position);
                     prevField = field;
                 });

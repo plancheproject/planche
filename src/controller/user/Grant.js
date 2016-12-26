@@ -321,7 +321,7 @@ Ext.define('Planche.controller.user.Grant', {
 
         }, this);
 
-        if (tunnelings.length == 0) {
+        if (tunnelings.length === 0) {
 
             Ext.Msg.alert('info', 'Grants has no changes');
             return;

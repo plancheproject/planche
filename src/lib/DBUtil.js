@@ -30,6 +30,11 @@ Ext.define('Planche.lib.DBUtil', {
 
     escapeString : function (str) {
 
+        if(typeof str !== "string"){
+
+            return str;
+        }
+
         //https://gist.github.com/zirosas/9479236
         return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
             switch (char) {

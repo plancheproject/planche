@@ -128,7 +128,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -186,7 +186,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -233,7 +233,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -277,7 +277,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -322,7 +322,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -366,7 +366,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -409,7 +409,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -456,7 +456,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;
@@ -508,7 +508,7 @@ Ext.define('Planche.lib.SchemaTree', {
                     }, nodeConfig));
                 });
 
-                if (children.length == 0) {
+                if (children.length === 0) {
 
                     tree.setLoading(false);
                     return;

@@ -75,7 +75,7 @@ Ext.define('Planche.controller.database.DownloadToCSV', {
             },
             tunnelingURL = tab.getTunnelingURL();
 
-        if (selection.length == 0) {
+        if (selection.length === 0) {
 
             Ext.Msg.alert('Info', 'Please, select to export table(s)');
             return;

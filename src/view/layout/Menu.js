@@ -11,7 +11,7 @@ Ext.define('Planche.view.layout.Menu', {
 
         if(Planche.platform == 'planche-wordpress' || Planche.platform == 'planche-desktop') {
 
-            menus.push('Bookmark')
+            // menus.push('Bookmark')
         }
 
         menus.push(

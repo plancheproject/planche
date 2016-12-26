@@ -58,7 +58,7 @@ Ext.define('Planche.controller.layout.SchemaTree', {
 
         app.setSelectedTree(tree);
 
-        if(selected.length == 0){
+        if(selected.length === 0){
 
             return;
         }

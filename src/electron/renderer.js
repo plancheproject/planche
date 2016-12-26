@@ -8,7 +8,7 @@ Planche.db.loadDatabase(function(){
 
     Planche.db.find({}, function (err, docs) {
 
-        if(!docs || docs.length == 0){
+        if(!docs || docs.length === 0){
 
             var config = {
                 hosts : [],
