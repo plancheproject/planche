@@ -2,16 +2,13 @@
 
 ![Planche Preview](http://planche.io/images/intro2.png)
 
-Planche is a MySQL GUI Climent tool. It was developed by javascript. You can use it through the tunneling.
-
-It has the goal of implementing that is to be like a native application as closely as possible.
-
-Extjs framework is used for the reaonses mentioned above. Extjs is the best way for it.
+Planche is a MySQL GUI Client tool. I had a goal that will be like a native application as closely as possible.
+It uses Extjs framework for the some reasons. I thought that extjs is the best way for implementing the planche when I have write a first code, but nowaday we have many ways and skills for it. 
 
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
-![Planche Preview](http://planche.io/images/intro.png)
+![Planche Preview](images/screenshot01.jpg?raw=true)
 
 ## Install
 
@@ -28,15 +25,14 @@ $ npm run php [localhost] [port]
 $ npm run node [localhost] [port]
 ```
 
-플란체는 자바스크립트 기반이므로 데이터베이스에 접근할 수 있는 별도의 Client API가 존재하지 않습니다. 그래서 서버사이드 언어를 이용한 터널링 방식을 사용합니다.
+Planche is made by javascript using extjs and node. The planche recognize multiple query in own SQL editor for each execution.
+I have been tested many mysql queries but I can't sure that planche is able to execute the SQL correctly in whole mysql versions.
+It has the only way to communicate with mysql which called "tunneling". It works on ajax or jsonp that you can choose.
+You can choice the running method by npm command which is in package.json
 
-![Planche Preview](http://planche.io/images/arch1.png)
+![Planche Preview](images/screenshot02.jpg?raw=true)
 
-HTTP 터널링(Tunneling) 방식을 적용하여 터널링 파일만 올라가 있으면 내부(로컬)접속만 가능한 데이터베이스도 웹 서버에 설치된  터널링 파일을 통해 우회적인 접근이 가능합니다. Ajax 데이터 통신기술과 JSOP라는 방법을 선택적으로 사용하여 서버에 설치해 사용하거나 사용자의 PC에서 바로 실행하더라도 구동되도록 JSONP 통신방식을 채택하여 크로스 도메인 이슈에서도 벗어 날 수 있는 있도록 제작하였습니다.
-
-![Planche Preview](http://planche.io/images/arch2.png)
-
-![Planche Preview](http://planche.io/images/tunneling.png)
+![Planche Preview](images/screenshot03.jpg?raw=true)
 
 ## Build and Run
 
@@ -47,7 +43,7 @@ $ npm run start
 
 - For desktop version
 ```
-$ npm run desktop
+$ npm run desktop(it's not working pretty now, but I will check it up)
 ```
 
 - For wordpress version
@@ -83,6 +79,9 @@ Planche.config = {
     ]
 }
 ```
+## author
+
+Juwon <2jw0718@gmail.com>
 
 ## Demo
 
@@ -98,4 +97,4 @@ http://planche.io
 
 ## License
 
-This content is released under the GPL v3
+This content is released under the GPL v3 that inherited from extjs 4 license.
