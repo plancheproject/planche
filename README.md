@@ -1,6 +1,6 @@
 # Planche
 
-![Planche Preview](http://planche.io/images/intro2.png)
+![Planche Preview](images/screenshot01.PNG?raw=true)
 
 Planche is a MySQL GUI Client tool. I had a goal that will be like a native application as closely as possible.
 It uses Extjs framework for the some reasons. I thought that extjs is the best way for implementing the planche when I have write a first code, but nowaday we have many ways and skills for it. 
@@ -8,7 +8,6 @@ It uses Extjs framework for the some reasons. I thought that extjs is the best w
 - [CodeMirror](http://codemirror.net/)
 - [Sencha ExtJS 4.2](http://www.sencha.com/products/extjs/)
 
-![Planche Preview](images/screenshot01.jpg?raw=true)
 
 ## Install
 
@@ -30,9 +29,9 @@ I have been tested many mysql queries but I can't sure that planche is able to e
 It has the only way to communicate with mysql which called "tunneling". It works on ajax or jsonp that you can choose.
 You can choice the running method by npm command which is in package.json
 
-![Planche Preview](images/screenshot02.jpg?raw=true)
+![Planche Preview](images/screenshot02.PNG?raw=true)
 
-![Planche Preview](images/screenshot03.jpg?raw=true)
+![Planche Preview](images/screenshot03.PNG?raw=true)
 
 ## Build and Run
 
